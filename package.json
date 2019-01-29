@@ -1,0 +1,28 @@
+{
+  "name": "ht-wrapper-adapters",
+  "version": "1.0.0",
+  "description": "Index Exchange's HeaderTag Wrapper Adapter",
+  "devDependencies": {
+    "adapter-development-suite": "git+https://github.com/indexexchange/adapter-development-suite.git#master-mono-repo",
+    "eslint": "^4.13.1",
+    "eslint-config-adapters": "git+https://github.com/indexexchange/eslint-config-adapters.git",
+    "base-adapter-template": "git+https://github.com/indexexchange/base-adapter-template.git"
+  },
+  "scripts": {
+    "debug": "node ./node_modules/adapter-development-suite/bin/index.js",
+    "win-debug": "node .\\node_modules\\adapter-development-suite\\bin\\index.js",
+    "lint": "node ./node_modules/eslint/bin/eslint.js --ignore-path=./.eslintignore .",
+    "win-lint": "node .\\node_modules\\eslint\\bin\\eslint.js --ignore-path=.\\.eslintignore .",
+    "new-adapter": "node ./node_modules/base-adapter-template/bin/bootstrap.js",
+    "win-new-adapter": "node .\\node_modules\\base-adapter-template\\bin\\bootstrap.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/indexexchange/ht-wrapper-adapters.git"
+  },
+  "author": "Index Exchange",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/indexexchange/ht-wrapper-adapters/issues"
+  }
+}
