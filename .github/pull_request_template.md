@@ -1,7 +1,7 @@
 <!--
 Thank you for your pull request. 
 Please use "[HTP-****] <Adapter Name>: Brief Description" as the title of this pull requst.
-For exmaple, 
+For example, 
 [HTP-0001] Example Adapter: Code Refactor
 
 Please make sure this pull request fulfills all of the requirements in the Index Exchange's 
