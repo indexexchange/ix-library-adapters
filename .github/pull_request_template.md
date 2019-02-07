@@ -1,6 +1,6 @@
 <!--
 Thank you for your pull request. 
-Please use "[HTP-****] <Adapter Name>: Brief Description" as the title of this pull requst.
+Please use "[HTP-****] <Adapter Name>: Brief Description" as the title of this pull request.
 For example, 
 [HTP-0001] Example Adapter: Code Refactor
 
