@@ -168,13 +168,22 @@ function InskinMediaHtb(configs) {
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
+        if (gdprStatus.applies) {
+            data.consent = {
+                gdprVendorId: 150,
+                gdprConsentString: gdprStatus.consentString,
+                gdprConsentRequired: true
+            };
+        }
+
         data.placements = returnParcels.map(function(parcel) {
             //console.log('parcel:', parcel);
 
             var placement = Utilities.mergeObjects(
                 {
                     divName: parcel.xSlotName,
-                    adTypes: [5, 9, 163, 2163, 3006]
+                    adTypes: [5, 9, 163, 2163, 3006],
+                    eventIds: [40, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295]
                 },
                 parcel.xSlotRef
             );
@@ -248,7 +257,7 @@ function InskinMediaHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-        console.log('adResponse:', adResponse);
+        //console.log('adResponse:', adResponse);
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -272,9 +281,12 @@ function InskinMediaHtb(configs) {
 
         /* --------------------------------------------------------------------------------- */
 
+        var hasBids = false;
+        var bidsMap = {};
+
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
-            console.log('curReturnParcel:', curReturnParcel);
+            //console.log('curReturnParcel:', curReturnParcel);
 
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
@@ -282,6 +294,7 @@ function InskinMediaHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid = adResponse.decisions[curReturnParcel.xSlotName];
+            //console.log('curBid:', curBid);
 
             /* No matching bid found so its a pass */
             if (!curBid) {
@@ -307,7 +320,7 @@ function InskinMediaHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = '<script>console.log("xxx");</script>';
+            var bidCreative = "<script>window.top.postMessage({from: 'ism-bid', bidId: '" + curReturnParcel.xSlotName + "'}, '*');\x3c/script>";
 
             /* The dealId if applicable for this slot. */
             var bidDealId = curBid.dealid;
@@ -319,7 +332,7 @@ function InskinMediaHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = '';
+            var pixelUrl = curBid.impressionUrl;
 
             /* --------------------------------------------------------------------------------------- */
 
@@ -335,6 +348,9 @@ function InskinMediaHtb(configs) {
 
                 continue;
             }
+
+            hasBids = true;
+            bidsMap[curReturnParcel.xSlotName] = curReturnParcel.xSlotRef.siteId;
 
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
@@ -392,7 +408,31 @@ function InskinMediaHtb(configs) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
         }
-        console.log('returnParcels:', returnParcels);
+
+        if (hasBids) {
+            var win = window.top;
+            win.addEventListener('message', function(e) {
+                if (!e.data || e.data.from !== 'ism-bid') {
+                    return;
+                }
+
+                const decision = adResponse.decisions && adResponse.decisions[e.data.bidId];
+                if (!decision) {
+                    return;
+                }
+
+                var id = 'ism_tag_' + Math.floor((Math.random() * 10e16));
+                win[id] = {
+                    bidId: e.data.bidId,
+                    serverResponse: adResponse
+                };
+
+                var script = win.document.createElement('script');
+                script.src = 'https://cdn.inskinad.com/isfe/publishercode/' + bidsMap[e.data.bidId] + '/default.js?autoload&id=' + id;
+                win.document.getElementsByTagName('head')[0].appendChild(script);
+            });
+        }
+        //console.log('returnParcels:', returnParcels);
     }
 
     /* =====================================
