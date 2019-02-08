@@ -29,6 +29,12 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
+                            networkId: {
+                                type: 'string'
+                            },
+                            siteId: {
+                                type: 'string'
+                            }
                         }
                     }
                 }
