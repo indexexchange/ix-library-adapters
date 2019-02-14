@@ -139,7 +139,7 @@ Once you have cloned the repository and obtained all the tools as specified abov
     * This file is used to support older adapters with legacy creatives and adapters that execute a callback as a response.
     * If your response executes a callback, you must add the following code to your file:<br>
 
-    ```javascript
+```javascript
 if (__directInterface.Layers.PartnersLayer.Partners.ExampleCompanyHtb) {
         shellInterface.ExampleCompanyHtb = shellInterface.ExampleCompanyHtb || {};
         shellInterface.ExampleCompanyHtb.adResponseCallbacks = __directInterface.Layers.PartnersLayer.Partners.ExampleCompanyHtb.adResponseCallbacks;
