@@ -41,7 +41,6 @@
 |---|---|---|---|
 | auids | Yes | string | Comma separated adslot IDs  |
 | u | No | string | Site page adslots are on |
-| cur | Yes | string | Represents the bid currency |
 | cb | No | string | JavaScript function to wrap response with, if empty or absent pure JSON will be returned |
 | gdpr_consent | No | string | Shows whether GDPR regulations should apply to the user or not |
 | gdpr_applies | No | string | Shows whether the user has given its consent based on IAB consent policy |
