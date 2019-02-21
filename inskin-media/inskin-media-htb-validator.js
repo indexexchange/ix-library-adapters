@@ -23,18 +23,20 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            networkId: {
+                type: 'string',
+                optional: false
+            },
+            siteId: {
+                type: 'string',
+                optional: false
+            },
             xSlots: {
                 type: 'object',
                 properties: {
                     '*': {
                         type: 'object',
                         properties: {
-                            networkId: {
-                                type: 'string'
-                            },
-                            siteId: {
-                                type: 'string'
-                            }
                         }
                     }
                 }
