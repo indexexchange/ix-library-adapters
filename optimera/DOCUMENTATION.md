@@ -39,5 +39,5 @@
 ## Configuration Information
 ### Configuration Keys
 | Key | Required | Type | Description |
+|---|---|---|---|
 |clientID|required|string|The Optimera Client ID|
-| | | | |
