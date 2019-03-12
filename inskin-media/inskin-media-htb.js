@@ -332,7 +332,7 @@ function InskinMediaHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = [
+            var bidCreative = curBid.adm || [
                 '<script>',
                 'window.top.postMessage({from: "ism-bid", bidId: "',
                 curReturnParcel.xSlotName,
@@ -497,7 +497,7 @@ function InskinMediaHtb(configs) {
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
-            bidUnitInCents: 1,
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.SRA,
