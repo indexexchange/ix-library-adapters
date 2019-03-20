@@ -67,7 +67,7 @@ function getValidResponse(request, creative) {
         "bidderCode": "quantcast",
         "bids":[{
             "ad": adm,
-            "cpm": 1,
+            "cpm": 2,
             "creativeId": 0,
             "currency": "USD",
             "placementCode": r.imp[0].placementCode,
