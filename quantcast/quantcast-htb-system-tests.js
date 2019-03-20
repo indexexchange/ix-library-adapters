@@ -5,7 +5,7 @@ function getPartnerId() {
 }
 
 function getStatsId() {
-    return 'QUC';
+    return 'QUA';
 }
 
 function getBidRequestRegex() {
