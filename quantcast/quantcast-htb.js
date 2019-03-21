@@ -130,7 +130,6 @@ function QuantcastHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         var parcel = returnParcels[0];
-        var slot = parcel.xSlotRef;
         var queryObj = {
             publisherId: configs.publisherId,
             requestId: parcel.requestId,
@@ -138,10 +137,10 @@ function QuantcastHtb(configs) {
                 {
                     banner: {
                         battr: [3], // TODO
-                        sizes: slot.sizes,
+                        sizes: makeSizesFromHtSlot(parcel.htSlot.getSizes()),
                         pos: 1 // TODO
                     },
-                    placementCode: slot.placementCode,
+                    placementCode: parcel.htSlot.getId(),
                     bidFloor: 2 // TODO
                 }
             ]
@@ -203,6 +202,18 @@ function QuantcastHtb(configs) {
     /* Helpers
      * ---------------------------------- */
 
+    function makeSizesFromHtSlot(sizes) {
+        var res = [];
+        var i;
+        for (i in sizes) {
+            res.push({
+                width: sizes[i][0],
+                height: sizes[i][1]
+            });
+        }
+        return res;
+    }
+
     /**
      * Parses and extracts demand from adResponse according to the adapter and then attaches it
      * to the corresponding bid's returnParcel in the correct format using targeting keys.
@@ -245,7 +256,7 @@ function QuantcastHtb(configs) {
         headerStatsInfo[htSlotId][parcel.requestId] = [parcel.xSlotName];
 
         if (adResponse.bidderCode !== 'quantcast'
-            || parcel.xSlotRef.placementCode !== bid.placementCode
+            || htSlotId !== bid.placementCode
             || bid.statusCode !== 1) {
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);

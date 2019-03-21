@@ -26,17 +26,7 @@ function getArchitecture() {
 function getConfig() {
     return {
         publisherId: '',
-        xSlots: {
-            1: {
-                placementCode: '123',
-                sizes: [
-                    {
-                        width: 300,
-                        height: 250
-                    }
-                ]
-            }
-        }
+        xSlots: {}
     };
 }
 
@@ -53,13 +43,17 @@ function validateBidRequest(request) {
             battr: [3],
             sizes: [
                 {
-                    height: 250,
-                    width: 300
+                    width: 300,
+                    height: 250
+                },
+                {
+                    width: 300,
+                    height: 600
                 }
             ],
             pos: 1
         },
-        placementCode: '123',
+        placementCode: 'htSlotDesktopAId',
         bidFloor: 2
     });
 }

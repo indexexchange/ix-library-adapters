@@ -25,34 +25,6 @@ function partnerValidator(configs) {
         properties: {
             publisherId: {
                 type: 'string'
-            },
-            xSlots: {
-                type: 'object',
-                properties: {
-                    '*': {
-                        type: 'object',
-                        properties: {
-                            placementCode: {
-                                type: 'string'
-                            },
-                            sizes: {
-                                type: 'array',
-                                minLength: 1,
-                                items: {
-                                    type: 'object',
-                                    properties: {
-                                        width: {
-                                            type: 'number'
-                                        },
-                                        height: {
-                                            type: 'number'
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }, configs);
