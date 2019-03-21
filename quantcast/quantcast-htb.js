@@ -21,7 +21,6 @@ var RenderService;
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
 var PartnerSpecificValidator = require('quantcast-htb-validator.js');
-var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
@@ -135,19 +134,21 @@ function QuantcastHtb(configs) {
         var queryObj = {
             publisherId: configs.publisherId,
             requestId: parcel.requestId,
-            imp: [{
-                banner: {
-                    battr: [3], // TODO
-                    sizes: slot.sizes,
-                    pos: 1 // TODO
-                },
-                placementCode: slot.placementCode,
-                bidFloor: "2" // TODO
-            }]
+            imp: [
+                {
+                    banner: {
+                        battr: [3], // TODO
+                        sizes: slot.sizes,
+                        pos: 1 // TODO
+                    },
+                    placementCode: slot.placementCode,
+                    bidFloor: 2 // TODO
+                }
+            ]
         };
 
         /* Change this to your bidder endpoint. */
-        var port = Browser.getProtocol() === "http:" ? 8080 : 8443;
+        var port = Browser.getProtocol() === 'http:' ? 8080 : 8443;
         var baseUrl = Browser.getProtocol() + '//rtbtest.rtb.quantserve.net:' + port + '/qchb';
 
         /* ------------------------ Get consent information -------------------------
@@ -178,8 +179,9 @@ function QuantcastHtb(configs) {
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         queryObj.gdprSignal = Number(privacyEnabled && gdprStatus.applies);
-        if (queryObj.gdprSignal === 1)
+        if (queryObj.gdprSignal === 1) {
             queryObj.gdprConsent = gdprStatus.consentString;
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -200,25 +202,6 @@ function QuantcastHtb(configs) {
 
     /* Helpers
      * ---------------------------------- */
-
-    /* =============================================================================
-     * STEP 5  | Rendering Pixel
-     * -----------------------------------------------------------------------------
-     *
-    */
-
-    /**
-     * This function will render the pixel given.
-     * @param  {string} pixelUrl Tracking pixel img url.
-     */
-    function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
-        }
-    }
 
     /**
      * Parses and extracts demand from adResponse according to the adapter and then attaches it
@@ -261,9 +244,9 @@ function QuantcastHtb(configs) {
         headerStatsInfo[htSlotId] = {};
         headerStatsInfo[htSlotId][parcel.requestId] = [parcel.xSlotName];
 
-        if (adResponse.bidderCode != "quantcast" ||
-            parcel.xSlotRef.placementCode !== bid.placementCode ||
-            bid.statusCode !== 1) {
+        if (adResponse.bidderCode !== 'quantcast'
+            || parcel.xSlotRef.placementCode !== bid.placementCode
+            || bid.statusCode !== 1) {
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
             }
@@ -297,7 +280,7 @@ function QuantcastHtb(configs) {
                 size: parcel.size,
                 price: targetingCpm,
                 dealId: '',
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
