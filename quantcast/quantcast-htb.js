@@ -273,12 +273,7 @@ function QuantcastHtb(configs) {
             parcel.targeting = {}; // TODO
             var targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.cpm);
             var sizeKey = Size.arrayToString(parcel.size);
-            if (null !== null) {
-                parcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-                parcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-            } else {
-                parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
-            }
+            parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             parcel.targeting[__baseClass._configs.targetingKeys.id] = [parcel.requestId];
             parcel.adm = bid.ad;
             parcel.price = Number(__baseClass._bidTransformers.price.apply(bid.cpm));
@@ -340,9 +335,7 @@ function QuantcastHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_qua_id',
-                om: 'ix_qua_cpm',
-                pm: 'ix_qua_cpm',
-                pmid: 'ix_qua_dealid'
+                om: 'ix_qua_cpm'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
