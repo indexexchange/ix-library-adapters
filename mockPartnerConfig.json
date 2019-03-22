@@ -1,0 +1,27 @@
+
+   var returnParcels = [{
+    partnerId: 'UWGHtb',
+    htSlot: { getId: function () {
+        return "htSlot1"
+    } },
+    ref: '',
+    xSlotRef: { placementId: '54321', sizes: [ [300,250] ] },
+    requestId: '_1496788873668',
+  },{
+    partnerId: 'UWGHtb',
+    htSlot: { getId: function () {
+        return "htSlot1"
+    } },
+    ref: '',
+    xSlotRef: { placementId: '12345', sizes: [ [300,600] ] },
+    requestId: '_1496788873668',
+  },{
+    partnerId: 'UWGHtb',
+    htSlot: { getId: function () {
+        return "htSlot2"
+    } },
+    ref: '',
+    xSlotRef: { placementId: '654321', sizes: [ [728,90] ] },
+    requestId: '_1496788873668',
+  }]
+
