@@ -90,6 +90,26 @@ function KargoHtb(configs) {
         }
     }
 
+    function __getTDID() {
+        var tdid = '';
+        var tdidDataStr = __getLocalStorageSafely('IXWRAPPERAdserverOrgIp');
+        if (tdidDataStr) {
+            try {
+                var tdidDataParsed = JSON.parse(tdidDataStr);
+                if (tdidDataParsed.d && tdidDataParsed.d.data) {
+                    tdid = tdidDataParsed.d.data.TDID;
+                }
+            }
+            catch (ex) {
+                //? if (DEBUG) {
+                Scribe.error('Unable to get TDID for Kargo');
+                Scribe.error(ex);
+                //? }
+            }
+        }
+        return tdid;
+    }
+
     function __getUid() {
         var vData = {};
 
@@ -135,6 +155,7 @@ function KargoHtb(configs) {
         return {
             kargoID: uid.userId || '',
             clientID: uid.clientId || '',
+            tdID: __getTDID(),
             crbIDs: __getCrbIds(),
             optOut: uid.optOut || false
         };
