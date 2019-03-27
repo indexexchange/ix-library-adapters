@@ -25,6 +25,22 @@ function partnerValidator(configs) {
         properties: {
             publisherId: {
                 type: 'string'
+            },
+            bidFloor: {
+                type: 'number',
+                optional: true
+            },
+            adPos: {
+                type: 'number',
+                optional: true
+            },
+            battr: {
+                type: 'array',
+                optional: true,
+                uniqueItems: true,
+                items: {
+                    type: 'number'
+                }
             }
         }
     }, configs);

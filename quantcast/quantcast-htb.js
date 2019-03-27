@@ -136,12 +136,12 @@ function QuantcastHtb(configs) {
             imp: [
                 {
                     banner: {
-                        battr: [3], // TODO
-                        sizes: makeSizesFromHtSlot(parcel.htSlot.getSizes()),
-                        pos: 1 // TODO
+                        battr: parcel.xSlotRef.battr || configs.battr || [],
+                        sizes: parcel.xSlotRef.sizes || makeSizesFromHtSlot(parcel.htSlot.getSizes()),
+                        pos: parcel.xSlotRef.adPos || configs.adPos || 0
                     },
                     placementCode: parcel.htSlot.getId(),
-                    bidFloor: 2 // TODO
+                    bidFloor: parcel.xSlotRef.bidFloor || configs.bidFloor || 0
                 }
             ]
         };
