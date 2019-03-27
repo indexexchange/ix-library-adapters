@@ -110,54 +110,53 @@ function KargoHtb(configs) {
         return tdid;
     }
 
-    function __getUid() {
-        var vData = {};
-
-        try {
-            var uid = JSON.parse(decodeURIComponent(Browser.readCookie('krg_uid')));
-
-            if (uid && uid.v) {
-                vData = uid.v;
-            }
-        } catch (ex) {
-            //? if (DEBUG) {
-            Scribe.error('Unable to get Uid for Kargo');
-            Scribe.error(ex);
-            //? }
-        }
-        return vData;
-    }
-
-    function __getCrbIds() {
-        var syncIds = {};
+    function __getCrbFromCookie() {
         try {
             var crb = JSON.parse(decodeURIComponent(Browser.readCookie('krg_crb')));
-
             if (crb && crb.v) {
                 var vParsed = JSON.parse(atob(crb.v));
-
-                if (vParsed && vParsed.syncIds) {
-                    syncIds = vParsed.syncIds;
+                if (vParsed) {
+                    return vParsed;
                 }
             }
+            return {};
         } catch (ex) {
             //? if (DEBUG) {
-            Scribe.error('Unable to get Crb Ids for Kargo');
+            Scribe.error('Unable to get Crb from cookie for Kargo');
             Scribe.error(ex);
             //? }
+            return {};
         }
-        return syncIds;
+    }
+
+    function __getCrbFromLocalStorage() {
+        try {
+            return JSON.parse(atob(__getLocalStorageSafely('krg_crb')));
+        } catch (ex) {
+            //? if (DEBUG) {
+            Scribe.error('Unable to get Crb from localstorage for Kargo');
+            Scribe.error(ex);
+            //? }
+            return {};
+        }
+    }
+
+    function __getCrb() {
+        var localStorageCrb = __getCrbFromLocalStorage();
+        if (Object.keys(localStorageCrb).length) {
+            return localStorageCrb;
+        }
+        return __getCrbFromCookie();
     }
 
     function __getUserIds() {
-        var uid = __getUid();
-
+        var crb = __getCrb();
         return {
-            kargoID: uid.userId || '',
-            clientID: uid.clientId || '',
+            kargoID: crb.userId || '',
+            clientID: crb.clientId || '',
             tdID: __getTDID(),
-            crbIDs: __getCrbIds(),
-            optOut: uid.optOut || false
+            crbIDs: crb.syncIds || {},
+            optOut: crb.optOut || false
         };
     }
 
@@ -268,7 +267,8 @@ function KargoHtb(configs) {
             userIDs: __getUserIds(),
             krux: __getKruxDmpData(),
             pageURL: Browser.getPageUrl(),
-            rawCRB: Browser.readCookie('krg_crb')
+            rawCRB: Browser.readCookie('krg_crb'),
+            rawCRBLocalStorage: __getLocalStorageSafely('krg_crb')
         };
 
         /* -------------------------------------------------------------------------- */

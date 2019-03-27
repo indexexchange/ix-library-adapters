@@ -49,6 +49,7 @@
 | krux | true | krux segments object | all krux segment data (see below) |
 | pageURL | true | url | current page URL |
 | rawCRB | true | string | unparsed cookie data |
+| rawCRBLocalStorage | true | string | unparsed localstorage data |
 
 ### Example
 ```javascript
@@ -72,7 +73,8 @@
         "segments": []
     },
     "pageURL": "https://www.gamespot.com/",
-    "rawCRB": null
+    "rawCRB": null,
+    "rawCRBLocalStorage" : null
 }
 ```
 
