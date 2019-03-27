@@ -270,7 +270,7 @@ function QuantcastHtb(configs) {
             parcel.pass = false;
             parcel.size = [Number(bid.width), Number(bid.height)];
             parcel.targetingType = 'slot';
-            parcel.targeting = {}; // TODO
+            parcel.targeting = {};
             var targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.cpm);
             var sizeKey = Size.arrayToString(parcel.size);
             parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
