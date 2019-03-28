@@ -11,7 +11,7 @@ function getStatsId() {
 function getBidRequestRegex() {
   return {
     method: "GET",
-    urlRegex: /.*btlr\.sharethrough\.com\/header-bid\/*/
+    urlRegex: /.*btlr\.sharethrough\.com\/header-bid\/.*/
   };
 }
 
