@@ -148,7 +148,7 @@ function QuantcastHtb(configs) {
 
         /* Change this to your bidder endpoint. */
         var port = Browser.getProtocol() === 'http:' ? 8080 : 8443;
-        var baseUrl = Browser.getProtocol() + '//rtbtest.rtb.quantserve.net:' + port + '/qchb';
+        var baseUrl = Browser.getProtocol() + '//qcx.quantserve.com:' + port + '/qchb';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
