@@ -27,212 +27,98 @@ function getConfig() {
   return {
     timeout: 1000,
     xSlots: {
-      placement1: {
-        placementKey: "abc123"
+      1: {
+        placementKey: "abc123",
+        sizes: [[1, 1]]
       }
     },
     mapping: {
-      htSlot1: ["placement1"]
-    },
-    identityData: {
-      AdserverOrgIp: {
-        data: {
-          source: "adserver.org",
-          uids: [
-            {
-              id: "uid123",
-              ext: {
-                rtiPartner: "TDID"
-              }
-            },
-            {
-              id: "TRUE",
-              ext: {
-                rtiPartner: "TDID_LOOKUP"
-              }
-            },
-            {
-              id: "2018-08-06T18:55:26",
-              ext: {
-                rtiPartner: "TDID_CREATED_AT"
-              }
-            }
-          ]
-        }
-      }
+      htSlot1: ["1"]
     }
   };
 }
 
-function validateBidRequest(request) {}
+function validateBidRequest(request) {
+  var queryObj = request.query;
+
+  expect(queryObj.bidId).toBeDefined();
+  expect(queryObj.placement_key).toEqual("abc123");
+  expect(queryObj.instant_play_capable).toBeDefined();
+  expect(queryObj.hbSource).toEqual("indexExchange");
+  expect(queryObj.hbVersion).toEqual("2.1.2");
+  expect(queryObj.cbust).toBeDefined();
+  expect(queryObj.consent_required).toEqual("false");
+}
 
 function validateBidRequestWithPrivacy(request) {
-  var r = JSON.parse(request.query.r);
+  var queryObj = request.query;
 
-  expect(r.regs).toEqual(
-    jasmine.objectContaining({
-      ext: {
-        gdpr: 1
-      }
-    })
-  );
-
-  expect(r.user).toEqual(
-    jasmine.objectContaining({
-      ext: {
-        consent: "TEST_GDPR_CONSENT_STRING"
-      }
-    })
-  );
+  expect(queryObj.consent_required).toEqual("true");
+  expect(queryObj.consent_string).toEqual("TEST_GDPR_CONSENT_STRING");
 }
 
 function validateBidRequestWithAdSrvrOrg(request) {
-  var r = JSON.parse(request.query.r);
+  var queryObj = request.query;
 
-  expect(r.user.eids).toEqual(
-    jasmine.arrayContaining([
-      {
-        source: "adserver.org",
-        uids: jasmine.arrayContaining([
-          {
-            id: "TEST_ADSRVR_ORG_STRING",
-            ext: {
-              rtiPartner: "TDID"
-            }
-          }
-        ])
-      }
-    ])
-  );
+  expect(queryObj.ttduid).toEqual("TEST_ADSRVR_ORG_STRING");
 }
 
 function getValidResponse(request, creative) {
-  var r = JSON.parse(request.query.r);
-  var adm =
-    creative ||
-    '<a target="_blank" href="http://www.indexexchange.com"><div style="text-decoration: none; color: black; width: 300px; height:250px;background-color: #336eff;"; id="testDiv"><h1>&lt;header_tag&gt; certification testing: 1_1a1a1a1a, deal: 12346 (211474080)width: 300px; height:250px <iframe src="http://as.casalemedia.com/ifnotify?dfp_1_1a1a1a1a&referer=http://127.0.0.1:3000/p/DfpAuto/nonPrefetch/test?dev=desktop&displayMode=SRA&req=211474080" width="0" height="0" frameborder="0" scrolling="no" style="display:none;" marginheight="0" marginwidth="0"></iframe></h1></div><script>var thisDiv = document.getElementById("testDiv");thisDiv.style.fontFamily="verdana";</script></a>';
+  var queryObj = request.query;
+  // var adm =
+  //   creative ||
+  //   '<a target="_blank" href="http://www.indexexchange.com"><div style="text-decoration: none; color: black; width: 300px; height:250px;background-color: #336eff;"; id="testDiv"><h1>&lt;header_tag&gt; certification testing: 1_1a1a1a1a, deal: 12346 (211474080)width: 300px; height:250px <iframe src="http://as.casalemedia.com/ifnotify?dfp_1_1a1a1a1a&referer=http://127.0.0.1:3000/p/DfpAuto/nonPrefetch/test?dev=desktop&displayMode=SRA&req=211474080" width="0" height="0" frameborder="0" scrolling="no" style="display:none;" marginheight="0" marginwidth="0"></iframe></h1></div><script>var thisDiv = document.getElementById("testDiv");thisDiv.style.fontFamily="verdana";</script></a>';
+
   var response = {
-    cur: "USD",
-    id: r.id,
-    seatbid: [
+    adserverRequestId: "some-adserver-request-id",
+    creatives: [
       {
-        bid: [
-          {
-            adid: "1487603",
-            adm: adm,
-            adomain: ["www.indexexchange.com"],
-            ext: {
-              advbrand: "IX",
-              advbrandid: "25661",
-              pricelevel: "200"
-            },
-            id: 567841330,
-            impid: "1",
-            price: "200"
-          },
-          {
-            adid: "1487603",
-            adm: adm,
-            adomain: ["www.indexexchange.com"],
-            ext: {
-              advbrand: "IX",
-              advbrandid: "25661",
-              pricelevel: "100"
-            },
-            id: 567841330,
-            impid: "2",
-            price: "100"
-          }
-        ],
-        seat: "2439"
+        auctionWinId: "some-auction-win-id",
+        cpm: "2",
+        creative: {
+          advertiser: "Advertiser",
+          title: "Title for ad",
+          description: "Description for ad"
+        }
       }
     ]
   };
 
-  return (
-    "headertag.IndexExchangeHtb.adResponseCallback(" +
-    JSON.stringify(response) +
-    ")"
-  );
+  return JSON.stringify(response);
 }
 
 function validateTargeting(targetingMap) {
   expect(targetingMap).toEqual(
     jasmine.objectContaining({
-      IOM: jasmine.arrayContaining(["300x250_200", "300x250_100"]),
-      ix_id: jasmine.arrayContaining([jasmine.any(String)])
-    })
-  );
-}
-
-function getValidResponseWithDeal(request, creative) {
-  var r = JSON.parse(request.query.r);
-  var adm =
-    creative ||
-    '<a target="_blank" href="http://www.indexexchange.com"><div style="text-decoration: none; color: black; width: 300px; height:250px;background-color: #336eff;"; id="testDiv"><h1>&lt;header_tag&gt; certification testing: 1_1a1a1a1a, deal: 12346 (211474080)width: 300px; height:250px <iframe src="http://as.casalemedia.com/ifnotify?dfp_1_1a1a1a1a&referer=http://127.0.0.1:3000/p/DfpAuto/nonPrefetch/test?dev=desktop&displayMode=SRA&req=211474080" width="0" height="0" frameborder="0" scrolling="no" style="display:none;" marginheight="0" marginwidth="0"></iframe></h1></div><script>var thisDiv = document.getElementById("testDiv");thisDiv.style.fontFamily="verdana";</script></a>';
-  var response = {
-    cur: "USD",
-    id: r.id,
-    seatbid: [
-      {
-        bid: [
-          {
-            adid: "1487603",
-            adm: adm,
-            adomain: ["www.indexexchange.com"],
-            ext: {
-              advbrand: "IX",
-              advbrandid: "25661",
-              pricelevel: "200",
-              dealid: "12346"
-            },
-            id: 567841330,
-            impid: "1",
-            price: "200"
-          },
-          {
-            adid: "1487603",
-            adm: adm,
-            adomain: ["www.indexexchange.com"],
-            ext: {
-              advbrand: "IX",
-              advbrandid: "25661",
-              pricelevel: "100",
-              dealid: "12346"
-            },
-            id: 567841330,
-            impid: "2",
-            price: "100"
-          }
-        ],
-        seat: "2439"
-      }
-    ]
-  };
-
-  return (
-    "headertag.IndexExchangeHtb.adResponseCallback(" +
-    JSON.stringify(response) +
-    ")"
-  );
-}
-
-function validateTargetingWithDeal(targetingMap) {
-  expect(targetingMap).toEqual(
-    jasmine.objectContaining({
-      IPM: jasmine.arrayContaining(["300x250_200", "300x250_100"]),
-      IPMID: jasmine.arrayContaining(["300x250_12346", "300x250_12346"]),
-      ix_id: jasmine.arrayContaining([jasmine.any(String)])
+      ix_shth_id: jasmine.arrayContaining([jasmine.any(String)]),
+      ix_shth_cpm: jasmine.arrayContaining([
+        jasmine.arrayContaining(["1x1_200"])
+      ])
     })
   );
 }
 
 function getPassResponse(request) {
-  return (
-    'headertag.IndexExchangeHtb.adResponseCallback({"id": "' +
-    JSON.parse(request.query.r).id +
-    '"});'
-  );
+  var response = {
+    adserverRequestId: "some-adserver-request-id",
+    creatives: []
+  };
+  return JSON.stringify(response);
+}
+
+function __b64EncodeUnicode(str) {
+  try {
+    return btoa(
+      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(
+        match,
+        p1
+      ) {
+        return String.fromCharCode("0x" + p1);
+      })
+    );
+  } catch (e) {
+    return str;
+  }
 }
 
 module.exports = {
