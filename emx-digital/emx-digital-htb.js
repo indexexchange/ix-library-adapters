@@ -189,19 +189,6 @@ function EmxDigitalHtb(configs) {
             if (bidFloor > 0) {
                 emxBid.bidfloor = bidFloor;
             }
-
-            if (gdprPrivacyEnabled) {
-                /* eslint-disable camelcase */
-                if (gdprStatus.hasOwnProperty('consentString')) {
-                    emxBid.gdpr_consent = gdprStatus.consentString;
-                }
-                /* eslint-enable camelcase */
-
-                if (gdprStatus.hasOwnProperty('applies')) {
-                    emxBid.gpdr = gdprStatus.applies ? '1' : '0';
-                }
-            }
-
             __emxBids.push(emxBid);
         }
 
@@ -216,6 +203,26 @@ function EmxDigitalHtb(configs) {
                 ver: version
             }
         };
+
+        if (gdprPrivacyEnabled) {
+            /* eslint-disable camelcase */
+            if (gdprStatus.hasOwnProperty('consentString')) {
+                emxData.user = {
+                    ext: {
+                        consent: gdprStatus.consentString
+                    }
+                };
+            }
+            /* eslint-enable camelcase */
+
+            if (gdprStatus.hasOwnProperty('applies')) {
+                emxData.regs = {
+                    ext: {
+                        gdpr: gdprStatus.gdprApplies ? 1 : 0
+                    }
+                };
+            }
+        }
 
         /* -------------------------------------------------------------------------- */
 
