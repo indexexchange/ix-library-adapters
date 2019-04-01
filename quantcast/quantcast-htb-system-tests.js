@@ -11,7 +11,7 @@ function getStatsId() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /rtbtest\.rtb\.quantserve\.net:8...\/qchb/
+        urlRegex: /qcx\.quantserve\.com:8...\/qchb/
     };
 }
 
@@ -26,7 +26,9 @@ function getArchitecture() {
 function getConfig() {
     return {
         publisherId: '',
-        xSlots: {}
+        xSlots: {
+            1: {}
+        }
     };
 }
 
@@ -40,7 +42,7 @@ function validateBidRequest(request) {
 
     expect(r.imp[0]).toEqual({
         banner: {
-            battr: [3],
+            battr: [],
             sizes: [
                 {
                     width: 300,
@@ -51,10 +53,10 @@ function validateBidRequest(request) {
                     height: 600
                 }
             ],
-            pos: 1
+            pos: 0
         },
         placementCode: 'htSlotDesktopAId',
-        bidFloor: 2
+        bidFloor: 0
     });
 }
 
