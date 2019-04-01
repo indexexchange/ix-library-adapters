@@ -24,16 +24,14 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
-var Whoopsie = require('whoopsie.js');
-var EventsService;
+
 var RenderService;
 var ComplianceService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
 var PartnerSpecificValidator = require('emx-digital-htb-validator.js');
-var Scribe = require('scribe.js');
+var Whoopsie = require('whoopsie.js');
 //? }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,12 +88,13 @@ function EmxDigitalHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var timeout = 2000; // need to mock. adapters do not receive this value from IX.
-        var version = "1.0.0";
+        var timeout = 2000;
+        var version = '1.0.0';
 
         var timestamp = System.now();
         var baseUrl = Browser.getProtocol() + __endpoint + ('?t=' + timeout + '&ts=' + timestamp);
-        var networkProtocol = Browser.getProtocol().indexOf('https') > -1 ? 1 : 0;
+        var networkProtocol = Browser.getProtocol()
+            .indexOf('https') > -1 ? 1 : 0;
         var pageUrl = Browser.getPageUrl();
         var pageHost = Browser.getHostname();
         var callbackId = System.generateUniqueId();
@@ -162,16 +161,16 @@ function EmxDigitalHtb(configs) {
          * }
          */
 
-
         /* PUT CODE HERE */
 
         var __emxBids = [];
-        var __emxData = {}
+        var __emxData = {};
         for (var i = 0; i < returnParcels.length; i++) {
-            var returnParcel = returnParcels[i],
-                emxBid = {},
-                uuid = System.generateUniqueId(),
-                bidFloor = returnParcel.xSlotRef.bidfloor;
+            var returnParcel = returnParcels[i];
+            var emxBid = {};
+            var uuid = System.generateUniqueId();
+            var bidFloor = returnParcel.xSlotRef.bidfloor;
+
             emxBid.id = returnParcel.requestId;
             emxBid.banner = {
                 format: returnParcel.xSlotRef.sizes.map(function (obj) {
@@ -182,22 +181,25 @@ function EmxDigitalHtb(configs) {
                 }),
                 w: returnParcel.xSlotRef.sizes[0][0],
                 h: returnParcel.xSlotRef.sizes[0][1]
-            }
+            };
             emxBid.tagid = returnParcel.xSlotRef.tagid;
             emxBid.secure = networkProtocol;
             emxBid.tid = uuid;
 
             if (bidFloor > 0) {
-                emxBid.bidfloor = bidFloor
+                emxBid.bidfloor = bidFloor;
             }
 
             if (gdprPrivacyEnabled) {
-              if (gdprStatus.consentString !== void 0) {
-                emxBid.gdpr_consent = gdprStatus.consentString;
-              }
-              if (gdprStatus.applies !== void 0) {
-                emxBid.gpdr = gdprStatus.applies ? "1" : "0";
-              }
+                /* eslint-disable camelcase */
+                if (gdprStatus.hasOwnProperty('consentString')) {
+                    emxBid.gdpr_consent = gdprStatus.consentString;
+                }
+                /* eslint-enable camelcase */
+
+                if (gdprStatus.hasOwnProperty('applies')) {
+                    emxBid.gpdr = gdprStatus.applies ? '1' : '0';
+                }
             }
 
             __emxBids.push(emxBid);
@@ -213,9 +215,7 @@ function EmxDigitalHtb(configs) {
             ext: {
                 ver: version
             }
-        }
-
-
+        };
 
         /* -------------------------------------------------------------------------- */
 
@@ -241,10 +241,11 @@ function EmxDigitalHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
+        /* Get callbackId from adResponse here */
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -264,7 +265,7 @@ function EmxDigitalHtb(configs) {
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
@@ -283,7 +284,6 @@ function EmxDigitalHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -303,34 +303,33 @@ function EmxDigitalHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
-
-        /* No response or no bids returned so it's a pass */
-        if (!adResponse.seatbid) {
-            if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-            }
-            curReturnParcel.pass = true;
-            return;
-        }
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = adResponse.seatbid;
 
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
-
             var curReturnParcel = returnParcels[j];
-
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
+            /* No response or no bids returned so it's a pass */
+
+            if (!bids) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+
+                return;
+            }
+
             var curBid;
 
             for (var i = 0; i < bids.length; i++) {
-
                 /**
                  * This section maps internal returnParcels and demand returned from the bid request.
                  * In order to match them correctly, they must be matched via some criteria. This
@@ -342,6 +341,7 @@ function EmxDigitalHtb(configs) {
                 if (curReturnParcel.requestId === bids[i].bid[0].id) {
                     curBid = bids[i].bid[0];
                     bids.splice(i, 1);
+
                     break;
                 }
             }
@@ -352,49 +352,35 @@ function EmxDigitalHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            var bidIsPass = curBid.nobid;
-            if (!bidIsPass) {
-                /* the bid price for the given slot */
-                var bidPrice = curBid.price;
+            /* The bid price for the given slot */
+            var bidPrice = curBid.price;
 
-                /* the size of the given slot */
-                var bidSize = [Number(curBid.w), Number(curBid.h)];
+            /* The size of the given slot */
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
-                /* the creative/adm for the given slot that will be rendered if is the winner.
-                 * Please make sure the URL is decoded and ready to be document.written.
-                 */
-                var bidCreative = curBid.adm;
+            /* The creative/adm for the given slot that will be rendered if is the winner.
+                * Please make sure the URL is decoded and ready to be document.written.
+                */
+            var bidCreative = curBid.adm;
 
-                /* the dealId if applicable for this slot. */
-                var bidDealId = (typeof curBid.dealid !== 'undefined') ? curBid.dealid : null;
+            /* The dealId if applicable for this slot. */
+            var bidDealId = curBid.dealid;
 
-                /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-                 * If firing a tracking pixel is not required or the pixel url is part of the adm,
-                 * leave empty;
-                 */
-            }
+            /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
+                * If firing a tracking pixel is not required or the pixel url is part of the adm,
+                * leave empty;
+                */
 
-            /* ---------------------------------------------------------------------------------------*/
-
-            curBid = null;
-            if (bidIsPass) {
-                //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
-                //? }
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-                continue;
-            }
+            /* --------------------------------------------------------------------------------------- */
 
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
@@ -409,7 +395,7 @@ function EmxDigitalHtb(configs) {
             var sizeKey = Size.arrayToString(curReturnParcel.size);
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
 
-            if (bidDealId !== null) {
+            if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
             } else {
@@ -420,10 +406,6 @@ function EmxDigitalHtb(configs) {
 
             //? if (FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
-            if (pixelUrl) {
-                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
-            }
-            //? }
 
             //? if (FEATURES.RETURN_PRICE) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
@@ -435,18 +417,15 @@ function EmxDigitalHtb(configs) {
                 adm: bidCreative,
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
-                price: targetingCpm ? targetingCpm : undefined,
-                dealId: bidDealId ? bidDealId : undefined,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
-                auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
+                price: targetingCpm ? targetingCpm : '',
+                dealId: bidDealId ? bidDealId : '',
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,  // eslint-disable-line
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
         }
-
     }
 
     /* =====================================
@@ -454,7 +433,6 @@ function EmxDigitalHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
         ComplianceService = SpaceCamp.services.ComplianceService;
 
@@ -465,11 +443,11 @@ function EmxDigitalHtb(configs) {
          * Please fill out the below partner profile according to the steps in the README doc.
          */
 
-        /* ---------- Please fill out this partner profile according to your module ------------*/
+        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'EmxDigitalHtb', // PartnerName
-            namespace: 'EmxDigitalHtb', // Should be same as partnerName
-            statsId: 'EMX', // Unique partner identifier
+            partnerId: 'EmxDigitalHtb',
+            namespace: 'EmxDigitalHtb',
+            statsId: 'EMX',
             version: '2.2.2',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -485,19 +463,20 @@ function EmxDigitalHtb(configs) {
                     value: 0
                 }
             },
-            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+            bidUnitInCents: 100,
+            targetingKeys: {
                 id: 'ix_emx_id',
                 om: 'ix_emx_cpm',
                 pm: 'ix_emx_cpm',
                 pmid: 'ix_emx_dealid'
             },
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.SRA,
+            requestType: Partner.RequestTypes.AJAX
         };
-        /* ---------------------------------------------------------------------------------------*/
+
+        /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
@@ -534,7 +513,7 @@ function EmxDigitalHtb(configs) {
          * ---------------------------------- */
 
         //? if (TEST) {
-        profile: __profile,
+        __profile: __profile,
         //? }
 
         /* Functions
@@ -542,8 +521,7 @@ function EmxDigitalHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        generateRequestObj: __generateRequestObj
         //? }
     };
 
