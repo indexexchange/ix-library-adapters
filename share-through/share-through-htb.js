@@ -247,7 +247,8 @@ function ShareThroughHtb(configs) {
         // Already checked if creatives array is present
         var bidPrice = curBid.creatives[0].cpm;
         var bidSize = [1, 1];
-        var bidCreative = __generateAdm(curBid, curReturnParcel.xSlotRef.placementKey);
+        // var bidCreative = __generateAdm(curBid, curReturnParcel.xSlotRef.placementKey);
+        var bidCreative = adResponse.ixTestResponse ? curBid.creatives[0].adm : __generateAdm(curBid, curReturnParcel.xSlotRef.placementKey);
         var bidDealId = null;
         var pixelUrl = '';
 

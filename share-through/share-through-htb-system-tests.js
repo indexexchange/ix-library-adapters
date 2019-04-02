@@ -1,5 +1,4 @@
 "use strict";
-
 function getPartnerId() {
   return "ShareThroughHtb";
 }
@@ -64,27 +63,16 @@ function validateBidRequestWithAdSrvrOrg(request) {
 }
 
 function getValidResponse(request, creative) {
-  var queryObj = request.query;
-  // var adm =
-  //   creative ||
-  //   '<a target="_blank" href="http://www.indexexchange.com"><div style="text-decoration: none; color: black; width: 300px; height:250px;background-color: #336eff;"; id="testDiv"><h1>&lt;header_tag&gt; certification testing: 1_1a1a1a1a, deal: 12346 (211474080)width: 300px; height:250px <iframe src="http://as.casalemedia.com/ifnotify?dfp_1_1a1a1a1a&referer=http://127.0.0.1:3000/p/DfpAuto/nonPrefetch/test?dev=desktop&displayMode=SRA&req=211474080" width="0" height="0" frameborder="0" scrolling="no" style="display:none;" marginheight="0" marginwidth="0"></iframe></h1></div><script>var thisDiv = document.getElementById("testDiv");thisDiv.style.fontFamily="verdana";</script></a>';
-
-  var response = {
-    adserverRequestId: "some-adserver-request-id",
+  return JSON.stringify({
+    ixTestResponse: true,
+    bidId: request.query.bidId,
     creatives: [
       {
-        auctionWinId: "some-auction-win-id",
-        cpm: "2",
-        creative: {
-          advertiser: "Advertiser",
-          title: "Title for ad",
-          description: "Description for ad"
-        }
+        adm: creative,
+        cpm: 2,
       }
     ]
-  };
-
-  return JSON.stringify(response);
+  });
 }
 
 function validateTargeting(targetingMap) {
@@ -99,26 +87,8 @@ function validateTargeting(targetingMap) {
 }
 
 function getPassResponse(request) {
-  var response = {
-    adserverRequestId: "some-adserver-request-id",
-    creatives: []
-  };
+  var response = { creatives: [] };
   return JSON.stringify(response);
-}
-
-function __b64EncodeUnicode(str) {
-  try {
-    return btoa(
-      encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(
-        match,
-        p1
-      ) {
-        return String.fromCharCode("0x" + p1);
-      })
-    );
-  } catch (e) {
-    return str;
-  }
 }
 
 module.exports = {
