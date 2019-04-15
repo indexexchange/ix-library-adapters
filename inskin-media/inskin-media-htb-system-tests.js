@@ -35,12 +35,10 @@ function getConfig() {
 }
 
 function validateBidRequest(request) {
-    var r = JSON.parse(request.body);
+    return request;
 }
 
 function getValidResponse(request, creative) {
-    var r = JSON.parse(request.body);
-
     var response = {
         decisions: {
             1: {
@@ -61,7 +59,7 @@ function getValidResponse(request, creative) {
     return JSON.stringify(response);
 }
 
-function getPassResponse(request) {
+function getPassResponse() {
     var response = {
         decisions: {
         }
@@ -70,10 +68,12 @@ function getPassResponse(request) {
     return JSON.stringify(response);
 }
 
-function validateTargeting(targetingMap) {
+function validateTargeting() {
+    return false;
 }
 
-function validatePixelRequests(pixelRequests) {
+function validatePixelRequests() {
+    return false;
 }
 
 module.exports = {
