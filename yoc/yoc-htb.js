@@ -300,7 +300,6 @@ function YocHtb(configs) {
             /* No matching bid found so its a pass */
             if (!curBid) {
                 if (__profile.enabledAnalytics.requestTime) {
-                    // eslint-disable-next-line camelcase
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
@@ -430,7 +429,7 @@ function YocHtb(configs) {
             partnerId: 'YocHtb',
             namespace: 'YocHtb',
             statsId: 'YOC',
-            version: '1.0.0',
+            version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
