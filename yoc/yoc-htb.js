@@ -282,18 +282,18 @@ function YocHtb(configs) {
                 for (n = 0; n < bids.length; n++) {
                     if (curReturnParcel.xSlotRef.auid === String(bids[n].auid)) {
                         curBid = bids[n];
-                        bids.splice(n, 1);
+                        bids.splice(n, 1); // deleting matching bid from the array
 
-                        break;
+                        break; // breaking from the inner for cycle
                     }
                 }
 
                 if (curBid) {
-                    if (!bids.length) {
-                        seatbids.splice(i, 1);
+                    if (!bids.length) { // no bids left in the seatbid
+                        seatbids.splice(i, 1); // deleting matching seatbid
                     }
 
-                    break;
+                    break; // breaking from the outer for cycle
                 }
             }
 
