@@ -259,6 +259,26 @@ function BeachfrontHtb(configs) {
             adapterName: __adapterName
         };
 
+        var tradeDeskId = null;
+        var identityData = returnParcels[0] && returnParcels[0].identityData;
+
+        if (identityData && identityData.AdserverOrgIp && identityData.AdserverOrgIp.data) {
+            var adsrvrUids = identityData.AdserverOrgIp.data.uids;
+            if (Utilities.isArray(adsrvrUids)) {
+                for (var j = 0; j < adsrvrUids.length; j++) {
+                    if (adsrvrUids[j].ext && adsrvrUids[j].ext.rtiPartner === 'TDID') {
+                        tradeDeskId = adsrvrUids[j].id;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (tradeDeskId) {
+            queryObj.tdid = tradeDeskId;
+        }
+
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.

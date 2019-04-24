@@ -41,6 +41,35 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
+    var data = JSON.parse(request.body);
+    expect(data.slots).toEqual([
+        {
+            slot: '1',
+            id: '3b16770b-17af-4d22-daff-9606bdf2c9c3',
+            bidfloor: 0.01,
+            sizes: [
+                {
+                    w: 728,
+                    h: 90
+                },
+                {
+                    w: 468,
+                    h: 60
+                }
+            ]
+        },
+        {
+            slot: '2',
+            id: '3b16770b-17af-4d22-daff-9606bdf2c9c3',
+            bidfloor: 0.02,
+            sizes: [
+                {
+                    w: 300,
+                    h: 250
+                }
+            ]
+        }
+    ]);
     expect(request.query.cb).toBeDefined();
 }
 
@@ -86,6 +115,17 @@ function getPassResponse() {
     return JSON.stringify(response);
 }
 
+function validateBidRequestWithPrivacy(request) {
+    var data = JSON.parse(request.body);
+    expect(data.gdpr).toBe(1);
+    expect(data.gdprConsent).toBe('TEST_GDPR_CONSENT_STRING');
+}
+
+function validateBidRequestWithAdSrvrOrg(request) {
+    var data = JSON.parse(request.body);
+    expect(data.tdid).toBe('TEST_ADSRVR_ORG_STRING');
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -96,5 +136,7 @@ module.exports = {
     validateBidRequest: validateBidRequest,
     getValidResponse: getValidResponse,
     validateTargeting: validateTargeting,
-    getPassResponse: getPassResponse
+    getPassResponse: getPassResponse,
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+    validateBidRequestWithAdSrvrOrg: validateBidRequestWithAdSrvrOrg
 };
