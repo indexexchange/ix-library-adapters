@@ -53,4 +53,3 @@ function partnerValidator(configs) {
 }
 
 module.exports = partnerValidator;
-

@@ -11,8 +11,6 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
-var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -57,6 +55,21 @@ function QuantcastHtb(configs) {
     /* =====================================
      * Functions
      * ---------------------------------- */
+
+    /* Helpers
+     * ---------------------------------- */
+
+    function makeSizesFromHtSlot(sizes) {
+        var res = [];
+        for (var i = 0; i < sizes.length; i++) {
+            res.push({
+                width: sizes[i][0],
+                height: sizes[i][1]
+            });
+        }
+
+        return res;
+    }
 
     /* Utilities
      * ---------------------------------- */
@@ -196,23 +209,6 @@ function QuantcastHtb(configs) {
         };
     }
 
-    /* -------------------------------------------------------------------------- */
-
-    /* Helpers
-     * ---------------------------------- */
-
-    function makeSizesFromHtSlot(sizes) {
-        var res = [];
-        var i;
-        for (i in sizes) {
-            res.push({
-                width: sizes[i][0],
-                height: sizes[i][1]
-            });
-        }
-        return res;
-    }
-
     /**
      * Parses and extracts demand from adResponse according to the adapter and then attaches it
      * to the corresponding bid's returnParcel in the correct format using targeting keys.
@@ -277,6 +273,7 @@ function QuantcastHtb(configs) {
             parcel.adm = bid.ad;
             parcel.price = Number(__baseClass._bidTransformers.price.apply(bid.cpm));
 
+            var expiryTime = __profile.features.demandExpiry.value + System.now();
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
@@ -285,7 +282,7 @@ function QuantcastHtb(configs) {
                 size: parcel.size,
                 price: targetingCpm,
                 dealId: '',
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? expiryTime : 0
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
