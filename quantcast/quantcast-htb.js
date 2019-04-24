@@ -15,7 +15,6 @@ var Network = require('network.js');
 var Utilities = require('utilities.js');
 
 var ComplianceService;
-var EventsService; // eslint-disable-line no-unused-vars
 var RenderService;
 
 //? if (DEBUG) {
@@ -301,7 +300,6 @@ function QuantcastHtb(configs) {
 
     (function __constructor() {
         ComplianceService = SpaceCamp.services.ComplianceService;
-        EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
