@@ -275,7 +275,7 @@ function EyereturnHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse;
+        var bids = adResponse.seatbid;
 
         /* --------------------------------------------------------------------------------- */
 
@@ -298,12 +298,14 @@ function EyereturnHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
-                    curBid = bids[i];
+                // TODO: not sure about this part, commenting out if
+                //if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                    //curBid = bids[i];
+                    curBid = bids[i].bid[0];
                     bids.splice(i, 1);
 
                     break;
-                }
+                //}
             }
 
             /* No matching bid found so its a pass */
@@ -323,6 +325,12 @@ function EyereturnHtb(configs) {
 
             /* The bid price for the given slot */
             var bidPrice = curBid.price;
+
+            // TODO: current bidder endpoint doesn't return widith and height so add it
+            if (!curBid.width) {
+                curBid.width = 300;
+                curBid.height = 250;
+            }
 
             /* The size of the given slot */
             var bidSize = [Number(curBid.width), Number(curBid.height)];
