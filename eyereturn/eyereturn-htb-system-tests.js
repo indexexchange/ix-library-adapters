@@ -79,8 +79,8 @@ function validateTargeting(targetingMap) {
 }
 
 function getPassResponse(request) {
-    // TODO: not sure about this
-    return '{}';
+    // TODO: not sure about this, bidder-dev sends 204 no content on bid pass, how to represent that here?
+    return;
 }
 
 module.exports = {

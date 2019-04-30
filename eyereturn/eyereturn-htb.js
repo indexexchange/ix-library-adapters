@@ -326,7 +326,7 @@ function EyereturnHtb(configs) {
             /* The bid price for the given slot */
             var bidPrice = curBid.price;
 
-            // TODO: current bidder endpoint doesn't return widith and height so add it
+            // TODO: current bidder endpoint doesn't return width and height so add it
             if (!curBid.width) {
                 curBid.width = 300;
                 curBid.height = 250;
@@ -472,7 +472,7 @@ function EyereturnHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,    // TODO: confirm this is correct
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE,
+            callbackType: Partner.CallbackTypes.NONE,   // TODO: not sure if none or id?
             architecture: Partner.Architectures.MRA,
             requestType: Partner.RequestTypes.AJAX
         };
