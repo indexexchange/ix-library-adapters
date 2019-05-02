@@ -446,7 +446,7 @@ function EyereturnHtb(configs) {
             namespace: 'EyereturnHtb',
             statsId: 'EYE',
             version: '2.0.0',
-            targetingType: 'slot',
+            targetingType: 'slot',  // TODO: should this be page?
             enabledAnalytics: {
                 requestTime: true
             },
