@@ -46,6 +46,19 @@ var partnerValidator = function (configs) {
                                         type: 'integer'
                                     }
                                 }
+                            },
+                            keywords: {
+                              type: 'object',
+                              optional: true,
+                              properties: {
+                                '*': {
+                                  type: 'array',
+                                  minLength: 1,
+                                  items: {
+                                    type: 'string'
+                                  }
+                                }
+                              }
                             }
                         }
                     }

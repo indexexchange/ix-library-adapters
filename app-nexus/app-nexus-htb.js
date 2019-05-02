@@ -133,6 +133,22 @@ function AppNexusHtb(configs) {
             queryObj.promo_sizes = Size.arrayToString(returnParcel.xSlotRef.sizes.slice(1)); //jshint ignore:line
         }
 
+        if (Utilities.isObject(returnParcel.xSlotRef.keywords) && !Utilities.isEmpty(returnParcel.xSlotRef.keywords)) {
+          var keywordsObj = returnParcel.xSlotRef.keywords;
+          Object.keys(keywordsObj).forEach(function(key) {
+            var newKey = 'kw_' + key;
+            var values = '';
+            //read in the values from the array of strings for the key and store in a comma separated list
+            keywordsObj[key].forEach(function (val) {
+              values += val + ',';
+            });
+            values = values.slice(0, -1);  // drop the last comma
+            
+            // append to as queryObj.kw_key="value1,value2"
+            queryObj[newKey] = values;
+          });
+        }
+
         var referrer = Browser.getPageUrl();
         if (referrer) {
             queryObj.referrer = referrer;
