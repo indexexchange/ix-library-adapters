@@ -25,8 +25,6 @@ var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
 
-var ComplianceService;
-var EventsService;
 var RenderService;
 
 //? if (DEBUG) {
@@ -201,6 +199,9 @@ function OptimeraHtb(configs) {
          */
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
+        if (returnParcels) {
+            queryObj = {};
+        }
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
@@ -439,8 +440,6 @@ function OptimeraHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
-        EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
