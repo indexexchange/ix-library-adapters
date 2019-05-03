@@ -13,7 +13,6 @@
 | Chrome | x |
 | Edge | x |
 | Firefox | x |
-| Internet Explorer 9 | x |
 | Internet Explorer 10 | x |
 | Internet Explorer 11 | x |
 | Safari | x |
