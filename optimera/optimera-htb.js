@@ -24,11 +24,10 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
+
 var ComplianceService;
 var EventsService;
 var RenderService;
-var CacheBuster;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
@@ -94,7 +93,6 @@ function OptimeraHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -159,16 +157,16 @@ function OptimeraHtb(configs) {
         var callbackId = System.generateUniqueId();
         var host = Browser.getHostname();
         var url = Browser.getPageUrl();
-        var path = url.replace(/^.*\/\/[^\/]+/, '');
+        var path = url.replace(/^.*\/\/[^/]+/, '');
 
         // Remove any query params and hashes.
-        var cleanedPath = path.split("?")[0].split("#")[0];
+        var cleanedPath = path.split('?')[0].split('#')[0];
 
-        if (cleanedPath == '/') {
+        if (cleanedPath === '/') {
             cleanedPath = '';
         }
 
-        /* Change this to your bidder endpoint.*/
+        /* Change this to your bidder endpoint. */
         var baseUrl = Browser.getProtocol()
             + '//s3.amazonaws.com/optimera-client/'
             + site.clientID
@@ -201,8 +199,6 @@ function OptimeraHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -229,10 +225,11 @@ function OptimeraHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
+        /* Get callbackId from adResponse here */
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -252,7 +249,7 @@ function OptimeraHtb(configs) {
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
@@ -271,7 +268,6 @@ function OptimeraHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -291,18 +287,16 @@ function OptimeraHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
-        console.log('adResponse', adResponse);
-        /* --------------------------------------------------------------------------------- */
-        if (typeof (adResponse) !== 'undefined') {
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-            // put our response into an aray.
+        /* --------------------------------------------------------------------------------- */
+        if (typeof adResponse !== 'undefined') {
+            // Put our response into an aray.
             var bids = adResponse;
 
             var bidProps = Object.getOwnPropertyNames(bids);
 
             for (var j = 0; j < returnParcels.length; j++) {
-
                 var curReturnParcel = returnParcels[j];
 
                 var headerStatsInfo = {};
@@ -338,30 +332,31 @@ function OptimeraHtb(configs) {
                         __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                     }
                     curReturnParcel.pass = true;
+
                     continue;
                 }
 
-                /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+                /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
                 /* Using the above variable, curBid, extract various information about the bid and assign it to
                  * these local variables */
 
-                /* the bid price for the given slot */
+                /* The bid price for the given slot */
                 var bidPrice = 1;
 
-                /* the size of the given slot */
+                /* The size of the given slot */
                 var bidSize = [1, 1];
 
-                /* the creative/adm for the given slot that will be rendered if is the winner.
+                /* The creative/adm for the given slot that will be rendered if is the winner.
                  * Please make sure the URL is decoded and ready to be document.written.
                  */
                 var bidCreative = '<span></span>';
 
-                /* the dealId if applicable for this slot. */
+                /* The dealId if applicable for this slot. */
                 var bidDealId = curBid;
 
-                /* explicitly pass */
-                var bidIsPass = bidPrice <= 0 ? true : false;
+                /* Explicitly pass */
+                var bidIsPass = bidPrice <= 0;
 
                 /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
                 * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -369,7 +364,7 @@ function OptimeraHtb(configs) {
                 */
                 var pixelUrl = '';
 
-                /* ---------------------------------------------------------------------------------------*/
+                /* --------------------------------------------------------------------------------------- */
 
                 if (bidIsPass) {
                     //? if (DEBUG) {
@@ -379,6 +374,7 @@ function OptimeraHtb(configs) {
                         __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                     }
                     curReturnParcel.pass = true;
+
                     continue;
                 }
 
@@ -413,6 +409,12 @@ function OptimeraHtb(configs) {
                 curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
                 //? }
 
+                var timeOfExpiry = 0;
+
+                if (__profile.features.demandExpiry.enabled) {
+                    timeOfExpiry = __profile.features.demandExpiry.value + System.now();
+                }
+
                 var pubKitAdId = RenderService.registerAd({
                     sessionId: sessionId,
                     partnerId: __profile.partnerId,
@@ -420,7 +422,7 @@ function OptimeraHtb(configs) {
                     requestId: curReturnParcel.requestId,
                     size: curReturnParcel.size,
                     price: targetingCpm,
-                    timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
+                    timeOfExpiry: timeOfExpiry,
                     auxFn: __renderPixel,
                     auxArgs: [pixelUrl]
                 });
@@ -448,11 +450,11 @@ function OptimeraHtb(configs) {
          * Please fill out the below partner profile according to the steps in the README doc.
          */
 
-        /* ---------- Please fill out this partner profile according to your module ------------*/
+        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'OptimeraHtb', // PartnerName
-            namespace: 'OptimeraHtb', // Should be same as partnerName
-            statsId: 'OPTI', // Unique partner identifier
+            partnerId: 'OptimeraHtb',
+            namespace: 'OptimeraHtb',
+            statsId: 'OPTI',
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -468,19 +470,20 @@ function OptimeraHtb(configs) {
                     value: 0
                 }
             },
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+            targetingKeys: {
                 id: 'ix_opti_id',
                 om: 'ix_opti_cpm',
                 pm: 'ix_opti_cpm',
                 pmid: 'ix_opti_dealid'
             },
-            bidUnitInCents: 0.1, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 0.1,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.FSRA,
+            requestType: Partner.RequestTypes.AJAX
         };
-        /* ---------------------------------------------------------------------------------------*/
+
+        /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
@@ -526,7 +529,7 @@ function OptimeraHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
