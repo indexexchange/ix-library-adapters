@@ -87,6 +87,23 @@ function NanoInteractiveHtb(configs) {
     }
 
     /**
+     * Converst ix sizes to nano format
+     *
+     * For example ix format [[300,250],[300,600]] is converted to ["300x250","300x600"]
+     * @param sizes
+     */
+    function createSizesParam(sizes) {
+        var result = [];
+        sizes.forEach(function (size) {
+            if (size.length === 2) {
+                result.push(size[0] + 'x' + size[1]);
+            }
+        });
+
+        return result;
+    }
+
+    /**
      * QueryString url
      *
      * @param param
@@ -146,7 +163,7 @@ function NanoInteractiveHtb(configs) {
             nq: Utilities.isArray(nq) ? nq : [nq] || null,
             pid: bid.xSlotRef.pid,
             ref: createRefParam(bid.xSlotRef),
-            sizes: bid.xSlotRef.sizes,
+            sizes: createSizesParam(bid.xSlotRef.sizes),
             subId: createSubIdParam(bid.xSlotRef)
         };
     }
@@ -415,7 +432,7 @@ function NanoInteractiveHtb(configs) {
             var bidCreative = curBid.ad;
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.id;
+            var bidDealId = curBid.dealid;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;

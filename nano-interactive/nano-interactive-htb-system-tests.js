@@ -21,12 +21,12 @@ function getConfig() {
         publisherId: '12345',
         xSlots: {
             1: {
-                sizes: ['300x250'],
+                sizes: [[300, 250]],
                 pid: '58bfec94eb0a1916fa380163',
                 nq: 'header bidding'
             },
             2: {
-                sizes: ['300x600'],
+                sizes: [[300, 600]],
                 pid: '58bfec94eb0a1916fa380163',
                 nq: 'testing'
             }
