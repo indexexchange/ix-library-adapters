@@ -73,8 +73,3 @@ node_modules
 
 !.eslintrc*
 !.eslintignore*
-
-# Make exception for editor configuration files.
-# ------------------------------------------------------------------------------
-
-!.editorconfig
