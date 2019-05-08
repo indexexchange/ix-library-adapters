@@ -152,7 +152,7 @@ function EyereturnHtb(configs) {
             id: returnParcel.requestId
         };
 
-        // TODO: change to prod bidder url after done testing		
+        // TODO: change to prod bidder url after done testing
         var baseUrl = 'https://bidder-dev.eyereturn.net/bid_casale_openrtb';
 
         /* ------------------------ Get consent information -------------------------
@@ -289,13 +289,14 @@ function EyereturnHtb(configs) {
 
             var curBid;
 
-            for (var i = 0; i < bids.length; i++) {
-                /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
+            if (bids) {
+                for (var i = 0; i < bids.length; i++) {
+                    /**
+                     * This section maps internal returnParcels and demand returned from the bid request.
+                     * In order to match them correctly, they must be matched via some criteria. This
+                     * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                     * key to a key that represents the placement in the configuration and in the bid responses.
+                     */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
                 // TODO: not sure about this part, commenting out if
@@ -305,7 +306,8 @@ function EyereturnHtb(configs) {
                     bids.splice(i, 1);
 
                     break;
-                //}
+                    //}
+                }
             }
 
             /* No matching bid found so its a pass */
