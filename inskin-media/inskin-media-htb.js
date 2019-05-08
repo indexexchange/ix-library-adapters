@@ -340,8 +340,7 @@ function InskinMediaHtb(configs) {
                 '\x3c/script>'
             ].join('');
 
-            /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId = null;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
