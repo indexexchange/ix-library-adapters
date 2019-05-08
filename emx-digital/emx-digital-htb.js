@@ -23,7 +23,6 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
-var Network = require('network.js');
 
 var RenderService;
 var ComplianceService;
@@ -207,7 +206,7 @@ function EmxDigitalHtb(configs) {
         if (gdprPrivacyEnabled) {
             /* eslint-disable camelcase */
             if (gdprStatus.hasOwnProperty('consentString')) {
-                emxData.user = {
+                __emxData.user = {
                     ext: {
                         consent: gdprStatus.consentString
                     }
@@ -216,7 +215,7 @@ function EmxDigitalHtb(configs) {
             /* eslint-enable camelcase */
 
             if (gdprStatus.hasOwnProperty('applies')) {
-                emxData.regs = {
+                __emxData.regs = {
                     ext: {
                         gdpr: gdprStatus.gdprApplies ? 1 : 0
                     }
@@ -268,14 +267,6 @@ function EmxDigitalHtb(configs) {
      * This function will render the pixel given.
      * @param  {string} pixelUrl Tracking pixel img url.
      */
-    function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
-        }
-    }
 
     /**
      * Parses and extracts demand from adResponse according to the adapter and then attaches it
