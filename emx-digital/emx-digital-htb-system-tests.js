@@ -27,12 +27,12 @@ function getConfig() {
     return {
         xSlots: {
             1: {
-                tagid: 123,
+                tagid: 25251,
                 bidfloor: 0.01,
                 sizes: [[300, 250]]
             },
             2: {
-                tagid: 123,
+                tagid: 25251,
                 bidfloor: 0.01,
                 sizes: [[320, 50]]
             }
