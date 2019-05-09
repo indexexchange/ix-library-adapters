@@ -64,7 +64,6 @@ function validateBidRequestWithAdSrvrOrg(request) {
 
 function getValidResponse(request, creative) {
   return JSON.stringify({
-    ixTestResponse: true,
     bidId: request.query.bidId,
     creatives: [
       {
