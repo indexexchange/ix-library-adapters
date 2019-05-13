@@ -62,7 +62,11 @@
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+|dmxid |yes |string| naming for placement|
+|memberid|yes|string|Publisher ID|
+|sizes|yes|array|placement size |
+
+
 ### Example
 ```javascript
  
