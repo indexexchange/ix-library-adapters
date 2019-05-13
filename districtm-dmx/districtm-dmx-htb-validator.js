@@ -29,9 +29,21 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
-                                type: 'string',
-                                minLength: 1
+                            dmxid: {
+                                type: 'string'
+                            },
+                            memberid: {
+                                type: 'string'
+                            },
+                            sizes: {
+                                type: 'array',
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
                             }
                         }
                     }
