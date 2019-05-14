@@ -272,15 +272,15 @@ function QuantcastHtb(configs) {
             var sizeKey = Size.arrayToString(parcel.size);
             parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             parcel.targeting[__baseClass._configs.targetingKeys.id] = [parcel.requestId];
-            //?
+            //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {
             parcel.adm = bid.ad;
-            //?
+            //? }
 
             //? if (FEATURES.RETURN_PRICE) {
             parcel.price = Number(__baseClass._bidTransformers.price.apply(bid.cpm));
-            //?
+            //? }
 
             var expiryTime = __profile.features.demandExpiry.value + System.now();
             var pubKitAdId = RenderService.registerAd({
