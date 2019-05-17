@@ -174,7 +174,9 @@ function InskinMediaHtb(configs) {
             };
         }
 
-        data.placements = returnParcels.map(function (parcel) {
+        data.placements = [];
+        for (var k = 0; k < returnParcels.length; k++) {
+            var parcel = returnParcels[k];
             var placement = {
                 networkId: configs.networkId,
                 siteId: configs.siteId,
@@ -203,15 +205,15 @@ function InskinMediaHtb(configs) {
                 placement.eventIds.push(i);
             }
 
-            return placement;
-        });
+            data.placements.push(placement);
+        }
 
         return {
             url: baseUrl,
             data: data,
             networkParamOverrides: {
                 method: 'POST',
-                contentType: 'application/json',
+                contentType: 'text/plain',
                 withCredentials: true
             }
         };
@@ -427,7 +429,7 @@ function InskinMediaHtb(configs) {
         }
 
         if (hasBids) {
-            var win = window.top;
+            var win = Browser.topWindow;
             win.addEventListener('message', function (e) {
                 if (!e.data || e.data.from !== 'ism-bid') {
                     return;

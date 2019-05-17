@@ -140,13 +140,19 @@ function getValidResponse(request, creative) {
                 adm: creative,
                 pricing: {
                     clearPrice: 1
-                }
+                },
+                width: 980,
+                height: 300,
+                impressionUrl: 'https://via.placeholder.com/1'
             },
             2: {
                 adm: creative,
                 pricing: {
                     clearPrice: 2
-                }
+                },
+                width: 980,
+                height: 300,
+                impressionUrl: 'https://via.placeholder.com/1'
             }
         }
     };
@@ -163,12 +169,11 @@ function getPassResponse() {
     return JSON.stringify(response);
 }
 
-function validateTargeting() {
-    return false;
-}
-
-function validatePixelRequests() {
-    return false;
+function validateTargeting(targetingMap) {
+    expect(targetingMap).toEqual(jasmine.objectContaining({
+        ix_ism_cpm: jasmine.arrayContaining(['980x300_100', '980x300_200']),
+        ix_ism_id: jasmine.arrayContaining([jasmine.any(String), jasmine.any(String)])
+    }));
 }
 
 module.exports = {
@@ -181,6 +186,5 @@ module.exports = {
     getPassResponse: getPassResponse,
     validateBidRequest: validateBidRequest,
     getValidResponse: getValidResponse,
-    validateTargeting: validateTargeting,
-    validatePixelRequests: validatePixelRequests
+    validateTargeting: validateTargeting
 };
