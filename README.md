@@ -23,10 +23,10 @@
 
 # <a name='intro'></a>Introduction
 
-<b>Welcome to the Header Tag Wrapper Adapters repository!</b>
+<b>Welcome to the IX Library Adapters repository!</b>
 
-This repository contains all the certified Header Tag Wrapper adapters, as well as the tools to develop and verify your own adapter.
-Below you will find the information you will need to complete the certification process and become a part of the Header Tag Wrapper Ecosystem!
+This repository contains all the certified IX Library adapters, as well as the tools to develop and verify your own adapter.
+Below you will find the information you will need to complete the certification process and become a part of the IX Library Ecosystem!
 
 There are two branches in this repository:
 * `master` - The stable branch where all certified adapters reside. This is the default branch, and so all <b>new</b> adapters should make their pull request against this branch.
@@ -38,13 +38,12 @@ New adapters will be asked to make their first pull request, upon meeting all th
 
 ## Existing Adapters
 
-When updates are made to an existing adapter, a pull request will need to be made to the `canary` branch, so that any updates can be validated in production in a controlled manner. The adapter update will then be merged into the stable
-master branch, making it availabe to all publishers using the Header Tag Wrapper.
+When updates are made to an existing adapter, a pull request will need to be made to the `canary` branch, so that any updates can be validated in production in a controlled manner. The adapter update will then be merged into the stable master branch, making it availabe to all publishers using the IX Library.
 
 # <a name='setup'></a>Initial Setup
 To obtain all the tools you will need to develop your adapter, follow these steps:
-1. Fork and clone the `ht-wrapper-adapters` repository
-2. In the root directory of `ht-wrapper-adapters` repository, run `npm install` 
+1. Fork and clone the `ix-library-adapters` repository
+2. In the root directory of `ix-library-adapters` repository, run `npm install` 
 
 This will install all the dependencies and tools provided by Index Exchange to help with the adapter development process.
 
@@ -67,7 +66,7 @@ In order for your module to be successfully certified, please refer to the follo
 ##### Required
 * Must provide cache busting parameter. Cache busting is required to prevent network caches.
 * Adapter endpoint domain must be consistent. Load balancing should be performed by the endpoint.
-* Your endpoint should support HTTPS request. When wrapper loads on secure pages, all requests need to be HTTPS. If you're unable to provide a secure endpoint, the wrapper will not be able to make requests to your ad servers.
+* Your endpoint should support HTTPS request. When an IX Library loads on secure pages, all requests need to be HTTPS. If you're unable to provide a secure endpoint, the IX Library will not be able to make requests to your ad servers.
 
 ##### Guidelines
 * Your module should support a single request architecture which has a capability to combine multiple bids into a single HTTP request.
@@ -100,7 +99,7 @@ In order for your module to be successfully certified, please refer to the follo
 Below is a list of the terms we will be using throughout this document to explain the process of building your own adapter:
 
 * `<adapter-name>` - This identifies the adapter package for which a given file belongs to. This is used for the package name itself as well as the files within the package e.g. `"example-company"`
-* `<partner-name>` - Each adapter is assigned a `partnerId` which is used by the wrapper framework to internally interact with the adapter. It is defined in the adapter module file in the following format: `ExampleCompanyHtb`
+* `<partner-name>` - Each adapter is assigned a `partnerId` which is used by the IX Library framework to internally interact with the adapter. It is defined in the adapter module file in the following format: `ExampleCompanyHtb`
 
 
 ### <a name='adapterFiles'></a> Adapter Files
@@ -157,7 +156,7 @@ if (__directInterface.Layers.PartnersLayer.Partners.ExampleCompanyHtb) {
 
 ### <a name='configuration'></a>Prelude: Configuration & Parcels
 
-The Header Tag Wrapper passes each adapter a configuration object that has been configured based on a publisher's website. This object contains all the configuration information required for the wrapper, including adapter-specific slot mappings, timeouts, and any other adapter-specific configuration.
+The IX Library passes each adapter a configuration object that has been configured based on a publisher's website. This object contains all the configuration information required for the IX Library, including adapter-specific slot mappings, timeouts, and any other adapter-specific configuration.
 The adapter-specific slot mappings dictate how ad slots on the page will map to adapter-specific configuration.
 There are 2 concepts to be familiar with when understanding how slots on the page are mapped back to adapter-specific configuration. Header Tag Slots, which refers to htSlots and adapter-specific configuration, which refers to xSlots in the codebase.
 * htSlots - This is an abstraction of the googletag.slot object.
@@ -195,7 +194,7 @@ Example Adapter Configuration Mapping
 }
 ```
 
-Based on the mapping defined in the adapter config, <i>Parcels</i> will be generated for every xSlot/htSlot pair. Parcels are objects that carry different kinds of information throughout the wrapper. In the context of the adapter, parcels are the input into your adapter. Parcels carry information regarding which slots on the publisher's page need demand. More specifically parcels contain information like xSlot reference, htSlot references, demand (after its been applied by the adapter in parseResponse), etc. Each parcel represents a single combination of an htSlot and an xSlot.
+Based on the mapping defined in the adapter config, <i>Parcels</i> will be generated for every xSlot/htSlot pair. Parcels are objects that carry different kinds of information throughout the IX Library. In the context of the adapter, parcels are the input into your adapter. Parcels carry information regarding which slots on the publisher's page need demand. More specifically parcels contain information like xSlot reference, htSlot references, demand (after its been applied by the adapter in parseResponse), etc. Each parcel represents a single combination of an htSlot and an xSlot.
 
 Each parcel is an object in the following form:
 
@@ -211,7 +210,7 @@ Each parcel is an object in the following form:
       "sizes": [ [300, 250], [300, 600] ]
     },
     "xSlotName": "1",
-    "requestId": "_fwyvecpA" // generated by the wrapper is used to map the creative back to a piece of demand.
+    "requestId": "_fwyvecpA" // generated by the IX Library and is used to map the creative back to a piece of demand.
                             // This will show up as targeting under the id key, and is used by the render function.
 }
 ```
@@ -220,25 +219,25 @@ These parcels will be fed into both of the functions that your adapter needs to 
 
 1. First `generateRequestObj` will need to craft a bid request for the `parcels` that need demand.
 
-2. Second `parseResponse` will take the same parcels and apply the demand (set specific properties in the parcel objects) that is returned from the bid requests to the same parcels and send them back to the wrapper.
+2. Second `parseResponse` will take the same parcels and apply the demand (set specific properties in the parcel objects) that is returned from the bid requests to the same parcels and send them back to the IX Library.
 
 ## <a name='eventModel'></a> High Level Event Model
 
-1. The Header Tag Wrapper script tag is loaded on the page.
-2. Wrapper specific configuration validation is performed.
+1. The IX Library is loaded on the page.
+2. IX Library specific configuration validation is performed.
 3. All the adapter modules are instantiated.
     * Adapter-specific configuration validation is performed - checking that all the required fields are provided and that they are in the correct format.
-4. An external request for demand is made to the wrapper. This can be via a googletag display or refresh call, or by other methods depending on the wrapper product in use.
-The wrapper requests demand from the adapter modules for the required slots (provided in the form of parcels).
-    * The wrapper calls `generateRequestObj(returnParcels)` for every adapter module.
+4. An external request for demand is made to the IX Library. This can be via a googletag display or refresh call, or by other methods depending on the IX Library in use.
+The IX Library requests demand from the adapter modules for the required slots (provided in the form of parcels).
+    * The IX Library calls `generateRequestObj(returnParcels)` for every adapter module.
     * The adapter then crafts and returns a request object based on the parcels (containing slot information) specified.
-    * The wrapper then sends out a bid request using the request object.
+    * The IX Library then sends out a bid request using the request object.
     * Depending on how the adapter is set up and whether JSONP is supported, a response callback (`adResponseCallback`) is called.
-    * The adapter parses the response (`parseResponse`) and attaches the demand to the same returnParcels. It also registers the ad creative with the wrapper's render service.
-    * The returnParcels are then sent back to the wrapper.
-5. The wrapper applies targeting using the demand from the returnParcels.
+    * The adapter parses the response (`parseResponse`) and attaches the demand to the same returnParcels. It also registers the ad creative with the IX Library's render service.
+    * The returnParcels are then sent back to the IX Library.
+5. The IX Library applies targeting using the demand from the returnParcels.
 6. If the adapter wins the auction in the ad server, their creative code will be returned and executed.
-    * The creative code contains a call to the wrapper's render function.
+    * The creative code contains a call to the IX Library's render function.
 7. The adapter ad is rendered.
 
 ### <a name='creatingAdapterModule'></a> Creating an Adapter Module
@@ -248,7 +247,7 @@ In this section you will be filling out the <adapter-name>-htb.js, <adapter-name
 #### Step 0: Config Validation (`<adapter-name>-htb-validator.js`)
 Before you get started on writing the actual code for your module, you need to figure out what your adapter configuration (refer to [Configuration](#configuration)) object will look like. This is crucial because it will determine the input (parcels) to your module's core functions.
 
-Once you have a basic idea of what this will look like, and how you will uniquely identify each slot on your server (via xSlot placementId or other inventory codes) you will need to validate this configuration. This validation will be performed by the wrapper using the `<adapter-name>-htb-validator.js` file.
+Once you have a basic idea of what this will look like, and how you will uniquely identify each slot on your server (via xSlot placementId or other inventory codes) you will need to validate this configuration. This validation will be performed by the IX Library using the `<adapter-name>-htb-validator.js` file.
 
 The `<adapter-name>-htb-validator.js` file contains a single export, a `partnerValidator` function, that takes in the configuration object that will be fed to your module's constructor (refer to [Configuration](#configuration) for an example layout) and validates it via type checks. The type checks are performed using an external library called `schema-inspector`, for which the documentation can be found here https://github.com/Atinux/schema-inspector.
 
@@ -262,7 +261,7 @@ This section involves setting up the general adapter configuration such as name,
 * <u>statsId</u> - A unique identifier used for analytics that will be provided for you.
 * <u>version</u> - If this is the first iteration of your module, please leave this field at 2.0.0.
 * <u>targetingType</u> - The targeting type of your bidder, the default is slot for slot level targeting but could also be page.
-* <u>enabledAnalytics</u> - The analytics that the wrapper will track for the module. requestTime is the only currently supported analytic, which records different times around when bid requests occur.
+* <u>enabledAnalytics</u> - The analytics that the IX Library will track for the module. requestTime is the only currently supported analytic, which records different times around when bid requests occur.
 * <u>features</u> - Extra features that a adapter can support
     * <u>demandExpiry</u> - Setting an expiry time on the demand that adapter returns.
     * <u>rateLimiting</u> - Used for limiting the amount of requests to a given adapter for a given slot on pages that support rate limiting in DFP.
@@ -271,28 +270,28 @@ This section involves setting up the general adapter configuration such as name,
     * <u>om</u> - This key signals the open market bid in CPM.
     * <u>pm</u> - This key signals the private market bid in CPM.
     * <u>pmid</u> - This key signals the private market deal id.
-* <u>bidUnitInCents</u> - This tells the wrapper the unit of the bid price returned by your endpoint. The unit is in terms of cents, thus it should be set to 100 if your endpoint returns dollars, 1 if your endpoint returns cents, 0.1 if your endpoint returns tenth of a cent, etc. Note that this value must be an integer power of 10.
+* <u>bidUnitInCents</u> - This tells the IX Library the unit of the bid price returned by your endpoint. The unit is in terms of cents, thus it should be set to 100 if your endpoint returns dollars, 1 if your endpoint returns cents, 0.1 if your endpoint returns tenth of a cent, etc. Note that this value must be an integer power of 10.
 
-The last three properties are critical for the wrapper to understand how to interact with the endpoint:
+The last three properties are critical for the IX Library to understand how to interact with the endpoint:
 * callbackType:
     * <u>Partner.CallbackTypes.ID</u> -
         Use this option if your endpoint accepts an arbitrary identifier in requests which will be returned in the matching response. You will need to set this callbackId in the `generateRequestObj` function and retrieve it in the adResponseCallback function. This is the preferred method for matching requests and responses. Pass the following reference into your request object when generating the request object in `generateRequestObj`.
-        `SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback'`. You will need to fill out the `adResponseCallback` function to store the ad response in the `__baseClass._adResponseStore[callbackId]` object, where `callbackId` is the same callbackId that was passed back to the wrapper as part of the object that is returned in `generateRequestObj`. The wrapper will use the `callbackId` to reference to pull your stored ad response from that `adResponseStore` and feed it back to `parseResponse`. You will also need to expose this function inside your exports file, see below exports section for more information.
+        `SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback'`. You will need to fill out the `adResponseCallback` function to store the ad response in the `__baseClass._adResponseStore[callbackId]` object, where `callbackId` is the same callbackId that was passed back to the IX Library as part of the object that is returned in `generateRequestObj`. The IX Library will use the `callbackId` to reference to pull your stored ad response from that `adResponseStore` and feed it back to `parseResponse`. You will also need to expose this function inside your exports file, see below exports section for more information.
     * <u>Partner.CallbackTypes.CALLBACK_NAME</u> -
-        Use this option if your endpoint has no parameter which can be used as a callback ID. The wrapper will generate a new callback function for each request, and use the function name to tie requests to responses. Similarly to the above ID method, you can reference the generated ad response callback as such: `'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId`, where `callbackId` is the same unique callbackId that is passed back to the wrapper as part of the object that is returned in `generateRequestObj`. Unlike the ID method above, you do not need to fill out the `adResponseCallback` function. The response will simply be passed into the `parseResponse` function.
+        Use this option if your endpoint has no parameter which can be used as a callback ID. The IX Library will generate a new callback function for each request, and use the function name to tie requests to responses. Similarly to the above ID method, you can reference the generated ad response callback as such: `'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId`, where `callbackId` is the same unique callbackId that is passed back to the IX Library as part of the object that is returned in `generateRequestObj`. Unlike the ID method above, you do not need to fill out the `adResponseCallback` function. The response will simply be passed into the `parseResponse` function.
     * <u>Partner.CallbackTypes.NONE</u> -
         Use this option if your endpoint supports AJAX only and will return a pure JSON response rather than JSONP with a callback function. In this mode your endpoint will not receive any demand requests if the user is using a browser which does not fully support AJAX, such as Internet Explorer 9 or earlier. In this mode,
         you also do NOT need to provide a callback function in `generateRequestObj`.
 * architecture:
     * <u>Partner.Architectures.MRA</u> -
-        Use this option (Multi-Request Architecture) if your endpoint requires a separate network request for each ad slot. In this mode your endpoint will receive one network request for every xSlot mapping active in the current wrapper demand request.
+        Use this option (Multi-Request Architecture) if your endpoint requires a separate network request for each ad slot. In this mode your endpoint will receive one network request for every xSlot mapping active in the current IX Library demand request.
     * <u>Partner.Architectures.FSRA</u> -
-        Use this option (Fully Single-Request Architecture) if your endpoint can handle any number of slots in a single request in any combination, including multiple requests for the same slot. In this mode your endpoint will receive a single network request per wrapper demand request.
+        Use this option (Fully Single-Request Architecture) if your endpoint can handle any number of slots in a single request in any combination, including multiple requests for the same slot. In this mode your endpoint will receive a single network request per IX Library demand request.
     * <u>Partner.Architectures.SRA</u> -
-        Use this option (Single-Request Architecture) if your endpoint can handle any number of slots in a single request, but cannot repeat the same xSlot more than once in a given request. e.g., you use a placementId and can receive a request for multiple placementIds at once, but not for the same placementId twice. The wrapper will arrange the mapped xSlots into the minimum possible number of network requests to your endpoint.
+        Use this option (Single-Request Architecture) if your endpoint can handle any number of slots in a single request, but cannot repeat the same xSlot more than once in a given request. e.g., you use a placementId and can receive a request for multiple placementIds at once, but not for the same placementId twice. The IX Library will arrange the mapped xSlots into the minimum possible number of network requests to your endpoint.
 * requestType:
     * <u>Partner.RequestTypes.ANY</u> -
-        Use any request type when making requests. The wrapper will attempt to make an AJAX request for your bid requests, if XHR is not supported, the wrapper will attempt to make a JSONP request if possible.
+        Use any request type when making requests. The IX Library will attempt to make an AJAX request for your bid requests, if XHR is not supported, the IX Library will attempt to make a JSONP request if possible.
     * <u>Partner.RequestTypes.AJAX</u> -
         Use only AJAX for bid requests. Note, if the browser does not support ajax the bid requests will not go out.
     * <u>Partner.RequestTypes.JSONP</u> -
@@ -304,7 +303,7 @@ This step is for crafting a bid request URL given a specific set of parcels.
 For this step, you must fill out the `generateRequestObj(returnParcels)` function. This function takes in an array of returnParcels.
 These are the parcel objects that contain the different slots for which demand needs to be requested.
 
-The wrapper will ensure that the array contains an appropriate set of parcels to pass into a single network
+The IX Library will ensure that the array contains an appropriate set of parcels to pass into a single network
 request for your endpoint based on the value set in __profile.architecture. Note, in the particular case your
 architecture is MRA, this array will have length 1.
 
@@ -367,7 +366,7 @@ More information can be found in the comment section of the function itself.
 #### Step 3: Response Callback (`<adapter-name>-htb.js`)
 Once the request from Step 2 finishes the `adResponseCallback` will be called to store the returned response in a `adResponseStore` object.
 
-If `__profile.callbackType` is set to `CALLBACK_NAME` or `NONE`, the wrapper will handle the callback for you and you can remove this function. If it is set to ID, you must retrieve the callback ID from the network response and store that response in the `_adResponseStore` object keyed by the callback ID.
+If `__profile.callbackType` is set to `CALLBACK_NAME` or `NONE`, the IX Library will handle the callback for you and you can remove this function. If it is set to ID, you must retrieve the callback ID from the network response and store that response in the `_adResponseStore` object keyed by the callback ID.
 
 See the function in the template for details.
 
@@ -378,7 +377,7 @@ The returnParcels array will be one of the same arrays that was passed to `gener
 This step involves first matching the returned bids to the internal returnParcels objects. This can be done via some
 identifier that was setup for an xSlot (for example, a placementId) in the adapter configuration and the same id being present in the bid response object.
 
-This function first iterates over all of the returned bids, parsing them and attaching the demand to the returnParcel objects (which will be implicitly passed back to the wrapper). This step also involves registering the creative (if returned) with the render service, which is responsible for storing and rendering that creative if the corresponding demand wins the DFP auction.
+This function first iterates over all of the returned bids, parsing them and attaching the demand to the returnParcel objects (which will be implicitly passed back to the IX Library). This step also involves registering the creative (if returned) with the render service, which is responsible for storing and rendering that creative if the corresponding demand wins the DFP auction.
 
 In order to complete this step correctly, please fill out the section which includes the matching criteria. This step is necessary to map returnParcel objects to the returned bids correctly. In order to do this, we need to use some common criteria that is present both in the xSlot configuration and in the returned bids (usually placementIds or inventory codes).
 
@@ -425,7 +424,7 @@ This step is only required if your adapter needs to fire a tracking pixel after 
 It will be called with the parameter `pixelUrl` that needs to be filled out in `__parseResponse`.
 
 #### Step 6: Exports (`<adapter-name>-htb-exports.js`)
-In this step, you will be required to fill out the exports file for your module. This file will contain all of the functions that will need to be exposed to outside page if they need to be accessed outside of the wrapper. In the usual case, all you will need to change in this file is your adapter module's name in the included snippet:
+In this step, you will be required to fill out the exports file for your module. This file will contain all of the functions that will need to be exposed to outside page if they need to be accessed outside of the IX Library. In the usual case, all you will need to change in this file is your adapter module's name in the included snippet:
 
 ```javascript
 shellInterface.<partner-name> = { //shell interface is the window variable that is accessible through the window object, currently this will always be shellInterface
