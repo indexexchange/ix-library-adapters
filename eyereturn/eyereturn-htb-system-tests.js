@@ -75,7 +75,12 @@ function getValidResponse(request, creative) {
 }
 
 function validateTargeting(targetingMap) {
-
+    expect(targetingMap).toEqual(
+        jasmine.objectContaining({
+            ix_eye_cpm: jasmine.arrayWithExactContents(['300x250_200']),
+            ix_eye_id: jasmine.arrayWithExactContents([jasmine.any(String)])
+        })
+    );
 }
 
 function getPassResponse(request) {
