@@ -60,7 +60,7 @@ function getValidResponse(request, creative) {
                     {
                         id: 'cb70163d-49a6-11e9-a928-eff3f10311ad',
                         impid: '0',
-                        price: 200,
+                        price: 2.00,
                         attr: [],
                         adomain: ['www.thechesterfieldshop.com'],
                         adm: adm

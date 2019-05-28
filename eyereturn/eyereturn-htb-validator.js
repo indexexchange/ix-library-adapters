@@ -26,6 +26,7 @@ function partnerValidator(configs) {
             xSlots: {
                 type: 'object',
                 properties: {
+                    /* Commenting out based on index's advice
                     '*': {
                         type: 'object',
                         properties: {
@@ -35,6 +36,7 @@ function partnerValidator(configs) {
                             }
                         }
                     }
+                    */
                 }
             }
         }
