@@ -12,7 +12,6 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -79,23 +78,23 @@ function PiximediaHtb(configs) {
 
         returnParcels.forEach(function (rp) {
             sizes = rp.xSlotRef.sizes;
-			sizes.forEach(function (size) {
-				impObj = {
-					id: rp.htSlot.getId(),
-					ext: {
-						piximedia: {
-							siteId: rp.xSlotRef.siteId,
-							placementId: rp.xSlotRef.placementId,
-							positionId: rp.xSlotRef.positionId,
-						}
-					}
-				};
-				impObj.banner = {
-					w: parseInt(size[0], 10),
-					h: parseInt(size[1], 10),
-				};
-				retArr.push(impObj);
-			});
+            sizes.forEach(function (size) {
+                impObj = {
+                    id: rp.htSlot.getId(),
+                    ext: {
+                        piximedia: {
+                            siteId: rp.xSlotRef.siteId,
+                            placementId: rp.xSlotRef.placementId,
+                            positionId: rp.xSlotRef.positionId
+                        }
+                    }
+                };
+                impObj.banner = {
+                    w: parseInt(size[0], 10),
+                    h: parseInt(size[1], 10)
+                };
+                retArr.push(impObj);
+            });
         });
 
         return retArr;
@@ -107,7 +106,6 @@ function PiximediaHtb(configs) {
             language: Browser.getLanguage()
         };
     }
-
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -210,28 +208,28 @@ function PiximediaHtb(configs) {
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
-		queryObj = {
-			id: callbackId,
-			site: _populateSiteObject(),
-			imp: _populateImpObject(returnParcels),
-			device: _populateDeviceInfo()
-		};
+        queryObj = {
+            id: callbackId,
+            site: _populateSiteObject(),
+            imp: _populateImpObject(returnParcels),
+            device: _populateDeviceInfo()
+        };
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-		if(gdprStatus && privacyEnabled) {
-			if(typeof gdprStatus.applies === 'boolean') {
-				queryObj.regs = {
-					ext: {
-						gdpr: gdprStatus.applies? 1: 0 
-					}
-				};
-			}
-			queryObj.user = {
-				ext: {
-					consent: gdprStatus.consentString
-				}
-			};
-		}
+        if (gdprStatus && privacyEnabled) {
+            if (typeof gdprStatus.applies === 'boolean') {
+                queryObj.regs = {
+                    ext: {
+                        gdpr: gdprStatus.applies ? 1 : 0
+                    }
+                };
+            }
+            queryObj.user = {
+                ext: {
+                    consent: gdprStatus.consentString
+                }
+            };
+        }
 
         /* -------------------------------------------------------------------------- */
 
@@ -350,7 +348,6 @@ function PiximediaHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                //if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
                 if (bids[i].impid === curReturnParcel.htSlot.getId()) {
                     curBid = bids[i];
                     bids.splice(i, 1);
