@@ -17,15 +17,14 @@ function getStatsId() {
 }
 
 function getConfig() {
-    // TODO: not sure about this
     var config = {
-        // partner level parameter
-        id: "FA2F43C00DD40E23",
-        ua: "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko",
-        ip: "199.166.10.82",
+        // Partner level parameter
+        id: 'FA2F43C00DD40E23',
+        ua: 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
+        ip: '199.166.10.82',
         xSlots: {
             1: {
-                // slot level parameter
+                // Slot level parameter
                 w: 300,
                 h: 250
             }
@@ -43,7 +42,7 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest() {
-
+    // Optional, not implemented
 }
 
 function getValidResponse(request, creative) {
@@ -84,7 +83,6 @@ function validateTargeting(targetingMap) {
 }
 
 function getPassResponse(request) {
-    // TODO: not sure about this, bidder-dev sends 204 no content on bid pass, how to represent that here?
     return JSON.stringify({ bid: [] });
 }
 
