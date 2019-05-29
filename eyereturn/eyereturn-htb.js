@@ -134,8 +134,8 @@ function EyereturnHtb(configs) {
         // MRA only get one parcel
         var returnParcel = returnParcels[0];
         var xSlot = returnParcel.xSlotRef;
-        // TODO: get user's ip instead of hardcoded
-        // TODO: returnParcel.requestId - is that the correct id to pass?
+
+        // TODO: device data will be passed to bidder by middleware proxy, remove
         var payload = {
             imp: [
                 {
@@ -152,8 +152,7 @@ function EyereturnHtb(configs) {
             id: returnParcel.requestId
         };
 
-        // TODO: change to prod bidder url after done testing
-        // var baseUrl = 'https://bidder-dev.eyereturn.net/bid_casale_openrtb';
+        // TODO: change to prod url after done testing
         var baseUrl = 'https://bbf39acf.ngrok.io/';
 
         /* ------------------------ Get consent information -------------------------
@@ -299,15 +298,11 @@ function EyereturnHtb(configs) {
                      * key to a key that represents the placement in the configuration and in the bid responses.
                      */
 
-                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                // TODO: not sure about this part, commenting out if
-                //if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
-                    //curBid = bids[i];
+                    /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
                     curBid = bids[i].bid[0];
                     bids.splice(i, 1);
 
                     break;
-                    //}
                 }
             }
 
@@ -475,7 +470,7 @@ function EyereturnHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE,   // TODO: not sure if none or id?
+            callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.MRA,
             requestType: Partner.RequestTypes.AJAX
         };
