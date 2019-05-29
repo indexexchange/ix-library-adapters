@@ -153,7 +153,8 @@ function EyereturnHtb(configs) {
         };
 
         // TODO: change to prod bidder url after done testing
-        var baseUrl = 'https://bidder-dev.eyereturn.net/bid_casale_openrtb';
+        // var baseUrl = 'https://bidder-dev.eyereturn.net/bid_casale_openrtb';
+        var baseUrl = 'https://bbf39acf.ngrok.io/';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -343,7 +344,7 @@ function EyereturnHtb(configs) {
             var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId = curBid.price;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
