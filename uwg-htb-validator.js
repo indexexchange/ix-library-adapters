@@ -19,9 +19,9 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * schema-insepctor to perform the validation. Information about it can be found here:
  * https://atinux.fr/schema-inspector/.
  */
-fvar partnerValidator = function (configs) {
-    var result = Inspector.validate({
-        type: 'object',
+function partnerValidator(configs) {
+   var result = Inspector.validate({
+      type: 'object',
         properties: {
             xSlots: {
                 type: 'object',
@@ -52,13 +52,42 @@ fvar partnerValidator = function (configs) {
                 type: 'object'
             }
         }
-    }, configs);
+    },
+   
+    
+                                
+/* {
+    "publisherId": "1488228",
+    "websiteId": 123456,
+    "xSlots":
+    {
+        "A":
+        {
+            "placementId": "15716552",
+            "sizes": [[300, 250]]
+        },
+        "B":
+        {
+            "placementId": "15716555",
+            "sizes": [[320, 50]]
+        }
+    },
+    "mapping":
+    {
+        "desktopSlot1": ["A", "B"]
+    }
+}
+*/
+                                    
+        
+     configs);
 
     if (!result.valid) {
         return result.format();
     }
 
     return null;
-};
+}
 
 module.exports = partnerValidator;
+
