@@ -336,7 +336,9 @@ function EyereturnHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
+            var bidCreative = 'document.body.appendChild(' + curBid.adm + ');';
+            // var bidCreative = 'document.body.innerHTML=' + curBid.adm;
+            // var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
             var bidDealId = curBid.price;
