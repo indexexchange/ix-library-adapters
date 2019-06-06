@@ -1,3 +1,4 @@
+/* Use strict */
 function getPartnerId() {
     return 'GumGumHtb';
 }
@@ -38,8 +39,7 @@ function validateBidRequest(request) {
     expect(request.query.pi).toBe('2');
 }
 
-function getValidResponse(request, creative) {
-    var r = JSON.parse(request.body);
+function getValidResponse() {
     var response = {
         ad: {
             id: '123',
@@ -86,7 +86,7 @@ function validateTargeting(targetingMap) {
     }));
 }
 
-function getPassResponse(request) {
+function getPassResponse() {
     var response = { ad: {} };
 
     return JSON.stringify(response);

@@ -25,8 +25,8 @@ var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
 var Utilities = require('utilities.js');
+
 var ComplianceService;
-var EventsService;
 var RenderService;
 
 //? if (DEBUG) {
@@ -82,7 +82,8 @@ function GumGumHtb(configs) {
      * ---------------------------------- */
 
     function mergeObjs(target, objs) {
-        if (target == null) { // TypeError if undefined or null
+        if (target == null) {
+            // TypeError if undefined or null
             throw new TypeError('Cannot convert undefined or null to object');
         }
 
@@ -138,6 +139,28 @@ function GumGumHtb(configs) {
 
     function getWrapperCode(wrapper, data) {
         return wrapper.replace('AD_JSON', Browser.topWindow.btoa(JSON.stringify(data)));
+    }
+
+    /**
+     * Gets unifiedId/TradeDesk Id from returnParcel
+     * @param {Object} returnParcel the first item from returnParcels
+     * @returns {Object}
+     */
+    function _getUnifiedId(returnParcel) {
+        var unifiedId = null;
+        var identityData = returnParcel && returnParcel.identityData;
+        var data = identityData && identityData.AdserverOrgIp && identityData.AdserverOrgIp.data;
+
+        if (data && data.uids && Utilities.isArray(data.uids)) {
+            for (var i = 0; i < data.uids.length; i++) {
+                if (data.uids[i].ext.rtiPartner === 'TDID') {
+                    unifiedId = data.uids[i].id;
+                    break;
+                }
+            }
+        }
+
+        return unifiedId ? { tdid: unifiedId } : {};
     }
 
     function _getDigiTrustQueryParams() {
@@ -285,7 +308,7 @@ function GumGumHtb(configs) {
         if (pageViewId) {
             queryObj.pv = pageViewId;
         }
-        queryObj = mergeObjs({}, queryObj, _getBrowserParams(), _getDigiTrustQueryParams());
+        queryObj = mergeObjs({}, queryObj, _getBrowserParams(), _getDigiTrustQueryParams(), _getUnifiedId(returnParcels[0]));
 
         /* -------------------------------------------------------------------------- */
 
