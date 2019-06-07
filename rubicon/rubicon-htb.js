@@ -191,7 +191,7 @@ function RubiconModule(configs) {
                 for (var i = 0; i < vars[varsKey].length; i++) {
                     var evaledVariable = __evalVariable(vars[varsKey][i]);
 
-                    if (evaledVariable !== null && evaledVariable !== 'undefined') {
+                    if (evaledVariable !== null && typeof evaledVariable !== 'undefined') {
                         returnSubobject[varsKey].push(evaledVariable);
                     }
                 }
@@ -226,7 +226,7 @@ function RubiconModule(configs) {
 
                 var evaledValue = __evalFunction(fns[fnsKey].fn, fns[fnsKey].args);
 
-                if (evaledValue !== null && evaledValue !== 'undefined') {
+                if (evaledValue !== null && typeof evaledValue !== 'undefined') {
                     if (Utilities.isArray(evaledValue)) {
                         for (var k = 0; k < evaledValue.length; k++) {
                             returnSubobject[fnsKey].push(evaledValue[k]);
