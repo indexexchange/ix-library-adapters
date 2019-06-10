@@ -153,7 +153,7 @@ function EyereturnHtb(configs) {
         };
 
         // TODO: change to prod url after done testing
-        var baseUrl = 'https://bbf39acf.ngrok.io/';
+        var baseUrl = 'https://5d0e7c1d.ngrok.io/';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
