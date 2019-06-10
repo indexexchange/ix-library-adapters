@@ -135,25 +135,19 @@ function EyereturnHtb(configs) {
         var returnParcel = returnParcels[0];
         var xSlot = returnParcel.xSlotRef;
 
-        // TODO: device data will be passed to bidder by middleware proxy, remove
         var payload = {
-            imp: [
+            ad_slot: [
                 {
-                    banner: {
-                        w: parseInt(xSlot.w, 10),
-                        h: parseInt(xSlot.h, 10)
-                    }
+                    width: parseInt(xSlot.w, 10),
+                    height: parseInt(xSlot.h, 10)
                 }
             ],
-            device: {
-                ua: Browser.getUserAgent(),
-                ip: '199.166.10.82'
-            },
-            id: returnParcel.requestId
+            request_id: returnParcel.requestId
         };
 
         // TODO: change to prod url after done testing
-        var baseUrl = 'https://5d0e7c1d.ngrok.io/';
+        // var baseUrl = 'https://5d0e7c1d.ngrok.io/';
+        var baseUrl = 'https://bidder-dev.eyereturn.net/prometheus/bid?debug_ip=192.206.151.131';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -194,7 +188,7 @@ function EyereturnHtb(configs) {
             callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
-                contentType: 'text/plain'
+                contentType: 'application/json'
             }
         };
     }
@@ -275,7 +269,7 @@ function EyereturnHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse.seatbid;
+        var bids = adResponse.seat_bid;
 
         /* --------------------------------------------------------------------------------- */
 
