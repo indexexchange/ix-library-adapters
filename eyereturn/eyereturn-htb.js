@@ -293,7 +293,7 @@ function EyereturnHtb(configs) {
                      */
 
                     /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                    curBid = bids[i].bid[0];
+                    curBid = bids[i];
                     bids.splice(i, 1);
 
                     break;
@@ -316,13 +316,7 @@ function EyereturnHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.price;
-
-            // TODO: current bidder endpoint doesn't return width and height so add it
-            if (!curBid.width) {
-                curBid.width = 300;
-                curBid.height = 250;
-            }
+            var bidPrice = curBid.bid_price;
 
             /* The size of the given slot */
             var bidSize = [Number(curBid.width), Number(curBid.height)];
@@ -330,10 +324,10 @@ function EyereturnHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = '<div>' + curBid.adm + '</div>';
+            var bidCreative = '<div>' + curBid.creative + '</div>';
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.price;
+            var bidDealId = curBid.bid_price;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
