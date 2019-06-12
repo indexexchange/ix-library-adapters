@@ -366,6 +366,7 @@ function SonobiHtb(configs) {
 
                     EventsService.emit('partner_request_complete', {
                         partner: __profile.partnerId,
+                        sessionId: sessionId,
                         status: status,
                         //? if (DEBUG) {
                         parcels: returnParcels,
@@ -378,6 +379,7 @@ function SonobiHtb(configs) {
                 onTimeout: function () {
                     EventsService.emit('partner_request_complete', {
                         partner: __profile.partnerId,
+                        sessionId: sessionId,
                         status: 'timeout',
                         //? if (DEBUG) {
                         parcels: returnParcels,
@@ -393,6 +395,7 @@ function SonobiHtb(configs) {
                 onFailure: function () {
                     EventsService.emit('partner_request_complete', {
                         partner: __profile.partnerId,
+                        sessionId: sessionId,
                         status: 'error',
                         //? if (DEBUG) {
                         parcels: returnParcels,
