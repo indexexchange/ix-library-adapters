@@ -326,6 +326,9 @@ function EyereturnHtb(configs) {
              */
             var bidCreative = '<div>' + curBid.creative + '</div>';
 
+            // TODO: remove after testing
+            bidCreative = bidCreative.replace('p3.eyereturn.com', 'jass-dev.eyereturn.net');
+
             /* The dealId if applicable for this slot. */
             var bidDealId = curBid.bid_price;
 
