@@ -1,4 +1,4 @@
 
-# 1.0.0
+# 2.1.2
  
 - Added sessionId to event emitters
