@@ -166,7 +166,6 @@ function getPassResponse(request) {
 }
 
 function validateTargeting(targetingMap) {
-    var targeting = targetingMap;
     expect(targetingMap).toEqual(jasmine.objectContaining({
         ix_dis_cpm: jasmine.arrayContaining(['300x250_200', '320x50_100']),
         ix_dis_id: jasmine.arrayContaining([jasmine.any(String)])

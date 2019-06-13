@@ -4,7 +4,6 @@
 // Dependencies ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-var Browser = require('browser.js');
 var Classify = require('classify.js');
 var Constants = require('constants.js');
 var Partner = require('partner.js');
@@ -12,9 +11,8 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
-var ComplianceService;
+// Var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
@@ -445,7 +443,7 @@ function DistrictmDmxHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
+        // ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
@@ -548,5 +546,4 @@ function DistrictmDmxHtb(configs) {
 ////////////////////////////////////////////////////////////////////////////////
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 module.exports = DistrictmDmxHtb;
