@@ -2,10 +2,10 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent | x |
-| Native Ad Support | x |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | yes |
+| Native Ad Support | yes |
+| SafeFrame Support | no |
+| PMP Support | no |
  
 ## Browser Compatibility
 | Browser |  |
@@ -47,17 +47,68 @@ USD only
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+|dmxid |yes |string| naming for placement|
+|memberid|yes|string|Publisher ID|
+|sizes|yes|array|placement size |
+
+### Endpoint URL
+
+```text
+https://dmx.districtm.io/b/v1
+```
  
 ### Example
 ```javascript
- 
+ {
+    "id":"TDeLqaJAvWsjEImH",
+    "cur":["USD"],
+    "tmax":1000,
+    "site":
+        {
+        "publisher":
+            {
+                "id":"100156"
+            }
+        },
+    "imp":[
+        {
+            "id":"hZYs5ZmtDDOqwVJz",
+            "tagid":"264543",
+            "secure":1,
+            "banner":
+            {
+                "topframe":1,
+                "w":300,
+                "h":250,
+                "format":
+                [
+                    {
+                        "w":300,"h":250
+                    }
+                    ]
+            }
+            }]
+}
 ```
  
 ## Bid Response Information
 ### Bid Example
 ```javascript
- 
+ {
+    "id":"TDeLqaJAvWsjEImH",
+    "seatbid":
+    [
+        {
+            "bid":
+            [
+                {
+                    "adm":"[ADS]",
+                    "id":"76-c77b6dff_1MbO47n7DfACFNG4QMXcCwthW1E-1",
+                    "impid":"hZYs5ZmtDDOqwVJz",
+                    "price":0.3657,
+                    "adomain":["steve.com","steve.org"],
+                    "crid":"76_15574"}],"seat":"10000"}]}
+
 ```
 ### Pass Example
 ```javascript
@@ -72,8 +123,3 @@ USD only
 |memberid|yes|string|Publisher ID|
 |sizes|yes|array|placement size |
 
-
-### Example
-```javascript
- 
-```
