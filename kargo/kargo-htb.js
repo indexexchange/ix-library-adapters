@@ -75,6 +75,13 @@ function KargoHtb(configs) {
      */
     var __profile;
 
+    /**
+     * Session ID.
+     *
+     * @private {string}
+     */
+    var __sessionId;
+
     /* =====================================
      * Functions
      * ---------------------------------- */
@@ -174,6 +181,29 @@ function KargoHtb(configs) {
         };
     }
 
+    function __getSessionId() {
+        if (!__sessionId) {
+            __sessionId = __generateRandomUuid();
+        }
+        return __sessionId;
+    }
+
+    function __generateRandomUuid() {
+        try {
+            // crypto.getRandomValues is supported everywhere but Opera Mini for years
+            var buffer = new Uint8Array(16);
+            crypto.getRandomValues(buffer);
+            buffer[6] = (buffer[6] & ~176) | 64;
+            buffer[8] = (buffer[8] & ~64) | 128;
+            var hex = Array.prototype.map.call(new Uint8Array(buffer), function(x) {
+                return ('00' + x.toString(16)).slice(-2);
+            }).join('');
+            return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
+        } catch (e) {
+            return '';
+        }
+    }
+
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
@@ -261,6 +291,7 @@ function KargoHtb(configs) {
 
         /* craft json object for the bid request */
         var json = {
+            sessionId: __getSessionId(),
             timeout: SpaceCamp.globalTimeout,
             adSlotIDs: adSlotIds,
             timestamp: (new Date()).getTime(),
