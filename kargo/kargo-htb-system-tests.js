@@ -53,6 +53,7 @@ function getConfig() {
 
 function validateBidRequest(request) {
     var r = JSON.parse(request.query.json);
+    expect(r.sessionId).toBeDefined();
     expect(r.timeout).toBeDefined();
     expect(r.timestamp).toBeDefined();
     expect(r.rawCRB).toBeDefined();
