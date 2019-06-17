@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * @author:    Partner
  * @license:   UNLICENSED
@@ -10,7 +11,6 @@
  * prior written permission of Index Exchange.
  */
 
-
 /**
  * This file contains the necessary validation for the partner configuration.
  * This validation will be performed on the partner specific configuration object
@@ -18,7 +18,6 @@
  * schema-insepctor to perform the validation. Information about it can be found here:
  * https://atinux.fr/schema-inspector/.
  */
-
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +40,14 @@ var partnerValidator = function (configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
-                                type: 'number'
+                            tagid: {
+                                type: 'string',
+                                minLength: 1
+                            },
+                            bidfloor: {
+                                type: 'string',
+                                optional: true,
+                                minLength: 1
                             },
                             sizes: {
                                 type: 'array',
@@ -62,11 +67,11 @@ var partnerValidator = function (configs) {
         }
     }, configs);
 
+
     if (!result.valid) {
         return result.format();
     }
 
     return null;
 };
-
 module.exports = partnerValidator;
