@@ -72,7 +72,7 @@ function BRealTimeHtb(configs) {
      *
      * @private {string}
      */
-    var __endpoint = '//ib.adnxs.com/ut/v2/prebid';
+    var __endpoint = '//hb.emxdgt.com/';
 
     /* =====================================
      * Functions
@@ -90,7 +90,15 @@ function BRealTimeHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var baseUrl = Browser.getProtocol() + __endpoint;
+        var timeout = 2000;
+        var version = '2.0.0';
+
+        var timestamp = System.now();
+        var baseUrl = Browser.getProtocol() + __endpoint + ('?t=' + timeout + '&ts=' + timestamp);
+        var networkProtocol = Browser.getProtocol()
+            .indexOf('https') > -1 ? 1 : 0;
+        var pageUrl = Browser.getPageUrl();
+        var pageHost = Browser.getHostname();
         var callbackId = System.generateUniqueId();
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var gdprPrivacyEnabled = ComplianceService.isPrivacyEnabled();
@@ -136,110 +144,94 @@ function BRealTimeHtb(configs) {
          *     data: { // query string object that will be attached to the base url
          *        slots: [
          *             {
-         *                 placementId: 54321,
+         *                 tagid: '54321',
          *                 sizes: [[300, 250]]
          *             },{
-         *                 placementId: 12345,
+         *                 tagid: '12345',
          *                 sizes: [[300, 600]]
          *             },{
-         *                 placementId: 654321,
+         *                 tagid: '65432',
          *                 sizes: [[728, 90]]
          *             }
          *         ],
          *         site: 'http://google.com'
-         *     },
-         *     callbackId: '_23sd2ij4i1' //unique id used for pairing requests and responses
+         *     }
          * }
          */
 
-
         /* PUT CODE HERE */
 
-        var __tags = [];
+        var __emxBids = [];
+        var __emxData = {};
         for (var i = 0; i < returnParcels.length; i++) {
-            var returnParcel = returnParcels[i],
-                tag = {},
-                uuid = System.generateUniqueId();
-            tag.sizes = returnParcel.xSlotRef.sizes.map(function (obj) {
-                return {
-                    width: obj[0],
-                    height: obj[1]
-                };
-            });
-            tag.id = returnParcel.xSlotRef.placementId;
-            tag.primary_size = tag.sizes[0];
-            tag.allow_smaller_sizes = false;
-            tag.prebid = true;
-            tag.disable_psa = true;
-            tag.uuid = uuid;
-            returnParcel.uuid = uuid;
+            var returnParcel = returnParcels[i];
+            var emxBid = {};
+            var uuid = System.generateUniqueId();
+            var bidFloor = returnParcel.xSlotRef.bidfloor;
 
-            if (gdprPrivacyEnabled) {
-              if (gdprStatus.consentString !== void 0) {
-                tag.gdpr_consent = gdprStatus.consentString;
-              }
-              if (gdprStatus.applies !== void 0) {
-                tag.gpdr = gdprStatus.applies ? "1" : "0";
-              }
+            emxBid.id = returnParcel.requestId;
+            emxBid.banner = {
+                format: returnParcel.xSlotRef.sizes.map(function (obj) {
+                    return {
+                        w: obj[0],
+                        h: obj[1]
+                    };
+                }),
+                w: returnParcel.xSlotRef.sizes[0][0],
+                h: returnParcel.xSlotRef.sizes[0][1]
+            };
+            emxBid.tagid = returnParcel.xSlotRef.placementId;
+            emxBid.secure = networkProtocol;
+            emxBid.tid = uuid;
+            if (bidFloor > 0) {
+                emxBid.bidfloor = bidFloor;
             }
 
-            __tags.push(tag);
+            __emxBids.push(emxBid);
         }
 
+        __emxData = {
+            id: callbackId,
+            imp: __emxBids,
+            site: {
+                domain: pageHost,
+                page: pageUrl
+            },
+            ext: {
+                ver: version
+            }
+        };
 
+        if (gdprPrivacyEnabled) {
+            /* eslint-disable camelcase */
+            if (gdprStatus.hasOwnProperty('consentString')) {
+                __emxData.user = {
+                    ext: {
+                        consent: gdprStatus.consentString
+                    }
+                };
+            }
+            /* eslint-enable camelcase */
+
+            if (gdprStatus.hasOwnProperty('applies')) {
+                __emxData.regs = {
+                    ext: {
+                        gdpr: gdprStatus.gdprApplies ? 1 : 0
+                    }
+                };
+            }
+        }
 
         /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
-            data: {
-                tags: __tags
-            },
-            callbackId: callbackId,
+            data: __emxData,
             networkParamOverrides: {
-                method: 'POST'
+                method: 'POST',
+                contentType: 'text/plain'
             }
         };
-    }
-
-    /* =============================================================================
-     * STEP 3  | Response callback
-     * -----------------------------------------------------------------------------
-     *
-     * This generator is only necessary if the partner's endpoint has the ability
-     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
-     * the response and save the response to adResponseStore keyed by that ID.
-     *
-     * If the endpoint does not have an appropriate field for this, set the profile's
-     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
-     */
-    function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
-        var callbackId = 0;
-        __baseClass._adResponseStore[callbackId] = adResponse;
-    }
-    /* -------------------------------------------------------------------------- */
-
-    /* Helpers
-     * ---------------------------------- */
-
-    /* =============================================================================
-     * STEP 5  | Rendering Pixel
-     * -----------------------------------------------------------------------------
-     *
-     */
-
-    /**
-     * This function will render the pixel given.
-     * @param  {string} pixelUrl Tracking pixel img url.
-     */
-    function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET',
-            });
-        }
     }
 
     /**
@@ -256,7 +248,6 @@ function BRealTimeHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -276,34 +267,33 @@ function BRealTimeHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
-        
-        /* No response or no bids returned so it's a pass */
-        if (!adResponse.tags) {
-            if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-            }
-            curReturnParcel.pass = true;
-            return;
-        }
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse.tags;
+        var bids = adResponse.seatbid;
 
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
-
             var curReturnParcel = returnParcels[j];
-
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
+            /* No response or no bids returned so it's a pass */
+
+            if (!bids) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+
+                return;
+            }
+
             var curBid;
 
             for (var i = 0; i < bids.length; i++) {
-
                 /**
                  * This section maps internal returnParcels and demand returned from the bid request.
                  * In order to match them correctly, they must be matched via some criteria. This
@@ -312,9 +302,10 @@ function BRealTimeHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.uuid === bids[i].uuid) {
-                    curBid = bids[i];
+                if (curReturnParcel.requestId === bids[i].bid[0].id) {
+                    curBid = bids[i].bid[0];
                     bids.splice(i, 1);
+
                     break;
                 }
             }
@@ -325,53 +316,35 @@ function BRealTimeHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            var bidIsPass = curBid.nobid;
-            if (!bidIsPass) {
-                curBid = curBid.ads[0];
-                var banner = curBid.rtb.banner;
+            /* The bid price for the given slot */
+            var bidPrice = curBid.price;
 
-                /* the bid price for the given slot */
-                var bidPrice = curBid.cpm;
+            /* The size of the given slot */
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
-                /* the size of the given slot */
-                var bidSize = [Number(banner.width), Number(banner.height)];
+            /* The creative/adm for the given slot that will be rendered if is the winner.
+                * Please make sure the URL is decoded and ready to be document.written.
+                */
+            var bidCreative = curBid.adm;
 
-                /* the creative/adm for the given slot that will be rendered if is the winner.
-                 * Please make sure the URL is decoded and ready to be document.written.
-                 */
-                var bidCreative = banner.content;
+            /* The dealId if applicable for this slot. */
+            var bidDealId = curBid.dealid;
 
-                /* the dealId if applicable for this slot. */
-                var bidDealId = (typeof curBid.deal_id !== 'undefined') ? curBid.deal_id : null;
+            /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
+                * If firing a tracking pixel is not required or the pixel url is part of the adm,
+                * leave empty;
+                */
 
-                /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-                 * If firing a tracking pixel is not required or the pixel url is part of the adm,
-                 * leave empty;
-                 */
-                var pixelUrl = curBid.rtb.trackers[0].impression_urls[0] || '';
-            }
-
-            /* ---------------------------------------------------------------------------------------*/
-
-            curBid = null;
-            if (bidIsPass) {
-                //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
-                //? }
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-                continue;
-            }
+            /* --------------------------------------------------------------------------------------- */
 
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
@@ -386,7 +359,7 @@ function BRealTimeHtb(configs) {
             var sizeKey = Size.arrayToString(curReturnParcel.size);
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
 
-            if (bidDealId !== null) {
+            if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
             } else {
@@ -397,9 +370,6 @@ function BRealTimeHtb(configs) {
 
             //? if (FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
-            if (pixelUrl) {
-                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
-            }
             //? }
 
             //? if (FEATURES.RETURN_PRICE) {
@@ -412,18 +382,15 @@ function BRealTimeHtb(configs) {
                 adm: bidCreative,
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
-                price: targetingCpm ? targetingCpm : undefined,
-                dealId: bidDealId ? bidDealId : undefined,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
-                auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
+                price: targetingCpm ? targetingCpm : '',
+                dealId: bidDealId ? bidDealId : '',
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,  // eslint-disable-line
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
         }
-
     }
 
     /* =====================================
@@ -471,8 +438,8 @@ function BRealTimeHtb(configs) {
             },
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.ANY // Request type, jsonp, ajax, or any.
+            architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
+            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
         };
         /* ---------------------------------------------------------------------------------------*/
 
@@ -486,8 +453,7 @@ function BRealTimeHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj,
-            adResponseCallback: adResponseCallback
+            generateRequestObj: __generateRequestObj
         });
     })();
 
@@ -519,8 +485,7 @@ function BRealTimeHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        generateRequestObj: __generateRequestObj
         //? }
     };
 

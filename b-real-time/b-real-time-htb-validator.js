@@ -41,8 +41,14 @@ var partnerValidator = function (configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
-                                type: 'number'
+                            tagid: {
+                                type: 'string',
+                                minLength: 1
+                            },
+                            bidfloor: {
+                                type: 'string',
+                                optional: true,
+                                minLength: 1
                             },
                             sizes: {
                                 type: 'array',
