@@ -24,8 +24,7 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
-var EventsService;
+
 var RenderService;
 
 //? if (DEBUG) {
@@ -103,17 +102,19 @@ function KargoHtb(configs) {
         if (tdidDataStr) {
             try {
                 var tdidDataParsed = JSON.parse(tdidDataStr);
-                if (tdidDataParsed.hasOwnProperty('d') && tdidDataParsed.d.hasOwnProperty('data') && tdidDataParsed.d.data.hasOwnProperty('TDID')) {
+                if (tdidDataParsed.hasOwnProperty('d')
+                    && tdidDataParsed.d.hasOwnProperty('data')
+                    && tdidDataParsed.d.data.hasOwnProperty('TDID')) {
                     tdid = tdidDataParsed.d.data.TDID;
                 }
-            }
-            catch (ex) {
+            } catch (ex) {
                 //? if (DEBUG) {
                 Scribe.error('Unable to get TDID for Kargo');
                 Scribe.error(ex);
                 //? }
             }
         }
+
         return tdid;
     }
 
@@ -126,12 +127,14 @@ function KargoHtb(configs) {
                     return vParsed;
                 }
             }
+
             return {};
         } catch (ex) {
             //? if (DEBUG) {
             Scribe.error('Unable to get Crb from cookie for Kargo');
             Scribe.error(ex);
             //? }
+
             return {};
         }
     }
@@ -144,6 +147,7 @@ function KargoHtb(configs) {
             Scribe.error('Unable to get Crb from localstorage for Kargo');
             Scribe.error(ex);
             //? }
+
             return {};
         }
     }
@@ -153,11 +157,13 @@ function KargoHtb(configs) {
         if (Object.keys(localStorageCrb).length) {
             return localStorageCrb;
         }
+
         return __getCrbFromCookie();
     }
 
     function __getUserIds() {
         var crb = __getCrb();
+
         return {
             kargoID: crb.userId || '',
             clientID: crb.clientId || '',
@@ -181,27 +187,32 @@ function KargoHtb(configs) {
         };
     }
 
+    function __generateRandomUuid() {
+        try {
+            // The function crypto.getRandomValues is supported everywhere but Opera Mini for years
+            var buffer = new Uint8Array(16); // eslint-disable-line no-undef
+            crypto.getRandomValues(buffer);
+            buffer[6] = (buffer[6] & ~176) | 64; // eslint-disable-line no-bitwise
+            buffer[8] = (buffer[8] & ~64) | 128; // eslint-disable-line no-bitwise
+            // eslint-disable-next-line no-undef
+            var hex = Array.prototype.map.call(new Uint8Array(buffer), function (x) {
+                return ('00' + x.toString(16)).slice(-2);
+            })
+                .join('');
+
+            return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20)
+                + '-' + hex.slice(20);
+        } catch (e) {
+            return '';
+        }
+    }
+
     function __getSessionId() {
         if (!__sessionId) {
             __sessionId = __generateRandomUuid();
         }
-        return __sessionId;
-    }
 
-    function __generateRandomUuid() {
-        try {
-            // crypto.getRandomValues is supported everywhere but Opera Mini for years
-            var buffer = new Uint8Array(16);
-            crypto.getRandomValues(buffer);
-            buffer[6] = (buffer[6] & ~176) | 64;
-            buffer[8] = (buffer[8] & ~64) | 128;
-            var hex = Array.prototype.map.call(new Uint8Array(buffer), function(x) {
-                return ('00' + x.toString(16)).slice(-2);
-            }).join('');
-            return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
-        } catch (e) {
-            return '';
-        }
+        return __sessionId;
     }
 
     /**
@@ -213,7 +224,6 @@ function KargoHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -273,15 +283,14 @@ function KargoHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
 
-        /* Change this to your bidder endpoint.*/
+        /* Change this to your bidder endpoint. */
         var baseUrl = Browser.getProtocol() + '//krk.kargo.com/api/v1/bid';
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
-        /* grab all requred adSlotIds */
+        /* Grab all requred adSlotIds */
         var adSlotIds = [];
         for (var i = 0; i < returnParcels.length; i++) {
-
             /* If htSlot does not have an ixSlot mapping no impressions needed */
             if (!returnParcels[i].hasOwnProperty('xSlotRef')) {
                 continue;
@@ -289,12 +298,13 @@ function KargoHtb(configs) {
             adSlotIds.push(returnParcels[i].xSlotRef.adSlotId);
         }
 
-        /* craft json object for the bid request */
+        /* Craft json object for the bid request */
         var json = {
             sessionId: __getSessionId(),
             timeout: SpaceCamp.globalTimeout,
             adSlotIDs: adSlotIds,
-            timestamp: (new Date()).getTime(),
+            timestamp: (new Date())
+                .getTime(),
             userIDs: __getUserIds(),
             krux: __getKruxDmpData(),
             pageURL: Browser.getPageUrl(),
@@ -330,6 +340,7 @@ function KargoHtb(configs) {
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -368,8 +379,6 @@ function KargoHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -389,7 +398,7 @@ function KargoHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = [];
 
@@ -405,9 +414,7 @@ function KargoHtb(configs) {
         }
 
         /* --------------------------------------------------------------------------------- */
-
         for (var j = 0; j < returnParcels.length; j++) {
-
             var curReturnParcel = returnParcels[j];
 
             var headerStatsInfo = {};
@@ -417,9 +424,7 @@ function KargoHtb(configs) {
 
             var curBid;
             var curAdSlotId;
-
             for (var i = 0; i < bids.length; i++) {
-
                 /**
                  * This section maps internal returnParcels and demand returned from the bid request.
                  * In order to match them correctly, they must be matched via some criteria. This
@@ -432,6 +437,7 @@ function KargoHtb(configs) {
                     curBid = bids[i].adSlotDemand;
                     curAdSlotId = bids[i].adSlotId;
                     bids.splice(i, 1);
+
                     break;
                 }
             }
@@ -442,31 +448,33 @@ function KargoHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            /* the bid price for the given slot */
+            /* The bid price for the given slot */
             var bidPrice = curBid.cpm;
 
-            /* the size of the given slot */
-            var sizes = curBid.targetingPrefix.split(/x|_/).slice(0, 2);
+            /* The size of the given slot */
+            var sizes = curBid.targetingPrefix.split(/x|_/)
+                .slice(0, 2);
             var bidSize = [Number(sizes[0]), Number(sizes[1])];
 
-            /* the creative/adm for the given slot that will be rendered if is the winner.
+            /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
             var bidCreative = curBid.adm;
 
-            /* the dealId if applicable for this slot. */
+            /* The dealId if applicable for this slot. */
             var bidDealId = curBid.hasOwnProperty('targetingCustom') ? curBid.targetingCustom : null;
 
-            /* explicitly pass */
-            var bidIsPass = bidPrice <= 0 ? true : false;
+            /* Explicitly pass */
+            var bidIsPass = bidPrice <= 0;
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
              * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -474,7 +482,7 @@ function KargoHtb(configs) {
              */
             var pixelUrl = '';
 
-            /* ---------------------------------------------------------------------------------------*/
+            /* --------------------------------------------------------------------------------------- */
 
             curBid = null;
 
@@ -486,6 +494,7 @@ function KargoHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
@@ -520,15 +529,19 @@ function KargoHtb(configs) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
 
+            var demandExpiry = __profile.features.demandExpiry;
+
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
                 adm: bidCreative,
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
+                // eslint-disable-next-line no-undefined
                 price: targetingCpm ? targetingCpm : undefined,
+                // eslint-disable-next-line no-undefined
                 dealId: bidDealId ? bidDealId : undefined,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
+                timeOfExpiry: demandExpiry.enabled ? demandExpiry.value + System.now() : 0,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -544,7 +557,6 @@ function KargoHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
@@ -554,11 +566,17 @@ function KargoHtb(configs) {
          * Please fill out the below partner profile according to the steps in the README doc.
          */
 
-        /* ---------- Please fill out this partner profile according to your module ------------*/
+        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'KargoHtb', // PartnerName
-            namespace: 'KargoHtb', // Should be same as partnerName
-            statsId: 'KARG', // Unique partner identifier
+
+            // PartnerName
+            partnerId: 'KargoHtb',
+
+            // Should be same as partnerName
+            namespace: 'KargoHtb',
+
+            // Unique partner identifier
+            statsId: 'KARG',
             version: '2.2.1',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -574,19 +592,30 @@ function KargoHtb(configs) {
                     value: 0
                 }
             },
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+
+            // Targeting keys for demand, should follow format ix_{statsId}_id
+            targetingKeys: {
                 id: 'ix_karg_id',
                 om: 'ix_karg_om',
                 pm: 'ix_karg_pm',
                 pmid: 'ix_karg_pmid'
             },
-            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+
+            // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.SRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+
+            // Callback type, please refer to the readme for details
+            callbackType: Partner.CallbackTypes.NONE,
+
+            // Request architecture, please refer to the readme for details
+            architecture: Partner.Architectures.SRA,
+
+            // Request type, jsonp, ajax, or any.
+            requestType: Partner.RequestTypes.AJAX
         };
-        /* ---------------------------------------------------------------------------------------*/
+
+        /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
@@ -632,7 +661,7 @@ function KargoHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
