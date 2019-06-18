@@ -27,26 +27,29 @@ function getConfig() {
     return {
         xSlots: {
             1: {
-                adSlotId: "e0e5bfd8-514d-4e73-9c09-a559fe5d89df"
+                adSlotId: 'e0e5bfd8-514d-4e73-9c09-a559fe5d89df'
             },
             2: {
-                adSlotId: "1e976be9-c60f-413a-8e1a-047fc5b87296"
+                adSlotId: '1e976be9-c60f-413a-8e1a-047fc5b87296'
             }
         },
         mapping: {
-            "Fake Unit 1 728x90 | 300x250": ["1"],
-            "Fake Unit 2 728x90 | 300x250": ["2"]
+            'Fake Unit 1 728x90 | 300x250': ['1'],
+            'Fake Unit 2 728x90 | 300x250': ['2']
         },
         timeout: 0,
         bidTransformer: {
             floor: 5,
-            buckets: [{
-                max: 2000,
-                step: 5
-            }, {
-                step: 100,
-                max: 5000
-            }]
+            buckets: [
+                {
+                    max: 2000,
+                    step: 5
+                },
+                {
+                    step: 100,
+                    max: 5000
+                }
+            ]
         }
     };
 }
@@ -76,7 +79,7 @@ function validateBidRequest(request) {
 function getValidResponse(request, creative) {
     var r = JSON.parse(request.query.json);
     var adm = creative || '<div>FAKE CREATIVE</div>';
-    var bidIDs = ['775324bd-5eb7-46e0-afc1-45e08f8ff78d', '9fbf1a48-7969-431d-b0b9-e566c26b3620']
+    var bidIDs = ['775324bd-5eb7-46e0-afc1-45e08f8ff78d', '9fbf1a48-7969-431d-b0b9-e566c26b3620'];
     var responses = {};
     for (var i = 0; i < r.adSlotIDs.length; i++) {
         var adSlotID = r.adSlotIDs[i];
@@ -96,7 +99,7 @@ function getValidResponse(request, creative) {
                 buckets: [
                     {
                         max: 2000,
-                        step: 5,
+                        step: 5
                     },
                     {
                         max: 5000,
@@ -106,6 +109,7 @@ function getValidResponse(request, creative) {
             }
         };
     }
+
     return JSON.stringify(responses);
 }
 
@@ -123,7 +127,7 @@ function validateTargeting(targetingMap) {
 function getValidResponseWithDeal(request, creative) {
     var r = JSON.parse(request.query.json);
     var adm = creative || '<div>FAKE CREATIVE</div>';
-    var bidIDs = ['775324bd-5eb7-46e0-afc1-45e08f8ff78d', '9fbf1a48-7969-431d-b0b9-e566c26b3620']
+    var bidIDs = ['775324bd-5eb7-46e0-afc1-45e08f8ff78d', '9fbf1a48-7969-431d-b0b9-e566c26b3620'];
     var responses = {};
     for (var i = 0; i < r.adSlotIDs.length; i++) {
         var adSlotID = r.adSlotIDs[i];
@@ -143,7 +147,7 @@ function getValidResponseWithDeal(request, creative) {
                 buckets: [
                     {
                         max: 2000,
-                        step: 5,
+                        step: 5
                     },
                     {
                         max: 5000,
@@ -153,6 +157,7 @@ function getValidResponseWithDeal(request, creative) {
             }
         };
     }
+
     return JSON.stringify(responses);
 }
 
@@ -176,5 +181,5 @@ module.exports = {
     getPassResponse: getPassResponse,
     validateTargeting: validateTargeting,
     getValidResponseWithDeal: getValidResponseWithDeal,
-    validateTargetingWithDeal: validateTargetingWithDeal,
+    validateTargetingWithDeal: validateTargetingWithDeal
 };

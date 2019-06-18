@@ -31,7 +31,7 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * schema-insepctor to perform the validation. Information about it can be found here:
  * https://atinux.fr/schema-inspector/.
  */
-var partnerValidator = function (configs) {
+function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
@@ -57,6 +57,6 @@ var partnerValidator = function (configs) {
     }
 
     return null;
-};
+}
 
 module.exports = partnerValidator;
