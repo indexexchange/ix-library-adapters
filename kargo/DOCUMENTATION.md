@@ -2,26 +2,26 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent | No |
-| Native Ad Support | No |
+| Consent | Yes |
+| Native Ad Support | Yes |
 | SafeFrame Support | No |
-| PMP Support | No |
+| PMP Support | Yes |
 
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome | Prelim |
-| Edge | Prelim |
-| Firefox | Prelim |
-| Internet Explorer 9 | Prelim |
-| Internet Explorer 10 | Prelim |
-| Internet Explorer 11 | Prelim |
-| Safari | Prelim |
+| Chrome | Yes |
+| Edge | Yes |
+| Firefox | Yes |
+| Internet Explorer 9 | Yes |
+| Internet Explorer 10 | Yes |
+| Internet Explorer 11 | Yes |
+| Safari | Yes |
 | Mobile Chrome | Yes |
 | Mobile Safari | Yes |
 | UC Browser | Yes |
 | Samsung Internet | Yes |
-| Opera | Prelim |
+| Opera | Yes |
 
 ## Adapter Information
 | Info | |
@@ -42,6 +42,7 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
+| sessionId | true | UUID | UUID tied to this instance of an adapter load |
 | timeout | true | integer | timeout for request |
 | adSlotIDs | true | array of UUIDs | slots for bid request |
 | timestamp | true | unix timestamp | browser time |
@@ -54,6 +55,7 @@
 ### Example
 ```javascript
 {
+    "sessionId": "5a7dc9bc-0687-4c03-b522-6171572f5453",
     "timeout": 700,
     "adSlotIDs": [
         "fb60875e-8c44-42f2-ae7d-93e0ac1b7256",
@@ -179,21 +181,6 @@
         2: {
             adSlotId: "1e976be9-c60f-413a-8e1a-047fc5b87296"
         }
-    },
-    mapping: {
-        "Fake Unit 1 728x90 | 300x250": ["1"],
-        "Fake Unit 2 728x90 | 300x250": ["2"]
-    },
-    timeout: 0,
-    bidTransformer: {
-        floor: 5,
-        buckets: [{
-            max: 2000,
-            step: 5
-        }, {
-            step: 100,
-            max: 5000
-        }]
     }
 }
 ```

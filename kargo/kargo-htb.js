@@ -103,7 +103,7 @@ function KargoHtb(configs) {
         if (tdidDataStr) {
             try {
                 var tdidDataParsed = JSON.parse(tdidDataStr);
-                if (tdidDataParsed.d && tdidDataParsed.d.data) {
+                if (tdidDataParsed.hasOwnProperty('d') && tdidDataParsed.d.hasOwnProperty('data') && tdidDataParsed.d.data.hasOwnProperty('TDID')) {
                     tdid = tdidDataParsed.d.data.TDID;
                 }
             }
