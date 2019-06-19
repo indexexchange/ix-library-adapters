@@ -53,7 +53,7 @@ function getValidResponse(request, creative) {
         ext: {
             ssl: 0
         },
-        seatbid: [
+        seat_bid: [
             {
                 bid: [
                     {
