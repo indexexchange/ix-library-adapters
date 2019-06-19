@@ -11,7 +11,7 @@ function getStatsId() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /.*\/optimera-client\/*/
+        urlRegex: /.*\/dyv1bugovvq1g.cloudfront.net\/*/
     };
 }
 
@@ -39,7 +39,7 @@ function getConfig() {
 
 function validateBidRequest(request) {
     // Check query string parameters.
-    expect(request.pathname).toBe('/optimera-client/9999/localhost/public/tester/system-tester.html.js');
+    expect(request.pathname).toBe('/9999/localhost/public/tester/system-tester.html.js');
 }
 
 function getValidResponse(request, creative) {

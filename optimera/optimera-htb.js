@@ -154,19 +154,14 @@ function OptimeraHtb(configs) {
         var queryObj = {};
         var callbackId = System.generateUniqueId();
         var host = Browser.getHostname();
-        var url = Browser.getPageUrl();
-        var path = url.replace(/^.*\/\/[^/]+/, '');
+        var path = Browser.getPathname();
 
         // Remove any query params and hashes.
         var cleanedPath = path.split('?')[0].split('#')[0];
 
-        if (cleanedPath === '/') {
-            cleanedPath = '';
-        }
-
         /* Change this to your bidder endpoint. */
         var baseUrl = Browser.getProtocol()
-            + '//s3.amazonaws.com/optimera-client/'
+            + '//dyv1bugovvq1g.cloudfront.net/'
             + site.clientID
             + '/'
             + host
