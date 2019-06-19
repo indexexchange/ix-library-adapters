@@ -59,7 +59,8 @@ function getValidResponse(request, creative) {
                 adomain: ['www.thechesterfieldshop.com'],
                 creative: adm
             }
-        ]
+        ],
+        deal: ''
     };
 
     return JSON.stringify(response);
