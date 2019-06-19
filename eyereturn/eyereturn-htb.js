@@ -234,10 +234,6 @@ function EyereturnHtb(configs) {
         }
     }
 
-    /* =====================================
-     * Constructors
-     * ---------------------------------- */
-
     (function __constructor() {
         RenderService = SpaceCamp.services.RenderService;
         __profile = {
