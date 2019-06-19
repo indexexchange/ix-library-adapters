@@ -289,7 +289,7 @@ function EyereturnHtb(configs) {
             var bidCreative = '<div>' + curBid.creative + '</div>';
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.bid_price;
+            var bidDealId = curBid.deal;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
