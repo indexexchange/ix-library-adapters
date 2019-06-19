@@ -145,9 +145,7 @@ function EyereturnHtb(configs) {
             request_id: returnParcel.requestId
         };
 
-        // TODO: change to prod url after done testing
-        // var baseUrl = 'https://5d0e7c1d.ngrok.io/';
-        var baseUrl = 'https://bidder-dev.eyereturn.net/prometheus/bid?debug_ip=192.206.151.131';
+        var baseUrl = 'https://prometheus-ix.eyereturn.com/prometheus/bid';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -325,9 +323,6 @@ function EyereturnHtb(configs) {
              * Please make sure the URL is decoded and ready to be document.written.
              */
             var bidCreative = '<div>' + curBid.creative + '</div>';
-
-            // TODO: remove after testing
-            bidCreative = bidCreative.replace('p3.eyereturn.com', 'jass-dev.eyereturn.net');
 
             /* The dealId if applicable for this slot. */
             var bidDealId = curBid.bid_price;
