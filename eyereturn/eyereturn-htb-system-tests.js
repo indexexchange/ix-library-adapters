@@ -37,7 +37,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /.*bidder-dev.eyereturn.net\/bid_casale_openrtb.*/
+        urlRegex: /.*prometheus-ix.eyereturn.com\/prometheus\/bid.*/
     };
 }
 
