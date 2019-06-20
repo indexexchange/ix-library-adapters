@@ -270,7 +270,12 @@ function QuantcastHtb(configs) {
 
             //? if (FEATURES.GPT_LINE_ITEMS) {
             var sizeKey = Size.arrayToString(parcel.size);
-            parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            if (bid.dealId) {
+                parcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bid.dealId];
+                parcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            } else {
+                parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            }
             parcel.targeting[__baseClass._configs.targetingKeys.id] = [parcel.requestId];
             //? }
 
@@ -290,7 +295,7 @@ function QuantcastHtb(configs) {
                 requestId: parcel.requestId,
                 size: parcel.size,
                 price: targetingCpm,
-                dealId: '',
+                dealId: bid.dealId,
                 timeOfExpiry: __profile.features.demandExpiry.enabled ? expiryTime : 0
             });
 
@@ -339,7 +344,9 @@ function QuantcastHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_qua_id',
-                om: 'ix_qua_cpm'
+                om: 'ix_qua_cpm',
+                pm: 'ix_qua_cpm',
+                pmid: 'ix_qua_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
