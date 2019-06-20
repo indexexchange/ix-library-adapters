@@ -1,5 +1,6 @@
 'use strict';
 
+var Browser = require('browser.js');
 var Classify = require('classify.js');
 var Constants = require('constants.js');
 var Partner = require('partner.js');
@@ -59,7 +60,11 @@ function EyereturnHtb(configs) {
                     height: parseInt(xSlot.h, 10)
                 }
             ],
-            request_id: returnParcel.requestId
+            request_id: returnParcel.requestId,
+            site: {
+                url: Browser.getPageUrl(),
+                referrer: Browser.getReferrer()
+            }
         };
 
         var baseUrl = 'https://prometheus-ix.eyereturn.com/prometheus/bid';
