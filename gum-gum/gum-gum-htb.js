@@ -81,8 +81,8 @@ function GumGumHtb(configs) {
     /* Utilities
      * ---------------------------------- */
 
-    function mergeObjs(target, objs) {
-        if (target == null) {
+    function mergeObjs(target) {
+        if (!target) {
             // TypeError if undefined or null
             throw new TypeError('Cannot convert undefined or null to object');
         }
@@ -94,7 +94,8 @@ function GumGumHtb(configs) {
 
         for (var index = 1; index < arguments.length; index++) {
             var nextSource = arguments[index];
-            if (nextSource != null) { // Skip over if undefined or null
+
+            if (!nextSource) {
                 for (var nextKey in nextSource) {
                     // Avoid bugs when hasOwnProperty is shadowed
                     if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
@@ -108,11 +109,13 @@ function GumGumHtb(configs) {
     }
 
     function getNetworkSpeed() {
-        var window = Browser.topWindow;
-        var connection = window.navigator && (window.navigator.connection || window.navigator.mozConnection || window.navigator.webkitConnection);
-        var Mbps = connection && (connection.downlink || connection.bandwidth);
+        var win = Browser.topWindow;
+        var nav = win.navigator;
+        var c = nav && (nav.connection || nav.mozConnection || nav.webkitConnection);
+        var Mbps = c && (c.downlink || c.bandwidth);
 
-        return Mbps ? Math.round(Mbps * 1024) : null; // 1 megabit -> 1024 kilobits
+        // 1 megabit -> 1024 kilobits
+        return Mbps ? Math.round(Mbps * 1024) : null;
     }
 
     function _getBrowserParams() {
@@ -155,6 +158,7 @@ function GumGumHtb(configs) {
             for (var i = 0; i < data.uids.length; i++) {
                 if (data.uids[i].ext.rtiPartner === 'TDID') {
                     unifiedId = data.uids[i].id;
+
                     break;
                 }
             }
@@ -164,11 +168,12 @@ function GumGumHtb(configs) {
     }
 
     function _getDigiTrustQueryParams() {
-        var window = Browser.topWindow;
+        var win = Browser.topWindow;
 
         function getDigiTrustId() {
             var DT_CREDENTIALS = { member: 'YcXr87z2lpbB' };
-            var digiTrustUser = window.DigiTrust && window.DigiTrust.getUser ? window.DigiTrust.getUser(DT_CREDENTIALS) : {};
+            var getUserExists = win.DigiTrust && win.DigiTrust.getUser;
+            var digiTrustUser = getUserExists ? win.DigiTrust.getUser(DT_CREDENTIALS) : {};
 
             return (digiTrustUser && digiTrustUser.success && digiTrustUser.identity) || '';
         }
@@ -288,7 +293,8 @@ function GumGumHtb(configs) {
             var privacyEnabled = ComplianceService.isPrivacyEnabled();
             var gdprConsent = ComplianceService.gdpr.getConsent();
             if (privacyEnabled && gdprConsent.applies) {
-                queryObj.gdprApplies = Number(gdprConsent.applies); // Casts to 0 or 1
+                // Casts to 0 or 1
+                queryObj.gdprApplies = Number(gdprConsent.applies);
                 queryObj.gdprConsent = gdprConsent.consentString;
             }
         }
@@ -308,7 +314,9 @@ function GumGumHtb(configs) {
         if (pageViewId) {
             queryObj.pv = pageViewId;
         }
-        queryObj = mergeObjs({}, queryObj, _getBrowserParams(), _getDigiTrustQueryParams(), _getUnifiedId(returnParcels[0]));
+        var dt = _getDigiTrustQueryParams();
+        var tdid = _getUnifiedId(returnParcels[0]);
+        queryObj = mergeObjs({}, queryObj, _getBrowserParams(), dt, tdid);
 
         /* -------------------------------------------------------------------------- */
 
@@ -407,8 +415,8 @@ function GumGumHtb(configs) {
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
-
-            var curBid = singleBidResponse && singleBidResponse.ad && singleBidResponse.ad.id ? singleBidResponse : false;
+            var singleBidResponseExists = singleBidResponse && singleBidResponse.ad && singleBidResponse.ad.id;
+            var curBid = singleBidResponseExists ? singleBidResponse : false;
 
             // For (var i = 0; i < bids.length; i++) {
 
@@ -460,8 +468,10 @@ function GumGumHtb(configs) {
             /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            /* The bid price for the given slot */
-            var bidPrice = adConfig.price * 100; // GumGum sends bid price as dollars (USD), IX only accepts cents
+            /* The bid price for the given slot
+               GumGum sends bid price as dollars (USD), IX only accepts cents
+            */
+            var bidPrice = adConfig.price * 100;
 
             /* The size of the given slot */
             var bidSize = [Number(adConfig.width), Number(adConfig.height)];
@@ -536,6 +546,7 @@ function GumGumHtb(configs) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
 
+            var profileFeaturesExpiry = __profile.features.demandExpiry;
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
@@ -544,7 +555,7 @@ function GumGumHtb(configs) {
                 size: curReturnParcel.size,
                 price: targetingCpm,
                 dealId: bidDealId || null,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,
+                timeOfExpiry: profileFeaturesExpiry.enabled ? profileFeaturesExpiry.value + System.now() : 0,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -572,9 +583,9 @@ function GumGumHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'GumGumHtb', // PartnerName
-            namespace: 'GumGumHtb', // Should be same as partnerName
-            statsId: 'GUM', // Unique partner identifier
+            partnerId: 'GumGumHtb',
+            namespace: 'GumGumHtb',
+            statsId: 'GUM',
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -590,17 +601,17 @@ function GumGumHtb(configs) {
                     value: 0
                 }
             },
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+            targetingKeys: {
                 id: 'ix_gum_id',
                 om: 'ix_gum_cpm',
                 pm: 'ix_gum_cpm',
                 pmid: 'ix_gum_dealid'
             },
-            bidUnitInCents: 1, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 1,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.MRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.MRA,
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */

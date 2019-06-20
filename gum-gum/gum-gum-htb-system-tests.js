@@ -1,4 +1,5 @@
-/* Use strict */
+'use strict';
+
 function getPartnerId() {
     return 'GumGumHtb';
 }
@@ -40,6 +41,14 @@ function validateBidRequest(request) {
 }
 
 function getValidResponse() {
+    var s1 = '<img src="//c.gumgum.com/px.gif" onload="(function(a,b){b.src=\'';
+    var s2 = 'js.gumgum.com/gumgum.js\'';
+    var s3 = ',a.parentNode.replaceChild(b,a)})(this,document.createElement(\'';
+    var s4 = 'script\'))"></img>';
+    var g1 = '<gumgum-ad product="2" fromAS=\'';
+    var g2 = 'AD_JSON\'';
+    var g3 = '></gumgum-ad>';
+    var i = s1 + s2 + s3 + s4;
     var response = {
         ad: {
             id: '123',
@@ -73,7 +82,7 @@ function getValidResponse() {
             },
             acp: null
         },
-        cw: '<img src="//c.gumgum.com/px.gif" onload="(function(a,b){b.src=\'//js.gumgum.com/gumgum.js\',a.parentNode.replaceChild(b,a)})(this,document.createElement(\'script\'))"><gumgum-ad product="2" fromAS=\'AD_JSON\'><\/gumgum-ad>'
+        cw: i + g1 + g2 + g3
     };
 
     return JSON.stringify(response);
