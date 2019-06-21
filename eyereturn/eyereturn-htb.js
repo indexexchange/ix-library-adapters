@@ -155,7 +155,8 @@ function EyereturnHtb(configs) {
             var bidCreative = '<div>' + curBid.creative + '</div>';
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.deal;
+            // NOTE: in order to work in the index adapter-debugger, deal id needs to be set to price, not curBid.deal
+            var bidDealId = bidPrice;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
