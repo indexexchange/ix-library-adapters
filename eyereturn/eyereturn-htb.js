@@ -53,18 +53,20 @@ function EyereturnHtb(configs) {
         var returnParcel = returnParcels[0];
         var xSlot = returnParcel.xSlotRef;
 
-        var payload = {
-            ad_slot: [
-                {
-                    width: parseInt(xSlot.w, 10),
-                    height: parseInt(xSlot.h, 10)
-                }
-            ],
-            request_id: returnParcel.requestId,
-            site: {
-                url: Browser.getPageUrl(),
-                referrer: Browser.getReferrer()
+        var payload = {};
+        // eslint-disable-next-line camelcase
+        payload.ad_slot = [
+            {
+                width: parseInt(xSlot.w, 10),
+                height: parseInt(xSlot.h, 10)
             }
+        ];
+
+        // eslint-disable-next-line camelcase
+        payload.request_id = returnParcel.requestId;
+        payload.site = {
+            url: Browser.getPageUrl(),
+            referrer: Browser.getReferrer()
         };
 
         var baseUrl = 'https://prometheus-ix.eyereturn.com/prometheus/bid';
