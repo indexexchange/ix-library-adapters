@@ -3,9 +3,9 @@
 |Feature|  |
 |---|---|
 | Consent | no |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Native Ad Support | no |
+| SafeFrame Support | no |
+| PMP Support | yes |
  
 ## Browser Compatibility
 | Browser |  |
@@ -16,9 +16,9 @@
 | Internet Explorer 9 |  |
 | Internet Explorer 10 |  |
 | Internet Explorer 11 |  |
-| Safari | |
-| Mobile Chrome | |
-| Mobile Safari | |
+| Safari | yes |
+| Mobile Chrome | yes |
+| Mobile Safari | yes |
 | UC Browser | |
 | Samsung Internet | |
 | Opera | |
