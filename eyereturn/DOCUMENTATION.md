@@ -28,7 +28,7 @@
 |---|---|
 | Partner Id | EyereturnHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | Dollars |
-| Bid Type (Gross / Net) | |
+| Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | |
 | GAM Key (Private Market) | |
 | Ad Server URLs | https://prometheus-ix.eyereturn.com/prometheus/bid, https://p3.eyereturn.com/|
