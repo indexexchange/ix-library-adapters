@@ -15,7 +15,7 @@
 | Firefox | yes |
 | Internet Explorer 9 |  |
 | Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
+| Internet Explorer 11 | yes |
 | Safari | yes |
 | Mobile Chrome | yes |
 | Mobile Safari | yes |
