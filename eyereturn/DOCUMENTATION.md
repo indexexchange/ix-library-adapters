@@ -11,10 +11,10 @@
 | Browser |  |
 |--- |---|
 | Chrome | yes |
-| Edge |  |
+| Edge | yes (adapter debugger doesn't work in edge due to self-signed certificate) |
 | Firefox | yes |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
+| Internet Explorer 9 | yes (adapter debugger doesn't work in ie9) |
+| Internet Explorer 10 | yes |
 | Internet Explorer 11 | yes |
 | Safari | yes |
 | Mobile Chrome | yes |
