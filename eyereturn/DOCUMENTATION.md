@@ -21,7 +21,7 @@
 | Mobile Safari | yes |
 | UC Browser | |
 | Samsung Internet | |
-| Opera | |
+| Opera | yes |
  
 ## Adapter Information
 | Info | |
