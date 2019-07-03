@@ -124,7 +124,8 @@ function AppNexusNetworkHtb(configs) {
             id: returnParcel.xSlotRef.placementId,
             size: Size.arrayToString([returnParcel.xSlotRef.sizes[0]]),
             callback: __parseFuncPath,
-            callback_uid: callbackId, // jshint ignore:line
+            // eslint-disable-next-line camelcase
+            callback_uid: callbackId,
             psa: 0
         };
 
@@ -132,25 +133,24 @@ function AppNexusNetworkHtb(configs) {
          * while the rest are added to "promo_sizes".
          */
         if (returnParcel.xSlotRef.sizes.length > 1) {
-            queryObj.promo_sizes = Size.arrayToString(returnParcel.xSlotRef.sizes.slice(1)); // jshint ignore:line
+            // eslint-disable-next-line camelcase
+            queryObj.promo_sizes = Size.arrayToString(returnParcel.xSlotRef.sizes.slice(1));
         }
 
         if (Utilities.isObject(returnParcel.xSlotRef.keywords) && !Utilities.isEmpty(returnParcel.xSlotRef.keywords)) {
             var keywordsObj = returnParcel.xSlotRef.keywords;
             Object.keys(keywordsObj)
-.forEach(function (key) {
-                var newKey = 'kw_' + key;
-                var values = '';
+                .forEach(function (key) {
+                    var newKey = 'kw_' + key;
+                    var values = '';
 
-                // Read in the values from the array of strings for the key and store in a comma separated list
-                keywordsObj[key].forEach(function (val) {
-                    values += val + ',';
+                    keywordsObj[key].forEach(function (val) {
+                        values += val + ',';
+                    });
+                    values = values.slice(0, -1);
+
+                    queryObj[newKey] = values;
                 });
-                values = values.slice(0, -1); // Drop the last comma
-
-                // Append to as queryObj.kw_key="value1,value2"
-                queryObj[newKey] = values;
-            });
         }
 
         var referrer = Browser.getPageUrl();
@@ -187,6 +187,7 @@ function AppNexusNetworkHtb(configs) {
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
             queryObj.gdpr = gdprStatus.applies ? 1 : 0;
+            // eslint-disable-next-line camelcase
             queryObj.gdpr_consent = gdprStatus.consentString;
         }
 
@@ -198,7 +199,7 @@ function AppNexusNetworkHtb(configs) {
     }
 
     function adResponseCallback(adResponseData) {
-        __baseClass._adResponseStore[adResponseData.callback_uid] = adResponseData; // jshint ignore:line
+        __baseClass._adResponseStore[adResponseData.callback_uid] = adResponseData;
     }
 
     /* -------------------------------------------------------------------------- */
@@ -265,15 +266,17 @@ function AppNexusNetworkHtb(configs) {
         var targetingCpm = '';
 
         if (adResult && adResult.hasOwnProperty('ad') && !Utilities.isEmpty(adResult.ad)) {
-            if ((adResult.hasOwnProperty('cpm') && adResult.cpm > 0) || adResult.deal_id) { // jshint ignore:line
+            if ((adResult.hasOwnProperty('cpm') && adResult.cpm > 0) || adResult.deal_id) {
                 bidReceived = true;
                 var bidPrice = adResult.cpm;
                 var bidSize = [Number(adResult.width), Number(adResult.height)];
-                var bidDealId = adResult.deal_id || ''; // jshint ignore:line
+                var bidDealId = adResult.deal_id || '';
                 var bidCreative = '<iframe src="' + adResult.ad
-                    + '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" topmargin="0" leftmargin="0" allowtransparency="true"'
-                    + ' width="' + adResult.width + '" height="' + adResult.height + '"></iframe>';
+                    + '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" topmargin="0" leftmargin="0"'
+                    + ' allowtransparency="true" width="' + adResult.width
+                    + '" height="' + adResult.height + '"></iframe>';
 
+                // eslint-disable-next-line no-undefined
                 if (bidPrice !== undefined) {
                     //? if(FEATURES.GPT_LINE_ITEMS) {
                     targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
@@ -287,9 +290,10 @@ function AppNexusNetworkHtb(configs) {
                 //? if(FEATURES.GPT_LINE_ITEMS) {
                 var sizeKey = Size.arrayToString(bidSize);
                 if (bidDealId) {
-                    returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId]; // jshint ignore:line
+                    returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
                 }
 
+                // eslint-disable-next-line no-undefined
                 if (targetingCpm !== undefined && targetingCpm !== '') {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
                 }
@@ -305,7 +309,7 @@ function AppNexusNetworkHtb(configs) {
                 returnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
                 //? }
 
-                var pubKitAdId = SpaceCamp.services.RenderService.registerAd({
+                var pubKitAdId = RenderService.registerAd({
                     sessionId: sessionId,
                     partnerId: __profile.partnerId,
                     adm: bidCreative,
@@ -313,7 +317,8 @@ function AppNexusNetworkHtb(configs) {
                     size: returnParcel.size,
                     price: targetingCpm,
                     dealId: bidDealId,
-                    timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0
+                    timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value
+                        + System.now() : 0
                 });
 
                 //? if(FEATURES.INTERNAL_RENDER) {
@@ -324,7 +329,8 @@ function AppNexusNetworkHtb(configs) {
 
         if (!bidReceived) {
             //? if (DEBUG) {
-            Scribe.info(__profile.partnerId + ' returned no demand for placement: ' + returnParcel.xSlotRef.placementId);
+            Scribe.info(__profile.partnerId + ' returned no demand for placement: '
+                + returnParcel.xSlotRef.placementId);
             //? }
             returnParcel.pass = true;
         }
