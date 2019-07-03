@@ -19,8 +19,8 @@
 | Safari | yes |
 | Mobile Chrome | yes |
 | Mobile Safari | yes |
-| UC Browser | |
-| Samsung Internet | |
+| UC Browser | no |
+| Samsung Internet | no |
 | Opera | yes |
  
 ## Adapter Information
