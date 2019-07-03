@@ -25,6 +25,7 @@ var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Utilities = require('utilities.js');
 var Whoopsie = require('whoopsie.js');
+
 var EventsService;
 var RenderService;
 var ComplianceService;
@@ -123,30 +124,33 @@ function AppNexusHtb(configs) {
             id: returnParcel.xSlotRef.placementId,
             size: Size.arrayToString([returnParcel.xSlotRef.sizes[0]]),
             callback: __parseFuncPath,
-            callback_uid: callbackId, //jshint ignore:line
+            // eslint-disable-next-line camelcase
+            callback_uid: callbackId,
             psa: 0
         };
+
         /* Endpoint expects first size to be assigned to the "size" parameter,
          * while the rest are added to "promo_sizes".
          */
         if (returnParcel.xSlotRef.sizes.length > 1) {
-            queryObj.promo_sizes = Size.arrayToString(returnParcel.xSlotRef.sizes.slice(1)); //jshint ignore:line
+            // eslint-disable-next-line camelcase
+            queryObj.promo_sizes = Size.arrayToString(returnParcel.xSlotRef.sizes.slice(1));
         }
 
         if (Utilities.isObject(returnParcel.xSlotRef.keywords) && !Utilities.isEmpty(returnParcel.xSlotRef.keywords)) {
-          var keywordsObj = returnParcel.xSlotRef.keywords;
-          Object.keys(keywordsObj).forEach(function(key) {
-            var newKey = 'kw_' + key;
-            var values = '';
-            //read in the values from the array of strings for the key and store in a comma separated list
-            keywordsObj[key].forEach(function (val) {
-              values += val + ',';
-            });
-            values = values.slice(0, -1);  // drop the last comma
-            
-            // append to as queryObj.kw_key="value1,value2"
-            queryObj[newKey] = values;
-          });
+            var keywordsObj = returnParcel.xSlotRef.keywords;
+
+            Object.keys(keywordsObj)
+                .forEach(function (key) {
+                    var newKey = 'kw_' + key;
+                    var values = '';
+
+                    keywordsObj[key].forEach(function (val) {
+                        values += val + ',';
+                    });
+                    values = values.slice(0, -1);
+                    queryObj[newKey] = values;
+                });
         }
 
         var referrer = Browser.getPageUrl();
@@ -154,7 +158,7 @@ function AppNexusHtb(configs) {
             queryObj.referrer = referrer;
         }
 
-         /* ------------------------ Get consent information -------------------------
+        /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.
          *
@@ -172,20 +176,21 @@ function AppNexusHtb(configs) {
          *
          * You can also determine whether or not the publisher has enabled privacy
          * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
-         * 
+         *
          * This function will return a boolean, which indicates whether the wrapper's
          * privacy features are on (true) or off (false). If they are off, the values
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        
+
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-        if(ComplianceService.isPrivacyEnabled()) {
+        if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
             queryObj.gdpr = gdprStatus.applies ? 1 : 0;
+            // eslint-disable-next-line camelcase
             queryObj.gdpr_consent = gdprStatus.consentString;
         }
-        
+
         return {
             url: __baseUrl,
             data: queryObj,
@@ -194,8 +199,10 @@ function AppNexusHtb(configs) {
     }
 
     function adResponseCallback(adResponseData) {
-        __baseClass._adResponseStore[adResponseData.callback_uid] = adResponseData; //jshint ignore:line
+        // eslint-disable-next-line camelcase
+        __baseClass._adResponseStore[adResponseData.callback_uid] = adResponseData;
     }
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -243,7 +250,7 @@ function AppNexusHtb(configs) {
 
         var returnParcel = returnParcels[0];
 
-        /* prepare the info to send to header stats */
+        /* Prepare the info to send to header stats */
         var headerStatsInfo = {
             sessionId: sessionId,
             statsId: __profile.statsId,
@@ -260,15 +267,17 @@ function AppNexusHtb(configs) {
         var targetingCpm = '';
 
         if (adResult && adResult.hasOwnProperty('ad') && !Utilities.isEmpty(adResult.ad)) {
-            if ((adResult.hasOwnProperty('cpm') && adResult.cpm > 0) || adResult.deal_id) { //jshint ignore:line
+            if ((adResult.hasOwnProperty('cpm') && adResult.cpm > 0) || adResult.deal_id) {
                 bidReceived = true;
                 var bidPrice = adResult.cpm;
                 var bidSize = [Number(adResult.width), Number(adResult.height)];
-                var bidDealId = adResult.deal_id || ''; //jshint ignore:line
-                var bidCreative = '<iframe src="' + adResult.ad +
-                    '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" topmargin="0" leftmargin="0" allowtransparency="true"' +
-                    ' width="' + adResult.width + '" height="' + adResult.height + '"></iframe>';
+                var bidDealId = adResult.deal_id || '';
+                var bidCreative = '<iframe src="' + adResult.ad
+                    + '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" topmargin="0" leftmargin="0"'
+                    + ' allowtransparency="true" width="' + adResult.width
+                    + '" height="' + adResult.height + '"></iframe>';
 
+                // eslint-disable-next-line no-undefined
                 if (bidPrice !== undefined) {
                     //? if(FEATURES.GPT_LINE_ITEMS) {
                     targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
@@ -282,9 +291,10 @@ function AppNexusHtb(configs) {
                 //? if(FEATURES.GPT_LINE_ITEMS) {
                 var sizeKey = Size.arrayToString(bidSize);
                 if (bidDealId) {
-                    returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId]; //jshint ignore:line
+                    returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
                 }
 
+                // eslint-disable-next-line no-undefined
                 if (targetingCpm !== undefined && targetingCpm !== '') {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
                 }
@@ -300,7 +310,7 @@ function AppNexusHtb(configs) {
                 returnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
                 //? }
 
-                var pubKitAdId = SpaceCamp.services.RenderService.registerAd({
+                var pubKitAdId = RenderService.registerAd({
                     sessionId: sessionId,
                     partnerId: __profile.partnerId,
                     adm: bidCreative,
@@ -308,7 +318,8 @@ function AppNexusHtb(configs) {
                     size: returnParcel.size,
                     price: targetingCpm,
                     dealId: bidDealId,
-                    timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0
+                    timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value
+                        + System.now() : 0
                 });
 
                 //? if(FEATURES.INTERNAL_RENDER) {
@@ -319,7 +330,8 @@ function AppNexusHtb(configs) {
 
         if (!bidReceived) {
             //? if (DEBUG) {
-            Scribe.info(__profile.partnerId + ' returned no demand for placement: ' + returnParcel.xSlotRef.placementId);
+            Scribe.info(__profile.partnerId + ' returned no demand for placement: '
+                + returnParcel.xSlotRef.placementId);
             //? }
             returnParcel.pass = true;
         }
@@ -346,7 +358,7 @@ function AppNexusHtb(configs) {
             partnerId: 'AppNexusHtb',
             namespace: 'AppNexusHtb',
             statsId: 'APNX',
-            version: '2.2.0',
+            version: '2.3.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
@@ -364,7 +376,7 @@ function AppNexusHtb(configs) {
             targetingKeys: {
                 id: 'ix_apnx_id',
                 om: 'ix_apnx_om',
-                pm: 'ix_apnx_pm'
+                pm: 'ix_apnx_dealid'
             },
             bidUnitInCents: 0.01,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
@@ -382,10 +394,8 @@ function AppNexusHtb(configs) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
-
         __baseUrl = Browser.getProtocol() + '//secure.adnxs.com/jpt';
         __parseFuncPath = SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback';
-
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
@@ -431,7 +441,7 @@ function AppNexusHtb(configs) {
         __render: __render,
         __parseResponse: __parseResponse,
 
-        adResponseCallback: adResponseCallback,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
