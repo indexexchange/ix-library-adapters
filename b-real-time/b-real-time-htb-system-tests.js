@@ -81,6 +81,7 @@ function validateBidRequest(request) {
 }
 
 function getValidResponse(request, creative) {
+    console.log(`NSC: getValidResponse -> request`, request.body);
     var r = JSON.parse(request.body);
 
     var response = {
@@ -92,7 +93,7 @@ function getValidResponse(request, creative) {
                 ttl: 300,
                 crid: "94395500",
                 w: 300,
-                price: 11.3645,
+                price: 2.00,
                 adid: "94395500",
                 h: 250
             }],
@@ -104,7 +105,7 @@ function getValidResponse(request, creative) {
                 ttl: 300,
                 crid: "41975016",
                 w: 728,
-                price: 11.3645,
+                price: 2.00,
                 adid: "41975016",
                 h: 90
             }],
@@ -127,7 +128,7 @@ function getValidResponseWithDeal(request, creative) {
                 ttl: 300,
                 crid: "94395500",
                 w: 300,
-                price: 11.3645,
+                price: 2.00,
                 adid: "94395500",
                 h: 250,
                 dealid: 11
@@ -140,7 +141,7 @@ function getValidResponseWithDeal(request, creative) {
                 ttl: 300,
                 crid: "41975016",
                 w: 728,
-                price: 11.3645,
+                price: 2.00,
                 adid: "41975016",
                 h: 90,
                 dealid: 12
@@ -155,14 +156,14 @@ function getValidResponseWithDeal(request, creative) {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_brt_cpm: jasmine.arrayContaining(['300x250_1135', '728x90_1135']),
+        ix_brt_cpm: jasmine.arrayContaining(['300x250_200', '728x90_200']),
         ix_brt_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
 }
 
 function validateTargetingWithDeal(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_brt_cpm: jasmine.arrayWithExactContents(['300x250_1135', '728x90_1135']),
+        ix_brt_cpm: jasmine.arrayWithExactContents(['300x250_200', '728x90_200']),
         ix_brt_dealid: jasmine.arrayContaining(['300x250_11', '728x90_12']),
         ix_brt_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
