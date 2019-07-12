@@ -32,7 +32,7 @@
 | GAM Key (Open Market) | ix_gum_cpm |
 | GAM Key (Private Market) | |
 | Ad Server URLs | http(s)://g2.gumgum.com/hbid/imp |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | MRA |
 
 ## Currencies Supported
@@ -72,6 +72,9 @@ Norwegian Krone
 | dpr | No | number | device pixel ratio |
 | ns | No | number | browser network speed |
 | jcsi | No | string | implementation id for internal debugging |
+| si | No | string | slot id |
+| dt | No | string | digitrust id |
+| tdid | No | string | tradedesk id |
  
 ### Example
 ```javascript
@@ -120,9 +123,9 @@ Norwegian Krone
 ### Pass Example
 ```javascript
 {
-	“bids”: [
-        ad: {}
-    ]
+	"bids": [{
+        "ad": {}
+    }]
 }
 
 ```

@@ -24,7 +24,6 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -95,7 +94,7 @@ function GumGumHtb(configs) {
         for (var index = 1; index < arguments.length; index++) {
             var nextSource = arguments[index];
 
-            if (!nextSource) {
+            if (nextSource) {
                 for (var nextKey in nextSource) {
                     // Avoid bugs when hasOwnProperty is shadowed
                     if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
@@ -154,9 +153,9 @@ function GumGumHtb(configs) {
         var identityData = returnParcel && returnParcel.identityData;
         var data = identityData && identityData.AdserverOrgIp && identityData.AdserverOrgIp.data;
 
-        if (data && data.uids && Utilities.isArray(data.uids)) {
+        if (data && data.uids && Array.isArray(data.uids)) {
             for (var i = 0; i < data.uids.length; i++) {
-                if (data.uids[i].ext.rtiPartner === 'TDID') {
+                if (data.uids[i].ext && data.uids[i].ext.rtiPartner === 'TDID') {
                     unifiedId = data.uids[i].id;
 
                     break;
@@ -586,7 +585,7 @@ function GumGumHtb(configs) {
             partnerId: 'GumGumHtb',
             namespace: 'GumGumHtb',
             statsId: 'GUM',
-            version: '2.0.0',
+            version: '2.1.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
