@@ -5,3 +5,4 @@
 - PageURL instead of Hostname for rtkreferer
 - gdpr true/false instead of 1/0
 - Fix eslint
+- System tests

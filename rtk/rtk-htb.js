@@ -232,9 +232,7 @@ function RtkHtb(configs) {
         queryObj.rtkreferer = Browser.getPageUrl();
         var categories = union(paramCategories, pubCategories);
         if (categories.length) {
-            queryObj.categories = categories.filter(function (elem, pos, arr) {
-                return arr.indexOf(elem) === pos;
-            })
+            queryObj.categories = categories
                 .map(function (c) {
                     return encodeURIComponent(c);
                 })
