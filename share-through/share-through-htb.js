@@ -117,15 +117,21 @@ function ShareThroughHtb(configs) {
 
     function __getUnifiedID(returnParcels) {
         var uids = []
-        try {
+
+        if (returnParcels[0].identityData &&
+            returnParcels[0].identityData.AdserverOrgIp &&
+            returnParcels[0].identityData.AdserverOrgIp.data &&
+            returnParcels[0].identityData.AdserverOrgIp.data.uids) {
             uids = returnParcels[0].identityData.AdserverOrgIp.data.uids;
-        } catch (err) {
+        } else {
             return null;
         }
 
-        var unifiedID;
+        var unifiedID = null;
         for (var i = 0; i < uids.length; i++) {
-            if (uids[i].ext.rtiPartner === "TDID") {
+            if (uids[i].ext &&
+                uids[i].ext.rtiPartner &&
+                uids[i].ext.rtiPartner === "TDID") {
                 unifiedID = uids[i].id;
                 break;
             }
