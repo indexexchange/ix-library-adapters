@@ -326,7 +326,10 @@ function InskinMediaHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.pricing.clearPrice;
+            var clearPrice = curBid.pricing && curBid.pricing.clearPrice;
+            var data = curBid.contents && curBid.contents[0] && curBid.contents[0].data;
+            var pubCPM = data.customData && data.customData.pubCPM;
+            var bidPrice = pubCPM || clearPrice;
 
             /* The size of the given slot */
             var bidSize = [Number(curBid.width), Number(curBid.height)];
@@ -351,7 +354,7 @@ function InskinMediaHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = curBid.impressionUrl;
+            var pixelUrl = curBid.impressionUrl + '&property:pubcpm=' + bidPrice;
 
             /* --------------------------------------------------------------------------------------- */
 
@@ -369,7 +372,10 @@ function InskinMediaHtb(configs) {
             }
 
             hasBids = true;
-            bidsMap[curReturnParcel.xSlotName] = configs.siteId;
+            bidsMap[curReturnParcel.xSlotName] = {
+                siteId: configs.siteId,
+                price: bidPrice
+            };
 
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
@@ -443,11 +449,12 @@ function InskinMediaHtb(configs) {
                 var id = 'ism_tag_' + Math.floor(Math.random() * 10e16);
                 win[id] = {
                     bidId: e.data.bidId,
+                    bidPrice: bidsMap[e.data.bidId].price,
                     serverResponse: adResponse
                 };
 
                 var script = win.document.createElement('script');
-                script.src = 'https://cdn.inskinad.com/isfe/publishercode/' + bidsMap[e.data.bidId] + '/default.js?autoload&id=' + id;
+                script.src = 'https://cdn.inskinad.com/isfe/publishercode/' + bidsMap[e.data.bidId].siteId + '/default.js?autoload&id=' + id;
                 win.document.getElementsByTagName('head')[0].appendChild(script);
             });
         }
