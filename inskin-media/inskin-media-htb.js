@@ -328,7 +328,7 @@ function InskinMediaHtb(configs) {
             /* The bid price for the given slot */
             var clearPrice = curBid.pricing && curBid.pricing.clearPrice;
             var data = curBid.contents && curBid.contents[0] && curBid.contents[0].data;
-            var pubCPM = data.customData && data.customData.pubCPM;
+            var pubCPM = data && data.customData && data.customData.pubCPM;
             var bidPrice = pubCPM || clearPrice;
 
             /* The size of the given slot */
