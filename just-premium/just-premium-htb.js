@@ -67,6 +67,14 @@ function JustPremiumHtb(configs) {
      */
     var __profile;
 
+    /**
+     * Adapter version
+     *
+     * @type {string}
+     * @private
+     */
+    var __adapterVersion = '1.2.0';
+
     /* =====================================
      * Functions
      * ---------------------------------- */
@@ -81,7 +89,7 @@ function JustPremiumHtb(configs) {
                         var bid = bids[zoneId][len];
                         if (
                             bid.rid === parcel.requestId &&
-                            __passCond(params, bids[zoneId][len])
+                            bid.slot === parcel.xSlotName
                         ) {
                             var selectedBid = bids[zoneId].splice(len, 1);
                             return selectedBid.length ? selectedBid[0] : null;
@@ -94,22 +102,34 @@ function JustPremiumHtb(configs) {
         return false;
     }
 
-    function __passCond(params, bid) {
-        var format = bid.format;
-
-        if (params.allow && params.allow.length) {
-            return params.allow.indexOf(format) > -1;
-        }
-
-        if (params.exclude && params.exclude.length) {
-            return params.exclude.indexOf(format) < 0;
-        }
-
-        return true;
-    }
-
     /* Utilities
      * ---------------------------------- */
+
+    /**
+     *
+     * @param envelope
+     * @param rti
+     * @param parcels
+     * @returns {null|string}
+     * @private
+     */
+    function __getIdentityId(envelope, rti, parcels) {
+        var uids = [];
+        try {
+            uids = parcels[0].identityData[envelope].data.uids;
+        } catch (err) {
+            return null;
+        }
+
+        var unifiedID;
+        for (var i = 0; i < uids.length; i++) {
+            if (uids[i].ext.rtiPartner === rti) {
+                unifiedID = uids[i].id;
+                break;
+            }
+        }
+        return unifiedID;
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -121,35 +141,49 @@ function JustPremiumHtb(configs) {
      */
     function __generateRequestObj(returnParcels) {
 
-        var callbackId = System.generateUniqueId();
         var queryObj = {};
-
-        var baseUrl = Browser.getProtocol() + '//pre.ads.justpremium.com/v/2.0/t/ie';
+        var baseUrl = Browser.getProtocol()
+            + '//pre.ads.justpremium.com/v/2.1/t/ie?cb=' + System.generateUniqueId();
         var gdprStatus = ComplianceService.gdpr.getConsent();
+        var tradeDeskId = __getIdentityId('AdserverOrgIp', 'TDID', returnParcels);
+        var liveRampId = __getIdentityId('LiveRampIp', 'idl', returnParcels);
         /* ---------------- Craft bid request using the above returnParcels --------- */
-        queryObj.hostname = Browser.getHostname();
-        queryObj.protocol = Browser.getProtocol().replace(':', '');
+        var identities = {};
+        if (tradeDeskId) {
+            identities.tdid = tradeDeskId;
+        }
+        if (liveRampId) {
+            identities.lrid = liveRampId;
+        }
+
+        queryObj.identities = identities;
+        queryObj.referrer = Browser.getReferrer();
         queryObj.sw = Browser.getScreenWidth();
         queryObj.sh = Browser.getScreenHeight();
         queryObj.ww = Browser.getViewportWidth();
         queryObj.wh = Browser.getViewportHeight();
         queryObj.cs = gdprStatus.applies ? (gdprStatus.consentString || '1') : '0';
-        queryObj.json = JSON.stringify(returnParcels.map(function (parcel) {
+        queryObj.apv = __adapterVersion;
+        queryObj.json = returnParcels.map(function (parcel) {
             return {
+                slot: parcel.xSlotName,
                 rid: parcel.requestId,
                 zid: parcel.xSlotRef.zoneId,
                 al: parcel.xSlotRef.allow,
-                ex: parcel.xSlotRef.exclude
-            }
-        }));
+                ex: parcel.xSlotRef.exclude,
+                sizes: parcel.xSlotRef.sizes
+            };
+        });
         queryObj.i = System.now();
 
         /* -------------------------------------------------------------------------- */
-
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
@@ -164,11 +198,11 @@ function JustPremiumHtb(configs) {
      * If the endpoint does not have an appropriate field for this, set the profile's
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
-    function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
-        var callbackId = 0;
-        __baseClass._adResponseStore[callbackId] = adResponse;
-    }
+    // function adResponseCallback(adResponse) {
+    //     /* get callbackId from adResponse here */
+    //     var callbackId = 0;
+    //     __baseClass._adResponseStore[callbackId] = adResponse;
+    // }
 
     /* -------------------------------------------------------------------------- */
 
@@ -189,7 +223,7 @@ function JustPremiumHtb(configs) {
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
@@ -208,11 +242,9 @@ function JustPremiumHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
         /* ---------- Process adResponse and extract the bids into the bids array ------------*/
-
         var jPAM = Browser.topWindow.jPAM = Browser.topWindow.jPAM || {};
-        jPAM.ie = jPAM.ie || {bids: []};
+        jPAM.ie = jPAM.ie || { bids: [] };
 
         /* --------------------------------------------------------------------------------- */
 
@@ -225,7 +257,6 @@ function JustPremiumHtb(configs) {
 
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
-
             if (!jPAM.ie.bids.length) {
                 curBid = __findBid(curReturnParcel, adResponse);
             }
@@ -343,7 +374,7 @@ function JustPremiumHtb(configs) {
             bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
+            architecture: Partner.Architectures.MRA, // Request architecture, please refer to the readme for details
             requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
         };
         /* ---------------------------------------------------------------------------------------*/
@@ -358,8 +389,8 @@ function JustPremiumHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj,
-            adResponseCallback: adResponseCallback
+            generateRequestObj: __generateRequestObj//,
+            // adResponseCallback: adResponseCallback
         });
     })();
 
@@ -391,8 +422,7 @@ function JustPremiumHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        generateRequestObj: __generateRequestObj
         //? }
     };
 

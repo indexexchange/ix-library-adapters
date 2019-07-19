@@ -4,9 +4,9 @@
   "description": "Index Exchange's HeaderTag Wrapper Adapter",
   "devDependencies": {
     "adapter-development-suite": "git+https://github.com/indexexchange/adapter-development-suite.git#master-mono-repo",
+    "base-adapter-template": "git+https://github.com/indexexchange/base-adapter-template.git",
     "eslint": "^4.13.1",
-    "eslint-config-adapters": "git+https://github.com/indexexchange/eslint-config-adapters.git",
-    "base-adapter-template": "git+https://github.com/indexexchange/base-adapter-template.git"
+    "eslint-config-adapters": "git+https://github.com/indexexchange/eslint-config-adapters.git"
   },
   "scripts": {
     "debug": "node ./node_modules/adapter-development-suite/bin/index.js",
