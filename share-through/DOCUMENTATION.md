@@ -49,7 +49,7 @@
   placement_key: "abc123",
   bidId: "_fakeBidId",
   instant_play_capable: "true",
-  hbSource: "index",
+  hbSource: "indexExchange",
   hbVersion: "2.1.2",
   cbust: System.now()
 };

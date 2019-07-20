@@ -43,7 +43,7 @@ function validateBidRequest(request) {
   expect(queryObj.bidId).toBeDefined();
   expect(queryObj.placement_key).toEqual("abc123");
   expect(queryObj.instant_play_capable).toBeDefined();
-  expect(queryObj.hbSource).toEqual("index");
+  expect(queryObj.hbSource).toEqual("indexExchange");
   expect(queryObj.hbVersion).toEqual("2.1.2");
   expect(queryObj.cbust).toBeDefined();
   expect(queryObj.consent_required).toEqual("false");

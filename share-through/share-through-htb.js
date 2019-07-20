@@ -89,7 +89,7 @@ function ShareThroughHtb(configs) {
             placement_key: returnParcels[0].xSlotRef.placementKey,
             bidId: returnParcels[0].requestId,
             instant_play_capable: __canAutoPlayHTML5Video(),
-            hbSource: "index",
+            hbSource: "indexExchange",
             hbVersion: "2.1.2",
             cbust: System.now()
         };
