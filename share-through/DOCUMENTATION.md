@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | |
 | GAM Key (Private Market) | |
-| Ad Server URLs | btlr.sharethrough.com/header-bid/v1 |
+| Ad Server URLs | btlr.sharethrough.com/t6oivhQt/v1 |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | MRA |
 
@@ -49,7 +49,7 @@
   placement_key: "abc123",
   bidId: "_fakeBidId",
   instant_play_capable: "true",
-  hbSource: "indexExchange",
+  hbSource: "index",
   hbVersion: "2.1.2",
   cbust: System.now()
 };

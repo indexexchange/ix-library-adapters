@@ -83,13 +83,13 @@ function ShareThroughHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var baseUrl = Browser.getProtocol() + '//btlr.sharethrough.com/header-bid/v1';
+        var baseUrl = Browser.getProtocol() + '//btlr.sharethrough.com/t6oivhQt/v1';
 
         var queryObj = {
             placement_key: returnParcels[0].xSlotRef.placementKey,
             bidId: returnParcels[0].requestId,
             instant_play_capable: __canAutoPlayHTML5Video(),
-            hbSource: "indexExchange",
+            hbSource: "index",
             hbVersion: "2.1.2",
             cbust: System.now()
         };
