@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | |
 | GAM Key (Private Market) | |
-| Ad Server URLs | btlr.sharethrough.com/header-bid/v1 |
+| Ad Server URLs | btlr.sharethrough.com/t6oivhQt/v1 |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | MRA |
 
