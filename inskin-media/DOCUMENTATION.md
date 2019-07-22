@@ -6,7 +6,7 @@
 | Native Ad Support | No |
 | SafeFrame Support | Yes |
 | PMP Support | No |
- 
+
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
@@ -22,7 +22,7 @@
 | UC Browser | Yes |
 | Samsung Internet | Yes |
 | Opera | Yes |
- 
+
 ## Adapter Information
 | Info | |
 |---|---|
@@ -32,11 +32,11 @@
 | GAM Key (Open Market) | ix_ism_cpm |
 | GAM Key (Private Market) | ix_ism_cpm, ix_ism_dealid|
 | Ad Server URLs | http(s)://mfad.inskinad.com/api/v2 |
-| Slot Mapping Sytle (Size / Multiple Sizes / Slot) | Slot |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | SRA |
- 
+
 ## Currencies Supported
- 
+
  USD
 
 ## Bid Request Information
@@ -85,7 +85,7 @@ POST https://mfad.inskinad.com/api/v2
     },
     "decisions": {
         "Oj2BSfze": {/*xSlotName*/
-            "adId": n3ik7dk2,
+            "adId": 8228551,
             "creativeId": 5307845,
             "flightId": 7887391,
             "campaignId": 673897,
@@ -95,6 +95,9 @@ POST https://mfad.inskinad.com/api/v2
             "contents": [{
                 "type": "raw",
                 "data": {
+                    "customData": {
+                        "pubCPM":1.00 /* Alternative CPM for different publisher payment models*/
+                    },
                     "example": "creativeInfo"
                 },
                 "body": "<script>'Test Ad Content'</script>",
@@ -129,7 +132,6 @@ POST https://mfad.inskinad.com/api/v2
     }
 }
 ```
- 
 ## Configuration Information
 ### Configuration Keys
 | Key | Required | Type | Description |
