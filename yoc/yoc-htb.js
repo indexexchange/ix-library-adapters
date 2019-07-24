@@ -282,18 +282,24 @@ function YocHtb(configs) {
                 for (n = 0; n < bids.length; n++) {
                     if (curReturnParcel.xSlotRef.auid === String(bids[n].auid)) {
                         curBid = bids[n];
-                        bids.splice(n, 1); // deleting matching bid from the array
 
-                        break; // breaking from the inner for cycle
+                        // Deleting matching bid from the array
+                        bids.splice(n, 1);
+
+                        // Breaking from the inner for cycle
+                        break;
                     }
                 }
 
                 if (curBid) {
-                    if (!bids.length) { // no bids left in the seatbid
-                        seatbids.splice(i, 1); // deleting matching seatbid
+                    // No bids left in the seatbid
+                    if (!bids.length) {
+                        // Deleting matching seatbid
+                        seatbids.splice(i, 1);
                     }
 
-                    break; // breaking from the outer for cycle
+                    // Breaking from the outer for cycle
+                    break;
                 }
             }
 
