@@ -192,8 +192,8 @@ function validateBidRequestWithPrivacy(request) {
 
 function validateBidRequestWithAdSrvrOrg(request) {
     var body = JSON.parse(request.body);
-    expect(body.user.eids.source).toEqual('adserver.org');
-    expect(body.user.eids.uids).toEqual(jasmine.arrayContaining([
+    expect(body.user.eids[0].source).toEqual('adserver.org');
+    expect(body.user.eids[0].uids).toEqual(jasmine.arrayContaining([
         {
             id: 'TEST_ADSRVR_ORG_STRING',
             ext: {
