@@ -194,7 +194,7 @@ function PubMaticHtb(configs) {
         };
 
         if (idData && idData.hasOwnProperty('AdserverOrgIp') && idData.AdserverOrgIp.hasOwnProperty('data')) {
-            userObj.eids = idData.AdserverOrgIp.data;
+            userObj.eids = [idData.AdserverOrgIp.data];
         }
 
         return userObj;
