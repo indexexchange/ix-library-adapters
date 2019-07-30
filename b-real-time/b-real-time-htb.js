@@ -331,7 +331,7 @@ function BRealTimeHtb(configs) {
             partnerId: 'BRealTimeHtb', // PartnerName
             namespace: 'BRealTimeHtb', // Should be same as partnerName
             statsId: 'BRT', // Unique partner identifier
-            version: '2.2.2',
+            version: '3.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
