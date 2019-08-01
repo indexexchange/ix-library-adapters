@@ -68,8 +68,9 @@ function BRealTimeHtb(configs) {
         if (!bidResponse.hasOwnProperty('seatbid')) {
             return false;
         }
-        for (var emxBid of bidResponse.seatbid) {
-            var bid = emxBid.bid[0];
+        var emxBids = bidResponse.seatbid;
+        for (var i = 0; i < emxBids.length; i++) {
+            var bid = emxBids[i].bid[0];
 
             if (parcel.xSlotName == bid.id) {
                 return bid;
@@ -164,7 +165,7 @@ function BRealTimeHtb(configs) {
             if (gdprStatus.hasOwnProperty('applies')) {
                 __emxData.regs = {
                     ext: {
-                        gdpr: gdprStatus.gdprApplies ? 1 : 0
+                        gdpr: gdprStatus.applies ? 1 : 0
                     }
                 };
             }

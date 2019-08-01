@@ -81,7 +81,6 @@ function validateBidRequest(request) {
 }
 
 function getValidResponse(request, creative) {
-    console.log(`NSC: getValidResponse -> request`, request.body);
     var r = JSON.parse(request.body);
 
     var response = {
