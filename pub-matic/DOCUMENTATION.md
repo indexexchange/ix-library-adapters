@@ -2,7 +2,7 @@
 ## General Compatibility
 |Feature|  |
 | Consent | Yes |
-| Native Ad Support | Yes |
+| Native Ad Support | No |
 | SafeFrame Support | Yes |
 | PMP Support | Yes |
  
@@ -41,8 +41,8 @@
 ### Parameters
 | Key | Required | Type | Description |
 |id|Yes|String| Identifier |
-|at|Yes|Integer| Value passed 1 |
-|cur|No|String[]| Value passed USD |
+|at|Yes|Integer| Default Value 1 (Hardcoded) |
+|cur|No|String[]| Default Value USD (Hardcoded) |
 |imp|Yes|Object| ortb request contains information of slots and impressions |
 |site|No|Object| object contains information of page,publisher,ref and domain |
 |device|Yes|Object| object contains information of browser, w,h of device,DONOTTRACK flag,language and geo |
@@ -135,12 +135,9 @@
  	},
  	"ext": {
  		"wrapper": {
- 			"profile": 1967,
- 			"version": 1,
  			"wiid": "d4d8fbb0-c284-4b41-b515-5077b8af2e2b-ufeed",
- 			"wv": "prebid_prebid_2.8.0",
  			"transactionId": "a7e544a8-db2b-48a4-bfd3-31f5eb1fcf45",
- 			"wp": "pbjs"
+ 			"wp": "ixjs"
  		}
  	}
  }

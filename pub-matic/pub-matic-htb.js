@@ -207,7 +207,7 @@ function PubMaticHtb(configs) {
         ext.wrapper.version = __globalConfigs.version || undef;
         ext.wrapper.wiid = __globalConfigs.wiid || undef;
         ext.wrapper.transactionId = __globalConfigs.transactionId;
-        ext.wrapper.wp = 'pbjs';
+        ext.wrapper.wp = 'ixjs';
 
         return ext;
     }
