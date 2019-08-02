@@ -28,10 +28,10 @@
 | Partner Id | PubMaticHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | Dollars |
 | Bid Type (Gross / Net) | Net |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
+| GAM Key (Open Market) | ix_pubm_om |
+| GAM Key (Private Market) | ix_pubm_om |
 | Ad Server URLs | https://hbopenbid.pubmatic.com/translator? |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) |  |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | SRA |
  
 ## Currencies Supported
@@ -183,7 +183,7 @@
 ```
 ### Pass Example
 ```javascript
- 
+ HTTP status code - 204 No Content
 ```
  
 ## Configuration Information

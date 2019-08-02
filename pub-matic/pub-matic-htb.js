@@ -203,8 +203,6 @@ function PubMaticHtb(configs) {
     function __populateExtObject() {
         var ext = {};
         ext.wrapper = {};
-        ext.wrapper.profile = __globalConfigs.profile || undef;
-        ext.wrapper.version = __globalConfigs.version || undef;
         ext.wrapper.wiid = __globalConfigs.wiid || undef;
         ext.wrapper.transactionId = __globalConfigs.transactionId;
         ext.wrapper.wp = 'ixjs';
@@ -624,7 +622,7 @@ function PubMaticHtb(configs) {
 
             // Unique partner identifier
             statsId: 'PUBM',
-            version: '2.1.2',
+            version: '2.1.3',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: !0

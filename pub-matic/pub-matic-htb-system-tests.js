@@ -113,7 +113,7 @@ function validateBidRequest(request) {
 
         expect(body.ext).toBeDefined();
         expect(body.ext.wrapper).toBeDefined();
-        expect(body.ext.wrapper.wp).toEqual('pbjs');
+        expect(body.ext.wrapper.wp).toEqual('ixjs');
     }
 }
 
