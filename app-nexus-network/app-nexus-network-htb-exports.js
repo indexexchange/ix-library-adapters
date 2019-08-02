@@ -11,9 +11,9 @@
     render: SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'AppNexusNetworkHtb')
 };
 
-/* Existing creatives use window.pbjs.renderApnxAd */
+/* Existing creatives use window.pbjs.renderApnxNetAd */
 window.pbjs = window.pbjs || {};
-window.pbjs.renderApnxAd = SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'AppNexusNetworkHtb');
+window.pbjs.renderApnxNetAd = SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'AppNexusNetworkHtb');
 //? }
 
 if (__directInterface.Layers.PartnersLayer.Partners.AppNexusNetworkHtb) {
