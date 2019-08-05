@@ -1,2 +1,2 @@
-# 3.0.0
-- Bidder refactored to support latest EMX Exchange.
+# 1.0.0
+- Bidder added to support latest EMX Exchange.

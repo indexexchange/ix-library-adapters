@@ -93,7 +93,7 @@ function EmxDigitalHtb(configs) {
      */
     function __generateRequestObj(returnParcels) {
         var timeout = SpaceCamp.globalTimeout || 1500;
-        var version = '3.0.0';
+        var version = '1.0.0';
 
         var timestamp = System.now();
         var baseUrl = Browser.getProtocol() + __endpoint + ('?t=' + timeout + '&ts=' + timestamp);
@@ -330,7 +330,7 @@ function EmxDigitalHtb(configs) {
             partnerId: 'EmxDigitalHtb',
             namespace: 'EmxDigitalHtb',
             statsId: 'EMX2',
-            version: '3.0.0',
+            version: '1.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
