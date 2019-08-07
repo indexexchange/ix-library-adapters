@@ -5,7 +5,7 @@ function getPartnerId() {
 }
 
 function getStatsId() {
-    return 'EMX2';
+    return 'BRT';
 }
 
 function getCallbackType() {
@@ -172,16 +172,16 @@ function getValidResponseWithDeal(request, creative) {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_emx2_cpm: jasmine.arrayContaining(['300x250_200', '728x90_200']),
-        ix_emx2_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
+        ix_brt_cpm: jasmine.arrayContaining(['300x250_200', '728x90_200']),
+        ix_brt_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
 }
 
 function validateTargetingWithDeal(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_emx2_cpm: jasmine.arrayWithExactContents(['300x250_200', '728x90_200']),
-        ix_emx2_dealid: jasmine.arrayContaining(['300x250_11', '728x90_12']),
-        ix_emx2_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
+        ix_brt_cpm: jasmine.arrayWithExactContents(['300x250_200', '728x90_200']),
+        ix_brt_dealid: jasmine.arrayContaining(['300x250_11', '728x90_12']),
+        ix_brt_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
 }
 

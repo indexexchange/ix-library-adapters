@@ -329,7 +329,7 @@ function EmxDigitalHtb(configs) {
         __profile = {
             partnerId: 'EmxDigitalHtb',
             namespace: 'EmxDigitalHtb',
-            statsId: 'EMX2',
+            statsId: 'BRT',
             version: '1.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -347,10 +347,10 @@ function EmxDigitalHtb(configs) {
             },
             bidUnitInCents: 100,
             targetingKeys: {
-                id: 'ix_emx2_id',
-                om: 'ix_emx2_cpm',
-                pm: 'ix_emx2_cpm',
-                pmid: 'ix_emx2_dealid'
+                id: 'ix_brt_id',
+                om: 'ix_brt_cpm',
+                pm: 'ix_brt_cpm',
+                pmid: 'ix_brt_dealid'
             },
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,

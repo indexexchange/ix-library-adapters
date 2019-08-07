@@ -29,8 +29,8 @@
 | Partner Id | BRealTimeHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | |
 | Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | ix_emx2_cpm |
-| GAM Key (Private Market) | ix_emx2_<bidDealId> |
+| GAM Key (Open Market) | ix_brt_cpm |
+| GAM Key (Private Market) | ix_brt_dealid |
 | Ad Server URLs | emxdgt |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | SRA |
