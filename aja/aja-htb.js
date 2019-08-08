@@ -58,6 +58,7 @@ function AJAHtb(configs) {
      *
      * @private {string}
      */
+    // TODO: delete stg
     var __endpoint = Browser.getProtocol() + '//stg-ad.as.amanad.adtdp.com';
 
     /**
@@ -150,7 +151,7 @@ function AJAHtb(configs) {
         /* ---------------------- PUT CODE HERE ------------------------------------ */
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = __endpoint + '/v2/prebid';
+        var baseUrl = __endpoint + '/v2/ixw';
         var callbackId = System.generateUniqueId();
 
         /* ------------------------ Get consent information -------------------------
