@@ -55,7 +55,7 @@ function getValidResponse(request, creative) {
                 inviews: []
             },
             prebid_id: prebid_id,
-            price: 100,
+            price: 200,
             currency: 'JPY',
             creative_id: '10410582'
         },
@@ -69,7 +69,7 @@ function getValidResponse(request, creative) {
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(
         jasmine.objectContaining({
-            ix_aja_cpm: jasmine.arrayWithExactContents(['320x100_100']),
+            ix_aja_cpm: jasmine.arrayWithExactContents(['320x100_200']),
             ix_aja_id: jasmine.arrayWithExactContents([jasmine.any(String)])
         })
     );
