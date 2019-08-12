@@ -292,7 +292,6 @@ function AppNexusNetworkHtb(configs) {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
                 }
 
-                // eslint-disable-next-line no-undefined
                 if (targetingCpm !== '') {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
                 }
