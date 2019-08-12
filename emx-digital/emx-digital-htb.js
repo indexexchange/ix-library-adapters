@@ -32,7 +32,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function EmxDigitalHtb(configs) {
+function BRealTimeHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -327,8 +327,8 @@ function EmxDigitalHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------  */
         __profile = {
-            partnerId: 'EmxDigitalHtb',
-            namespace: 'EmxDigitalHtb',
+            partnerId: 'BRealTimeHtb',
+            namespace: 'BRealTimeHtb',
             statsId: 'BRT',
             version: '1.0.0',
             targetingType: 'slot',
@@ -383,7 +383,7 @@ function EmxDigitalHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'EmxDigitalHtb',
+        __type__: 'BRealTimeHtb',
         //? }
 
         //? if (TEST) {
@@ -413,4 +413,4 @@ function EmxDigitalHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = EmxDigitalHtb;
+module.exports = BRealTimeHtb;

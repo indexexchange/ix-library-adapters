@@ -1,7 +1,7 @@
 'use strict';
 
 function getPartnerId() {
-    return 'EmxDigitalHtb';
+    return 'BRealTimeHtb';
 }
 
 function getStatsId() {

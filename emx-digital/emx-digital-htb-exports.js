@@ -7,7 +7,7 @@
  */
 
 //? if(FEATURES.GPT_LINE_ITEMS) {
-shellInterface.EmxDigitalHtb = {
-    render: SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'EmxDigitalHtb')
+shellInterface.BRealTimeHtb = {
+    render: SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'BRealTimeHtb')
 };
 //? }

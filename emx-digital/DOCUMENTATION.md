@@ -65,7 +65,7 @@ USD
             w: 728,
             h: 90
         },
-        tagid: '74072',
+        tagid: "74072",
         secure: 1,
         bidfloor: 0.01
     }],
