@@ -23,18 +23,18 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            dcn: {
+                type: 'string',
+                minLength: 1
+            },
             xSlots: {
                 type: 'object',
                 properties: {
                     '*': {
                         type: 'object',
                         properties: {
-                            dcn: {
-                                type: ['string'],
-                                minLength: 1
-                            },
                             pos: {
-                                type: ['string'],
+                                type: 'string',
                                 minLength: 1
                             }
                         }

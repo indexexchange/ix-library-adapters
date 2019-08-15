@@ -18,9 +18,9 @@ function getArchitecture() {
 
 function getConfig() {
     return {
+        dcn: '2c9d2b4f015f5f7dd437918a83ea020c',
         xSlots: {
             1: {
-                dcn: '2c9d2b4f015f5f7dd437918a83ea020c',
                 pos: 'hb_index_leader1'
             }
         }
@@ -48,7 +48,7 @@ function getValidResponse(request, creative) {
                 bid: [
                     {
                         id: 'cd0f678ac97e4e4ea2261fa23d50ca35',
-                        price: '200',
+                        price: '2.00',
                         adm: creative || '<div id="vzm-test-adm">HELLO WORLD</div>',
                         adomain: ['https://www.verizonmedia.com'],
                         crid: '202551',

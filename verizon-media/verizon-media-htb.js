@@ -166,7 +166,7 @@ function VerizonMediaHtb(configs) {
         /* -------------------------------------------------------------------------- */
 
         var requestParams = {
-            dcn: returnParcels[0].xSlotRef.dcn,
+            dcn: configs.dcn,
             pos: returnParcels[0].xSlotRef.pos,
             secure: 1
         };
@@ -431,7 +431,7 @@ function VerizonMediaHtb(configs) {
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
-            bidUnitInCents: 1,
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.MRA,
