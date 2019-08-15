@@ -424,10 +424,10 @@ function VerizonMediaHtb(configs) {
 
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_VZM_id',
-                om: 'ix_VZM_cpm',
-                pm: 'ix_VZM_cpm',
-                pmid: 'ix_VZM_dealid'
+                id: 'ix_vzm_id',
+                om: 'ix_vzm_cpm',
+                pm: 'ix_vzm_cpm',
+                pmid: 'ix_vzm_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */

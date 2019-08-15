@@ -77,8 +77,8 @@ function getPassResponse(request) {
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(
         jasmine.objectContaining({
-            ix_VZM_cpm: jasmine.arrayWithExactContents(['300x250_200']),
-            ix_VZM_id: jasmine.arrayWithExactContents([jasmine.any(String)])
+            ix_vzm_cpm: jasmine.arrayWithExactContents(['300x250_200']),
+            ix_vzm_id: jasmine.arrayWithExactContents([jasmine.any(String)])
         })
     );
 }
