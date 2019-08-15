@@ -60,7 +60,7 @@ function getValidResponse(request, creative) {
         bid: [
           {
             id: '135118129423453799',
-            price: '200',
+            price: '2.00',
             adm: creative || '<div id="aol-test-adm">HELLO WORLD</div>',
             crid: '19992723',
             w: 300,
