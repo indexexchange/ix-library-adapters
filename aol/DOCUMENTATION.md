@@ -2,38 +2,38 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | Yes |
+| Native Ad Support | No |
+| SafeFrame Support | Yes |
+| PMP Support | Yes |
  
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome |  |
-| Edge |  |
-| Firefox |  |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| Chrome | Yes |
+| Edge | Yes |
+| Firefox | Yes |
+| Internet Explorer 9 | No |
+| Internet Explorer 10 | Yes |
+| Internet Explorer 11 | Yes |
+| Safari | Yes |
+| Mobile Chrome | Yes |
+| Mobile Safari | Yes |
+| UC Browser | Yes |
+| Samsung Internet | Yes |
+| Opera | Yes |
  
 ## Adapter Information
 | Info | |
 |---|---|
 | Partner Id | AOLHtb |
-| Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
-| Ad Server URLs | |
+| Ad Server Responds in (Cents, Dollars, etc) | Dollars |
+| Bid Type (Gross / Net) | Net |
+| GAM Key (Open Market) | ix_aol_cpm |
+| GAM Key (Private Market) | ix_aol_cpm |
+| Ad Server URLs | adserver-(as&#124;eu&#124;us).adtech.advertising.com |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Request Architecture (MRA / SRA) | MRA |
  
 ## Currencies Supported
  
@@ -51,21 +51,52 @@
 ## Bid Response Information
 ### Bid Example
 ```javascript
- 
+{
+    id: '135118129423453799',
+    seatbid: [
+      {
+        bid: [
+          {
+            id: '135118129423453799',
+            price: '0.59',
+            adm: 'ADMARKUP FOUND HERE',
+            crid: '19992723',
+            w: 300,
+            h: 250
+          }
+        ]
+      }
+    ],
+    ext: {}
+  }
 ```
 ### Pass Example
 ```javascript
- 
+ {
+    id: '135118129423453799',
+    seatbid: [],
+    nbr: 1
+  };
 ```
  
 ## Configuration Information
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| networkId | Yes |  string | The network identifier assigned to the publisher. |
+| region | Yes |  string | The ad serving region associated to the network. One of 'eu', 'us' and 'asia' |
+| placementId | Yes |  string | The placement identifier |
 ### Example
 ```javascript
- 
+ {
+    region: 'us',
+    networkId: '9599.1',
+    xSlots: {
+      1: {
+        placementId: '4601516'
+      }
+    }
+  }
 ```
 
 ## Test Configuration
