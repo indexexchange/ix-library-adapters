@@ -31,8 +31,8 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | ix_aol_cpm |
 | GAM Key (Private Market) | ix_aol_cpm |
-| Ad Server URLs | adserver-(as&#124;eu&#124;us).adtech.advertising.com |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | |
+| Ad Server URLs | https://adserver-(as&#124;eu&#124;us).adtech.advertising.com/pubapi |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | MRA |
  
 ## Currencies Supported
