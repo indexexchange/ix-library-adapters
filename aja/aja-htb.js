@@ -186,9 +186,9 @@ function AJAHtb(configs) {
         var queryObj = {
             asi: parcel.xSlotRef.asi,
             skt: __sdkType,
-            prebid_id: parcel.htSlot.getId(),
-            prebid_ver: __version,
-            page_url: Browser.topWindow.location.href
+            prebid_id: parcel.htSlot.getId(), // eslint-disable-line camelcase
+            prebid_ver: __version, // eslint-disable-line camelcase
+            page_url: Browser.topWindow.location.href // eslint-disable-line camelcase
         };
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
@@ -234,12 +234,14 @@ function AJAHtb(configs) {
      * This function will render the pixel given.
      * @param  {string} pixelUrl Tracking pixel img url.
      */
-    function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
+    function __renderPixel(pixelUrls) {
+        if (pixelUrls.length > 0) {
+            for (var i = 0; i < pixelUrls.length; i++) {
+                Network.img({
+                    url: decodeURIComponent(pixelUrls[i]),
+                    method: 'GET'
+                });
+            }
         }
     }
 
@@ -334,12 +336,19 @@ function AJAHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            // TODO
-            var pixelUrl = '';
+            var pixelUrls = [];
             if (adResponse.syncs.length > 0) {
-                pixelUrl = adResponse.syncs[0];
-            } else if (adResponse.sync_htmls.length > 0) {
-                pixelUrl = adResponse.sync_htmls[0];
+                pixelUrls = pixelUrls.concat(adResponse.syncs);
+            }
+
+            if (adResponse.sync_htmls.length > 0) {
+                pixelUrls = pixelUrls.concat(adResponse.sync_htmls);
+            }
+
+            if (curBid) {
+                if (curBid.banner.imps.length > 0) {
+                    pixelUrls = pixelUrls.concat(curBid.banner.imps);
+                }
             }
 
             /* --------------------------------------------------------------------------------------- */
@@ -382,8 +391,8 @@ function AJAHtb(configs) {
 
             //? if (FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
-            if (pixelUrl) {
-                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+            if (pixelUrls && pixelUrls.length > 0) {
+                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrls);
             }
             //? }
 
@@ -406,7 +415,7 @@ function AJAHtb(configs) {
                 dealId: bidDealId || null,
                 timeOfExpiry: expiry,
                 auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
+                auxArgs: pixelUrls
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
