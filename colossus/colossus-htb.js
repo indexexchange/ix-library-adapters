@@ -139,7 +139,7 @@ function ColossusHtb(configs) {
         var secure = Browser.getProtocol() === 'https:' ? 1 : 0;
         var queryObj = {
             host: Browser.getHostname(),
-            page: Browser.getPageUrl(),
+            page: Browser.getPathname(),
             deviceHeight: Browser.getScreenHeight(),
             deviceWidth: Browser.getScreenWidth(),
             placements: placements,
