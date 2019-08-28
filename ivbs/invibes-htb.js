@@ -1,239 +1,676 @@
 'use strict';
 
-function getPartnerId() {
-    return 'InvibesHtb';
-}
+////////////////////////////////////////////////////////////////////////////////
+// Dependencies ////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-function getStatsId() {
-    return 'INDX';
-}
+var Browser = require('browser.js');
+var Classify = require('classify.js');
+var Constants = require('constants.js');
+var Partner = require('partner.js');
+var Size = require('size.js');
+var SpaceCamp = require('space-camp.js');
+var System = require('system.js');
+var Network = require('network.js');
 
-function getBidRequestRegex() {
-    return {
-        method: 'GET',
-        urlRegex: /.*as(-sec)?\.debugger\//
-    };
-}
+var ComplianceService;
+var RenderService;
 
-function getCallbackType() {
-    return 'ID';
-}
+//? if (DEBUG) {
+var ConfigValidators = require('config-validators.js');
+var PartnerSpecificValidator = require('invibes-htb-validator.js');
+var Scribe = require('scribe.js');
+var Whoopsie = require('whoopsie.js');
+//? }
+const CONSTANTS = {
+    BIDDER_CODE: 'invibes',
+    BID_ENDPOINT: ' //localhost/KWEB.Website/bid/videoadcontent',
+    SYNC_ENDPOINT: '//k.r66net.com/GetUserSync',
 
-function getArchitecture() {
-    return 'FSRA';
-}
-
-function getConfig() {
-    return {
-        siteId: '123456',
-        xSlots: {
-            1: {
-                size: [300, 250],
-                siteId: '372138'
-            },
-            2: {
-                size: [300, 250],
-                siteId: '372138'
-            }
-        }
-    };
-}
-
-function validateBidRequest(request) {
-    expect(request.query.v).toBe('7.2');
-    expect(request.query.s).toBe('123456');
-    expect(request.query.fn).toBe('headertag.InvibesHtb.adResponseCallback');
-
-    var r = JSON.parse(request.query.r);
-
-    expect(r.id).toBeDefined();
-
-    expect(r.site.page).toBeDefined();
-
-    expect(r.imp.length).toBe(2);
-
-    expect(r.imp[0]).toEqual({
-        id: '1',
-        banner: {
-            w: 300,
-            h: 250,
-            topframe: jasmine.anything()
-        },
-        ext: {
-            sid: '1',
-            siteID: '372138'
-        }
-    });
-
-    expect(r.imp[1]).toEqual({
-        id: '2',
-        banner: {
-            w: 300,
-            h: 250,
-            topframe: jasmine.anything()
-        },
-        ext: {
-            sid: '2',
-            siteID: '372138'
-        }
-    });
-
-    expect(r.ext.source).toBe('ixwrapper');
-}
-
-function validateBidRequestWithPrivacy(request) {
-    var r = JSON.parse(request.query.r);
-
-    expect(r.regs).toEqual(jasmine.objectContaining({
-        ext: {
-            gdpr: 1
-        }
-    }));
-
-    expect(r.user).toEqual(jasmine.objectContaining({
-        ext: {
-            consent: 'TEST_GDPR_CONSENT_STRING'
-        }
-    }));
-}
-
-function validateBidRequestWithAdSrvrOrg(request) {
-    var r = JSON.parse(request.query.r);
-    expect(r.user.eids).toEqual(jasmine.arrayContaining([{
-        source: 'adserver.org',
-        uids: jasmine.arrayContaining([{
-            id: 'TEST_ADSRVR_ORG_STRING',
-            ext: {
-                rtiPartner: 'TDID'
-            }
-        }])
-    }]));
-}
-
-function getValidResponse(request, creative) {
-    var r = JSON.parse(request.query.r);
-    var adm = creative;
-     var response = {
-        cur: 'USD',
-        id: r.id,
-        seatbid: [
-            {
-                bid: [
-                    {
-                        adid: '1487603',
-                        adm: adm,
-                        adomain: ['www.videostep.com'],
-                        ext: {
-                            advbrand: 'IX',
-                            advbrandid: '25661',
-                            pricelevel: '200'
-                        },
-                        id: 567841330,
-                        impid: '1',
-                        price: '200'
-                    },
-                    {
-                        adid: '1487603',
-                        adm: adm,
-                        adomain: ['www.videostep.com'],
-                        ext: {
-                            advbrand: 'IX',
-                            advbrandid: '25661',
-                            pricelevel: '100'
-                        },
-                        id: 567841330,
-                        impid: '2',
-                        price: '100'
-                    }
-                ],
-                seat: '2439'
-            }
-        ]
-    };
-
-    return 'headertag.InvibesHtb.adResponseCallback(' + JSON.stringify(response) + ')';
-}
-
-function validateTargeting(targetingMap) {
-    expect(targetingMap).toEqual(jasmine.objectContaining({
-        IOM: jasmine.arrayContaining(['300x250_200', '300x250_100']),
-        ix_id: jasmine.arrayContaining([jasmine.any(String)])
-    }));
-}
-
-function getValidResponseWithDeal(request, creative) {
-    debugger;
-    var r = JSON.parse(request.query.r);
-    var adm = creative || '<a target="_blank" href="http://www.videostep.com"><div style="text-decoration: none; color: black; width: 300px; height:250px;background-color: #336eff;"; id="testDiv"><h1>&lt;header_tag&gt; certification testing: 1_1a1a1a1a, deal: 12346 (211474080)width: 300px; height:250px <iframe src="http://as.casalemedia.com/ifnotify?dfp_1_1a1a1a1a&referer=http://127.0.0.1:3000/p/DfpAuto/nonPrefetch/test?dev=desktop&displayMode=SRA&req=211474080" width="0" height="0" frameborder="0" scrolling="no" style="display:none;" marginheight="0" marginwidth="0"></iframe></h1></div><script>var thisDiv = document.getElementById("testDiv");thisDiv.style.fontFamily="verdana";</script></a>';
-    var response = {
-        cur: 'USD',
-        id: r.id,
-        seatbid: [
-            {
-                bid: [
-                    {
-                        adid: '1487603',
-                        adm: adm,
-                        adomain: ['www.videostep.com'],
-                        ext: {
-                            advbrand: 'ivbs',
-                            advbrandid: '25661',
-                            pricelevel: '200',
-                            dealid: '12346'
-                        },
-                        id: 567841330,
-                        impid: '1',
-                        price: '200'
-                    },
-                    {
-                        adid: '1487603',
-                        adm: adm,
-                        adomain: ['www.videostep.com'],
-                        ext: {
-                            advbrand: 'ivbs',
-                            advbrandid: '25661',
-                            pricelevel: '100',
-                            dealid: '12346'
-                        },
-                        id: 567841330,
-                        impid: '2',
-                        price: '100'
-                    }
-                ],
-                seat: '2439'
-            }
-        ]
-    };
-
-    return 'headertag.InvibesHtb.adResponseCallback(' + JSON.stringify(response) + ')';
-}
-
-function validateTargetingWithDeal(targetingMap) {
-    expect(targetingMap).toEqual(jasmine.objectContaining({
-        IPM: jasmine.arrayContaining(['300x250_200', '300x250_100']),
-        IPMID: jasmine.arrayContaining(['300x250_12346', '300x250_12346']),
-        ix_id: jasmine.arrayContaining([jasmine.any(String)])
-    }));
-}
-
-function getPassResponse(request) {
-    return 'headertag.InvibesHtb.adResponseCallback({"id": "'
-        + JSON.parse(request.query.r).id + '"});';
-}
-
-module.exports = {
-    getPartnerId: getPartnerId,
-    getStatsId: getStatsId,
-    getBidRequestRegex: getBidRequestRegex,
-    getCallbackType: getCallbackType,
-    getArchitecture: getArchitecture,
-    getConfig: getConfig,
-    validateBidRequest: validateBidRequest,
-    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
-    validateBidRequestWithAdSrvrOrg: validateBidRequestWithAdSrvrOrg,
-    getValidResponse: getValidResponse,
-    validateTargeting: validateTargeting,
-    getValidResponseWithDeal: getValidResponseWithDeal,
-    validateTargetingWithDeal: validateTargetingWithDeal,
-    getPassResponse: getPassResponse
+    TIME_TO_LIVE: 300,
+    DEFAULT_CURRENCY: 'EUR',
+    PREBID_VERSION: 1,
+    METHOD: 'GET',
+    INVIBES_VENDOR_ID: 436
 };
+////////////////////////////////////////////////////////////////////////////////
+// Main ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+function renderCreative(bidModel) {
+    return `<html>
+          <head><script type='text/javascript'>inDapIF=true;</script></head>
+            <body style='margin : 0; padding: 0;'>
+            creativeHtml
+            </body>
+          </html>`
+      .replace('creativeHtml', bidModel.CreativeHtml);
+  }
+  
+/**
+ * Partner module template
+ *
+ * @class
+ */
+function InvibesHtb(configs) {
+    // Endpoint w/ AJAX only
+    if (!Network.isXhrSupported()) {
+        // ? if (DEBUG) {
+        Scribe.warn('Partner Invibes requires AJAX support. Aborting instantiation.');
+        // ? }
+
+        return null;
+    }
+
+    /* =====================================
+     * Data
+     * ---------------------------------- */
+
+    /* Private
+     * ---------------------------------- */
+
+    /**
+     * Reference to the partner base class.
+     *
+     * @private {object}
+     */
+    var __baseClass;
+
+    /**
+     * Profile for this partner.
+     *
+     * @private {object}
+     */
+    var __profile;
+
+    /* =====================================
+     * Functions
+     * ---------------------------------- */
+
+    /* Utilities
+     * ---------------------------------- */
+
+    /**
+     * Generates the request URL and query data to the endpoint for the xSlots
+     * in the given returnParcels.
+     *
+     * @param  {object[]} returnParcels
+     *
+     * @return {object}
+     */
+
+    function getTopMostWindow() {
+        let res = window;
+
+        try {
+            while (top !== res) {
+                if (res.parent.location.href.length) { res = res.parent; }
+            }
+        } catch (e) { }
+
+        return res;
+    };
+
+    function generateRandomId() {
+        return (Math.round(Math.random() * 1e12)).toString(36).substring(0, 10);
+    };
+
+    const topWin = getTopMostWindow();
+    let invibes = topWin.invibes = topWin.invibes || {};
+
+    function __generateRequestObj(returnParcels) {
+        /* =============================================================================
+         * STEP 2  | Generate Request URL
+         * -----------------------------------------------------------------------------
+         *
+         * Generate the URL to request demand from the partner endpoint using the provided
+         * returnParcels. The returnParcels is an array of objects each object containing
+         * an .xSlotRef which is a reference to the xSlot object from the partner configuration.
+         * Use this to retrieve the placements/xSlots you need to request for.
+         *
+         * If your partner is MRA, returnParcels will be an array of length one. If your
+         * partner is SRA, it will contain any number of entities. In any event, the full
+         * contents of the array should be able to fit into a single request and the
+         * return value of this function should similarly represent a single request to the
+         * endpoint.
+         *
+         * Return an object containing:
+         * queryUrl: the url for the request
+         * data: the query object containing a map of the query string paramaters
+         *
+         * callbackId:
+         *
+         * arbitrary id to match the request with the response in the callback function. If
+         * your endpoint supports passing in an arbitrary ID and returning it as part of the response
+         * please use the callbackType: Partner.CallbackTypes.ID and fill out the adResponseCallback.
+         * Also please provide this adResponseCallback to your bid request here so that the JSONP
+         * response calls it once it has completed.
+         *
+         * If your endpoint does not support passing in an ID, simply use
+         * Partner.CallbackTypes.CALLBACK_NAME and the wrapper will take care of handling request
+         * matching by generating unique callbacks for each request using the callbackId.
+         *
+         * If your endpoint is ajax only, please set the appropriate values in your profile for this,
+         * i.e. Partner.CallbackTypes.NONE and Partner.Requesttypes.AJAX. You also do not need to provide
+         * a callbackId in this case because there is no callback.
+         *
+         * The return object should look something like this:
+         * {
+         *     url: 'http://bidserver.com/api/bids' // base request url for a GET/POST request
+         *     data: { // query string object that will be attached to the base url
+         *        slots: [
+         *             {
+         *                 placementId: 54321,
+         *                 sizes: [[300, 250]]
+         *             },{
+         *                 placementId: 12345,
+         *                 sizes: [[300, 600]]
+         *             },{
+         *                 placementId: 654321,
+         *                 sizes: [[728, 90]]
+         *             }
+         *         ],
+         *         site: 'http://google.com'
+         *     },
+         *     callbackId: '_23sd2ij4i1' //unique id used for pairing requests and responses
+         * }
+         */
+
+        /* ---------------------- PUT CODE HERE ------------------------------------ */
+        var baseUrl = CONSTANTS.BID_ENDPOINT
+        // var payload = {
+        //     url: Browser.getPageUrl(),
+        //     referrer: Browser.getReferrer()
+        // };
+
+        ///////////RADU///////////////////
+ 
+        let bidderRequest = returnParcels || {};
+        let _ivAuctionStart = bidderRequest.auctionStart || Date.now();
+        
+        function getDocumentLocation(topWin) {
+            return topWin.location.href.substring(0, 300).split(/[?#]/)[0];
+        };
+        let data = {
+            location: getDocumentLocation(topWin),
+            videoAdHtmlId: 1,//generateRandomId(),
+            showFallback: false,//currentQueryStringParams['advs'] === '0',
+
+            bidParamsJson: JSON.stringify({
+                placementIds: ["div-gpt-ad-1438287399331-0"],//_placementIds,
+                auctionStartTime: Date.now(),
+                bidVersion: CONSTANTS.PREBID_VERSION,
+                BvId: 1
+            }),
+            //capCounts: getCappedCampaignsAsString(),
+            BvId: 1,
+            vId: 1,//invibes.visitId,
+            width:1000,// topWin.innerWidth,
+            height:1000,// topWin.innerHeight,
+
+            //noc: !cookieDomain,
+            //oi: invibes.optIn,
+            //kw: keywords
+        };
+        const currentQueryStringParams = parseQueryStringParams();
+        function parseQueryStringParams() {
+            let params = {};
+            try { params = JSON.parse(localStorage.ivbs); } catch (e) { }
+            let re = /[\\?&]([^=]+)=([^\\?&#]+)/g;
+            let m;
+            while ((m = re.exec(window.location.href)) != null) {
+                if (m.index === re.lastIndex) {
+                    re.lastIndex++;
+                }
+                params[m[1].toLowerCase()] = m[2];
+            }
+            return params;
+        };
+        const _placementIds = [];
+
+        returnParcels.forEach(function (parcel) {
+            bidderRequest.auctionStart = new Date().getTime();
+            // _placementIds.push(parcel.params.placementId);
+            // _loginId = _loginId || parcel.params.loginId;
+            // _customEndpoint = _customEndpoint || parcel.params._customEndpoint;
+        });
+        invibes.visitId = invibes.visitId || generateRandomId();
+
+        // cookieDomain = detectTopmostCookieDomain();
+        // let detectTopmostCookieDomain = function () {
+        //     let testCookie = invibes.Uid.generate();
+        //     let hostParts = location.hostname.split('.');
+        //     if (hostParts.length === 1) {
+        //         return location.hostname;
+        //     }
+        //     for (let i = hostParts.length - 1; i >= 0; i--) {
+        //         let domain = '.' + hostParts.slice(i).join('.');
+        //         invibes.setCookie(testCookie, testCookie, 1, domain);
+        //         let val = invibes.getCookie(testCookie);
+        //         if (val === testCookie) {
+        //             invibes.setCookie(testCookie, testCookie, -1, domain);
+        //             return domain;
+        //         }
+        //     }
+        // };
+        ///////////END_RADU///////////////////
+        /* ------------------------ Get consent information -------------------------
+         * If you want to implement GDPR consent in your adapter, use the function
+         * ComplianceService.gdpr.getConsent() which will return an object.
+         *
+         * Here is what the values in that object mean:
+         *      - applies: the boolean value indicating if the request is subject to
+         *      GDPR regulations
+         *      - consentString: the consent string developed by GDPR Consent Working
+         *      Group under the auspices of IAB Europe
+         *
+         * The return object should look something like this:
+         * {
+         *      applies: true,
+         *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
+         * }
+         *
+         * You can also determine whether or not the publisher has enabled privacy
+         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
+         *
+         * This function will return a boolean, which indicates whether the wrapper's
+         * privacy features are on (true) or off (false). If they are off, the values
+         * returned from gdpr.getConsent() are safe defaults and no attempt has been
+         * made by the wrapper to contact a Consent Management Platform.
+         */
+        // var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        // if (privacyEnabled) {
+        //     var gdprStatus = ComplianceService.gdpr.getConsent();
+        //     payload.gdpr = {
+        //         applies: gdprStatus.applies,
+        //         consent: gdprStatus.consentString
+        //     };
+        // }
+
+        /* ---------------- Craft bid request using the above returnParcels --------- */
+
+        //var bidRequests = [];
+        var requestIds = [];
+        // for (var i = 0; i !== returnParcels.length; i++) {
+        //     var returnParcel = returnParcels[i];
+        //     var xSlotRef = returnParcel.xSlotRef;
+        //     var requestId = returnParcel.requestId;
+        //     bidRequests.push({
+        //         adUnitId: xSlotRef.adUnitId,
+        //         requestId: requestId
+        //     });
+        //     requestIds.push(requestId);
+        // }
+
+        //payload.bidRequests = bidRequests;
+        //baseUrl += '&requestIds=' + requestIds.join(',');
+
+        /* -------------------------------------------------------------------------- */
+
+        return {
+            url: baseUrl,
+            data: data,
+            bidRequests: {},
+            contentType: 'application/json'
+        };
+    }
+
+    /* =============================================================================
+     * STEP 3  | Response callback
+     * -----------------------------------------------------------------------------
+     *
+     * This generator is only necessary if the partner's endpoint has the ability
+     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
+     * the response and save the response to adResponseStore keyed by that ID.
+     *
+     * If the endpoint does not have an appropriate field for this, set the profile's
+     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
+     */
+    function adResponseCallback(adResponse) {
+        /* Get callbackId from adResponse here */
+        var callbackId = 0;
+        debugger;
+        __baseClass._adResponseStore[Partner.CallbackTypes.CALLBACK_NAME] = adResponse;
+    }
+
+    /* -------------------------------------------------------------------------- */
+
+    /* Helpers
+     * ---------------------------------- */
+
+    /* =============================================================================
+     * STEP 5  | Rendering Pixel
+     * -----------------------------------------------------------------------------
+     *
+    */
+
+    /**
+     * This function will render the pixel given.
+     * @param  {string} pixelUrl Tracking pixel img url.
+     */
+    function __renderPixel(pixelUrl) {
+        if (pixelUrl) {
+            Network.img({
+                url: decodeURIComponent(pixelUrl),
+                method: 'GET'
+            });
+        }
+    }
+
+    /**
+     * Parses and extracts demand from adResponse according to the adapter and then attaches it
+     * to the corresponding bid's returnParcel in the correct format using targeting keys.
+     *
+     * @param {string} sessionId The sessionId, used for stats and other events.
+     *
+     * @param {any} adResponse This is the bid response as returned from the bid request, that was either
+     * passed to a JSONP callback or simply sent back via AJAX.
+     *
+     * @param {object[]} returnParcels The array of original parcels, SAME array that was passed to
+     * generateRequestObj to signal which slots need demand. In this funciton, the demand needs to be
+     * attached to each one of the objects for which the demand was originally requested for.
+     */
+    function __parseResponse(sessionId, adResponse, returnParcels) {
+        /* =============================================================================
+         * STEP 4  | Parse & store demand response
+         * -----------------------------------------------------------------------------
+         *
+         * Fill the below variables with information about the bid from the partner, using
+         * the adResponse variable that contains your module adResponse.
+         */
+
+        /* This an array of all the bids in your response that will be iterated over below. Each of
+         * these will be mapped back to a returnParcel object using some criteria explained below.
+         * The following variables will also be parsed and attached to that returnParcel object as
+         * returned demand.
+         *
+         * Use the adResponse variable to extract your bid information and insert it into the
+         * bids array. Each element in the bids array should represent a single bid and should
+         * match up to a single element from the returnParcel array.
+         *
+         */
+
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
+        var bids =[];// adResponse.videoAdCOntentResult.Ads[0].BidPrice;
+
+        adResponse.videoAdContentResult.Ads.forEach(function (ad) {
+            bids.push(ad);
+        });
+        //var bids = adResponse && adResponse.bids;
+        if (!bids) {
+            bids = [];
+        }
+
+        /* --------------------------------------------------------------------------------- */
+
+        for (var j = 0; j < returnParcels.length; j++) {
+            var curReturnParcel = returnParcels[j];
+
+            var headerStatsInfo = {};
+            var htSlotId = curReturnParcel.htSlot.getId();
+            headerStatsInfo[htSlotId] = {};
+            headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
+
+            var curBid;
+            var bidModel;
+            var bidRequest;
+            
+
+            if (typeof invibes.bidResponse === 'object') {
+                //utils.logInfo('Invibes Adapter - Bid response already received. Invibes only responds to one bid request per user visit');
+                return [];
+            }
+        debugger;
+            invibes.bidResponse = adResponse.videoAdContentResult;
+
+            for (var i = 0; i < bids.length; i++) {
+                /**
+                 * This section maps internal returnParcels and demand returned from the bid request.
+                 * In order to match them correctly, they must be matched via some criteria. This
+                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                 * key to a key that represents the placement in the configuration and in the bid responses.
+                 */
+
+                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
+                //if (curReturnParcel.requestId === bids[i].requestId) {
+                    curBid = bids[i];
+                    bidModel = adResponse.videoAdContentResult.BidModel;
+                    bidRequest = bids[i];
+                    //bids.splice(i, 1);
+
+                  //  break;
+                //}
+            }
+
+            /* No matching bid found so its a pass */
+            if (!curBid) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+
+                continue;
+            }
+
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
+
+            /* Using the above variable, curBid, extract various information about the bid and assign it to
+             * these local variables */
+
+            /* The bid price for the given slot */
+            var bidPrice = curBid.BidPrice;
+
+            /* The size of the given slot */
+            var bidSize = [Number(200), Number(200)];
+
+            /* The creative/adm for the given slot that will be rendered if is the winner.
+             * Please make sure the URL is decoded and ready to be document.written.
+             */
+            //var bidCreative = renderCreative(adResponse.videoAdContentResult.BidModel.CreativeHtml);//urBid.HtmlString;\
+            var bidCreative = renderCreative(bidModel);
+            //var bidCreative = curBid.HtmlString;
+            /* The dealId if applicable for this slot. */
+            var bidDealId = curBid.Token;
+
+            /* Explicitly pass */
+            var bidIsPass = bidPrice <= 0;
+
+            /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
+            * If firing a tracking pixel is not required or the pixel url is part of the adm,
+            * leave empty;
+            */
+            var pixelUrl = '';
+
+            /* --------------------------------------------------------------------------------------- */
+
+            curBid = null;
+            if (bidIsPass) {
+                //? if (DEBUG) {
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
+                //? }
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+
+                continue;
+            }
+
+            if (__profile.enabledAnalytics.requestTime) {
+                __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+            }
+
+            curReturnParcel.size = bidSize;
+            curReturnParcel.targetingType = 'slot';
+            curReturnParcel.targeting = {};
+
+            var targetingCpm = '';
+
+            //? if (FEATURES.GPT_LINE_ITEMS) {
+            targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
+            var sizeKey = Size.arrayToString(curReturnParcel.size);
+
+            if (bidDealId) {
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            } else {
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            }
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
+            //? }
+
+            //? if (FEATURES.RETURN_CREATIVE) {
+            curReturnParcel.adm = bidCreative;
+            if (pixelUrl) {
+                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+            }
+            //? }
+
+            //? if (FEATURES.RETURN_PRICE) {
+            curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
+            //? }
+
+            var expiry = 0;
+            if (__profile.features.demandExpiry.enabled) {
+                expiry = __profile.features.demandExpiry.value + System.now();
+            }
+
+            var pubKitAdId = RenderService.registerAd({
+                sessionId: sessionId,
+                partnerId: __profile.partnerId,
+                adm: bidCreative,
+                requestId: curReturnParcel.requestId,
+                size: curReturnParcel.size,
+                price: targetingCpm,
+                dealId: bidDealId || null,
+                timeOfExpiry: expiry,
+                auxFn: __renderPixel,
+                auxArgs: [pixelUrl]
+            });
+            // debugger;
+            // var pubKitAdId = RenderService.registerAd({
+            //     sessionId: sessionId,
+            //     adm: bidCreative,
+            //     partnerId: __profile.partnerId,
+            //     requestId: curReturnParcel.requestId,
+            //     price: bids[0].BidPrice,
+            //     dealId: bidDealId || null,
+            //     timeOfExpiry: expiry,
+            //     auxFn: __renderPixel,
+            //     auxArgs: [pixelUrl]
+            // });
+            //? if (FEATURES.INTERNAL_RENDER) {
+            curReturnParcel.targeting.pubKitAdId = pubKitAdId;
+            //? }
+        }
+    }
+
+    /* =====================================
+     * Constructors
+     * ---------------------------------- */
+
+    (function __constructor() {
+        ComplianceService = SpaceCamp.services.ComplianceService;
+        RenderService = SpaceCamp.services.RenderService;
+
+        /* =============================================================================
+         * STEP 1  | Partner Configuration
+         * -----------------------------------------------------------------------------
+         *
+         * Please fill out the below partner profile according to the steps in the README doc.
+         */
+
+        /* ---------- Please fill out this partner profile according to your module ------------ */
+        __profile = {
+            partnerId: 'InvibesHtb',
+            namespace: 'InvibesHtb',
+            statsId: 'IVBS',
+            version: '2.0.0',
+            targetingType: 'slot',
+            enabledAnalytics: {
+                requestTime: true
+            },
+            features: {
+                demandExpiry: {
+                    enabled: false,
+                    value: 0
+                },
+                rateLimiting: {
+                    enabled: false,
+                    value: 0
+                }
+            },
+
+            /* Targeting keys for demand, should follow format ix_{statsId}_id */
+            targetingKeys: {
+                id: 'ix_ivbs_id',
+                om: 'ix_ivbs_cpm',
+                pm: 'ix_ivbs_cpm',
+                pmid: 'ix_ivbs_dealid'
+            },
+
+            /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
+            bidUnitInCents: 100,
+            lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.FSRA,
+            requestType: Partner.RequestTypes.AJAX
+        };
+
+        /* --------------------------------------------------------------------------------------- */
+
+        //? if (DEBUG) {
+        var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
+
+        if (results) {
+            throw Whoopsie('INVALID_CONFIG', results);
+        }
+        //? }
+
+        __baseClass = Partner(__profile, configs, null, {
+            parseResponse: __parseResponse,
+            generateRequestObj: __generateRequestObj,
+            adResponseCallback: adResponseCallback
+        });
+    })();
+
+    /* =====================================
+     * Public Interface
+     * ---------------------------------- */
+
+    var derivedClass = {
+        /* Class Information
+         * ---------------------------------- */
+
+        //? if (DEBUG) {
+        __type__: 'InvibesHtb',
+        //? }
+
+        //? if (TEST) {
+        __baseClass: __baseClass,
+        //? }
+
+        /* Data
+         * ---------------------------------- */
+
+        //? if (TEST) {
+        profile: __profile,
+        //? }
+
+        /* Functions
+         * ---------------------------------- */
+
+        //? if (TEST) {
+        parseResponse: __parseResponse,
+        generateRequestObj: __generateRequestObj,
+        adResponseCallback: adResponseCallback
+        //? }
+    };
+
+    return Classify.derive(__baseClass, derivedClass);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Exports /////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+module.exports = InvibesHtb;

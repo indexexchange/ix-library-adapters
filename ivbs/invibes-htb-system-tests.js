@@ -1,6 +1,7 @@
 'use strict';
 
 function getPartnerId() {
+    debugger;
     return 'InvibesHtb';
 }
 
@@ -41,7 +42,7 @@ function getBidRequestRegex() {
 
 function validateBidRequest(request) {
     expect(request.query.v).toBe('7.2');
-    expect(request.query.s).toBe('123456');
+    expect(request.query.s).toBe('12345');
     expect(request.query.fn).toBe('headertag.InvibesHtb.adResponseCallback');
     var r = JSON.parse(request.query.r);
     expect(r.id).toBeDefined();
