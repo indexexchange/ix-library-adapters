@@ -28,11 +28,17 @@ function getConfig() {
         xSlots: {
             1: {
                 placementId: '15894224',
-                sizes: [[300, 250]]
+                sizes: [[300, 250]],
+                keywords: {
+                    music: ['classical', 'piano']
+                }
             },
             2: {
                 placementId: '15901268',
-                sizes: [[300, 250], [300, 600]]
+                sizes: [[300, 250], [300, 600]],
+                keywords: {
+                    music: ['classical', 'piano']
+                }
             }
         },
         mapping: {
@@ -52,6 +58,8 @@ function validateBidRequest(request) {
     expect(q.gdpr).toBeDefined();
     expect(q.gdpr_consent).toBeDefined();
     expect(q.referrer).toBeDefined();
+    expect(q.kw_music).toBeDefined();
+    expect(q.kw_music).toEqual('classical,piano');
 }
 
 function getValidResponse(request, creative) {

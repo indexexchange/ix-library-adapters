@@ -277,8 +277,7 @@ function AppNexusHtb(configs) {
                     + ' allowtransparency="true" width="' + adResult.width
                     + '" height="' + adResult.height + '"></iframe>';
 
-                // eslint-disable-next-line no-undefined
-                if (bidPrice !== undefined) {
+                if (typeof bidPrice === 'number') {
                     //? if(FEATURES.GPT_LINE_ITEMS) {
                     targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
                     //? }
@@ -294,8 +293,7 @@ function AppNexusHtb(configs) {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
                 }
 
-                // eslint-disable-next-line no-undefined
-                if (targetingCpm !== undefined && targetingCpm !== '') {
+                if (targetingCpm !== '') {
                     returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
                 }
 
