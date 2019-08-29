@@ -1,7 +1,6 @@
 'use strict';
 
 function getPartnerId() {
-    debugger;
     return 'InvibesHtb';
 }
 
@@ -109,7 +108,7 @@ function validateTargeting(targetingMap) {
     );
 }
 
-function getPassResponse() {
+function getPassResponse(request) {
     return 'headertag.InvibesHtb.adResponseCallback({"id": "'
     + JSON.parse(request.query.r).id + '"});';
 }

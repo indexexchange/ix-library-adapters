@@ -13,7 +13,6 @@ var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
 
-var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
@@ -21,8 +20,9 @@ var ConfigValidators = require('config-validators.js');
 var PartnerSpecificValidator = require('invibes-htb-validator.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
+
 //? }
-const CONSTANTS = {
+var CONSTANTS = {
     BIDDER_CODE: 'invibes',
     BID_ENDPOINT: ' //localhost/KWEB.Website/bid/videoadcontent',
     SYNC_ENDPOINT: '//k.r66net.com/GetUserSync',
@@ -33,19 +33,182 @@ const CONSTANTS = {
     METHOD: 'GET',
     INVIBES_VENDOR_ID: 436
 };
+
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 function renderCreative(bidModel) {
-    return `<html>
-          <head><script type='text/javascript'>inDapIF=true;</script></head>
-            <body style='margin : 0; padding: 0;'>
-            creativeHtml
-            </body>
-          </html>`
-      .replace('creativeHtml', bidModel.CreativeHtml);
-  }
-  
+    return '<html>'
+    + '<head><script type=\'text/javascript\'>inDapIF=true;'
+    + '</script></head><body style=\'margin : 0; padding: 0;\'>'
+    + 'creativeHtml </body> </html>'
+        .replace('creativeHtml', bidModel.CreativeHtml);
+}
+
+function generateRandomId() {
+    return Math.round(Math.random() * 1e12)
+        .toString(36)
+        .substring(0, 10);
+}
+
+var cookieDomain;
+
+function getCappedCampaignsAsString() {
+    var key = 'ivvcap';
+
+    function loadData() {
+        try {
+            return JSON.parse(localStorage.getItem(key)) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function saveData(data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function clearExpired() {
+        var now = new Date()
+            .getTime();
+        var data = loadData();
+        var dirty = false;
+        Object.keys(data)
+            .forEach(function (k) {
+                var exp = data[k][1];
+                if (exp <= now) {
+                    delete data[k];
+                    dirty = true;
+                }
+            });
+        if (dirty) {
+            saveData(data);
+        }
+    }
+
+    function getCappedCampaigns() {
+        clearExpired();
+        var data = loadData();
+
+        return Object.keys(data)
+            .filter(function (k) {
+                return data.hasOwnProperty(k);
+            })
+            .sort()
+            .map(function (k) {
+                return [k, data[k][0]];
+            });
+    }
+
+    return getCappedCampaigns()
+        .map(function (record) {
+            return record.join('=');
+        })
+        .join(',');
+}
+
+// eslint-disable-next-line consistent-return
+function getCookie(cName) {
+    var i;
+    var x;
+    var y;
+    var cookies = document.cookie.split(';');
+    for (i = 0; i < cookies.length; i++) {
+        x = cookies[i].substr(0, cookies[i].indexOf('='));
+        y = cookies[i].substr(cookies[i].indexOf('=') + 1);
+        x = x.replace(/^\s+|\s+$/g, '');
+        if (x === cName) {
+            return unescape(y);
+        }
+    }
+}
+
+var keywords = (function () {
+    var cap = 300;
+    var headTag = document.getElementsByTagName('head')[0];
+    var metaTag = headTag ? headTag.getElementsByTagName('meta') : [];
+
+    // eslint-disable-next-line no-shadow
+    function parse(str, cap) {
+        var parsedStr = str.replace(/[<>~|\\"`!@#$%^&*()=+?]/g, '');
+
+        // eslint-disable-next-line no-shadow
+        function onlyUnique(value, index, self) {
+            return value !== '' && self.indexOf(value) === index;
+        }
+
+        var words = parsedStr.split(/[\s,;.:]+/);
+        var uniqueWords = words.filter(onlyUnique);
+        parsedStr = '';
+
+        for (var i = 0; i < uniqueWords.length; i++) {
+            parsedStr += uniqueWords[i];
+            if (parsedStr.length >= cap) {
+                return parsedStr;
+            }
+
+            if (i < uniqueWords.length - 1) {
+                parsedStr += ',';
+            }
+        }
+
+        return parsedStr;
+    }
+
+    // eslint-disable-next-line no-shadow
+    function gt(cap, prefix) {
+        cap = cap || 300;
+        prefix = prefix || '';
+        // eslint-disable-next-line
+        var title = document.title || headTag ? headTag.getElementsByTagName('title')[0] ? headTag.getElementsByTagName('title')[0].innerHTML : '' : '';
+
+        return parse(prefix + ',' + title, cap);
+    }
+
+    // eslint-disable-next-line no-shadow
+    function gmeta(metaName, cap, prefix) {
+        metaName = metaName || 'keywords';
+        cap = cap || 100;
+        prefix = prefix || '';
+        var fallbackKw = prefix;
+
+        for (var i = 0; i < metaTag.length; i++) {
+            if (metaTag[i].name && metaTag[i].name.toLowerCase() === metaName.toLowerCase()) {
+                // eslint-disable-next-line no-shadow
+                var kw = prefix + ',' + metaTag[i].content || '';
+
+                return parse(kw, cap);
+            } else if (metaTag[i].name && metaTag[i].name.toLowerCase()
+                .indexOf(metaName.toLowerCase()) > -1) {
+                fallbackKw = prefix + ',' + metaTag[i].content || '';
+            }
+        }
+
+        return parse(fallbackKw, cap);
+    }
+
+    var kw = gmeta('keywords', cap);
+    if (!kw || kw.length < cap - 8) {
+        kw = gmeta('description', cap, kw);
+        if (!kw || kw.length < cap - 8) {
+            kw = gt(cap, kw);
+        }
+    }
+
+    return kw;
+})();
+
+function getBiggerSize(array) {
+    var result = [0, 0];
+    for (var i = 0; i < array.length; i++) {
+        if (array[i][0] * array[i][1] > result[0] * result[1]) {
+            result = array[i];
+        }
+    }
+
+    return result;
+}
+
 /**
  * Partner module template
  *
@@ -61,13 +224,6 @@ function InvibesHtb(configs) {
         return null;
     }
 
-    /* =====================================
-     * Data
-     * ---------------------------------- */
-
-    /* Private
-     * ---------------------------------- */
-
     /**
      * Reference to the partner base class.
      *
@@ -82,13 +238,6 @@ function InvibesHtb(configs) {
      */
     var __profile;
 
-    /* =====================================
-     * Functions
-     * ---------------------------------- */
-
-    /* Utilities
-     * ---------------------------------- */
-
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
@@ -97,219 +246,116 @@ function InvibesHtb(configs) {
      *
      * @return {object}
      */
-
     function getTopMostWindow() {
-        let res = window;
+        var res = window;
 
         try {
             while (top !== res) {
-                if (res.parent.location.href.length) { res = res.parent; }
+                if (res.parent.location.href.length) {
+                    res = res.parent;
+                }
             }
         } catch (e) { }
 
         return res;
-    };
+    }
 
-    function generateRandomId() {
-        return (Math.round(Math.random() * 1e12)).toString(36).substring(0, 10);
-    };
+    var topWin = getTopMostWindow();
+    // eslint-disable-next-line no-multi-assign
+    var invibes = Browser.topWindow.invibes = Browser.topWindow.invibes || {};
 
-    const topWin = getTopMostWindow();
-    let invibes = topWin.invibes = topWin.invibes || {};
+    // eslint-disable-next-line consistent-return
+    function detectTopmostCookieDomain() {
+        var testCookie = invibes.Uid.generate();
+        var hostParts = location.hostname.split('.');
+        if (hostParts.length === 1) {
+            return location.hostname;
+        }
+
+        for (var i = hostParts.length - 1; i >= 0; i--) {
+            var domain = '.' + hostParts.slice(i)
+                .join('.');
+            invibes.setCookie(testCookie, testCookie, 1, domain);
+            var val = invibes.getCookie(testCookie);
+            if (val === testCookie) {
+                invibes.setCookie(testCookie, testCookie, -1, domain);
+
+                return domain;
+            }
+        }
+    }
+
+    invibes.Uid = {
+        generate: function () {
+            var maxRand = parseInt('zzzzzz', 36);
+            function mkRand() {
+                return Math.floor(Math.random() * maxRand)
+                    .toString(36);
+            }
+            var rand1 = mkRand();
+            var rand2 = mkRand();
+
+            return rand1 + rand2;
+        }
+    };
 
     function __generateRequestObj(returnParcels) {
-        /* =============================================================================
-         * STEP 2  | Generate Request URL
-         * -----------------------------------------------------------------------------
-         *
-         * Generate the URL to request demand from the partner endpoint using the provided
-         * returnParcels. The returnParcels is an array of objects each object containing
-         * an .xSlotRef which is a reference to the xSlot object from the partner configuration.
-         * Use this to retrieve the placements/xSlots you need to request for.
-         *
-         * If your partner is MRA, returnParcels will be an array of length one. If your
-         * partner is SRA, it will contain any number of entities. In any event, the full
-         * contents of the array should be able to fit into a single request and the
-         * return value of this function should similarly represent a single request to the
-         * endpoint.
-         *
-         * Return an object containing:
-         * queryUrl: the url for the request
-         * data: the query object containing a map of the query string paramaters
-         *
-         * callbackId:
-         *
-         * arbitrary id to match the request with the response in the callback function. If
-         * your endpoint supports passing in an arbitrary ID and returning it as part of the response
-         * please use the callbackType: Partner.CallbackTypes.ID and fill out the adResponseCallback.
-         * Also please provide this adResponseCallback to your bid request here so that the JSONP
-         * response calls it once it has completed.
-         *
-         * If your endpoint does not support passing in an ID, simply use
-         * Partner.CallbackTypes.CALLBACK_NAME and the wrapper will take care of handling request
-         * matching by generating unique callbacks for each request using the callbackId.
-         *
-         * If your endpoint is ajax only, please set the appropriate values in your profile for this,
-         * i.e. Partner.CallbackTypes.NONE and Partner.Requesttypes.AJAX. You also do not need to provide
-         * a callbackId in this case because there is no callback.
-         *
-         * The return object should look something like this:
-         * {
-         *     url: 'http://bidserver.com/api/bids' // base request url for a GET/POST request
-         *     data: { // query string object that will be attached to the base url
-         *        slots: [
-         *             {
-         *                 placementId: 54321,
-         *                 sizes: [[300, 250]]
-         *             },{
-         *                 placementId: 12345,
-         *                 sizes: [[300, 600]]
-         *             },{
-         *                 placementId: 654321,
-         *                 sizes: [[728, 90]]
-         *             }
-         *         ],
-         *         site: 'http://google.com'
-         *     },
-         *     callbackId: '_23sd2ij4i1' //unique id used for pairing requests and responses
-         * }
-         */
+        var baseUrl = CONSTANTS.BID_ENDPOINT;
+        var bidderRequest = returnParcels || {};
+        var _placementIds = [];
 
-        /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var baseUrl = CONSTANTS.BID_ENDPOINT
-        // var payload = {
-        //     url: Browser.getPageUrl(),
-        //     referrer: Browser.getReferrer()
-        // };
-
-        ///////////RADU///////////////////
- 
-        let bidderRequest = returnParcels || {};
-        let _ivAuctionStart = bidderRequest.auctionStart || Date.now();
-        
-        function getDocumentLocation(topWin) {
-            return topWin.location.href.substring(0, 300).split(/[?#]/)[0];
-        };
-        let data = {
-            location: getDocumentLocation(topWin),
-            videoAdHtmlId: 1,//generateRandomId(),
-            showFallback: false,//currentQueryStringParams['advs'] === '0',
-
-            bidParamsJson: JSON.stringify({
-                placementIds: ["div-gpt-ad-1438287399331-0"],//_placementIds,
-                auctionStartTime: Date.now(),
-                bidVersion: CONSTANTS.PREBID_VERSION,
-                BvId: 1
-            }),
-            //capCounts: getCappedCampaignsAsString(),
-            BvId: 1,
-            vId: 1,//invibes.visitId,
-            width:1000,// topWin.innerWidth,
-            height:1000,// topWin.innerHeight,
-
-            //noc: !cookieDomain,
-            //oi: invibes.optIn,
-            //kw: keywords
-        };
-        const currentQueryStringParams = parseQueryStringParams();
-        function parseQueryStringParams() {
-            let params = {};
-            try { params = JSON.parse(localStorage.ivbs); } catch (e) { }
-            let re = /[\\?&]([^=]+)=([^\\?&#]+)/g;
-            let m;
-            while ((m = re.exec(window.location.href)) != null) {
-                if (m.index === re.lastIndex) {
-                    re.lastIndex++;
-                }
-                params[m[1].toLowerCase()] = m[2];
-            }
-            return params;
-        };
-        const _placementIds = [];
+        var _ivAuctionStart = bidderRequest.auctionStart || Date.now();
 
         returnParcels.forEach(function (parcel) {
-            bidderRequest.auctionStart = new Date().getTime();
-            // _placementIds.push(parcel.params.placementId);
-            // _loginId = _loginId || parcel.params.loginId;
-            // _customEndpoint = _customEndpoint || parcel.params._customEndpoint;
+            bidderRequest.auctionStart = new Date()
+                .getTime();
+            parcel.xSlotRef.placementIds.forEach(function (placementId) {
+                _placementIds.push(placementId);
+            });
         });
+
+        function getDocumentLocation() {
+            return topWin.location.href.substring(0, 300)
+                .split(/[?#]/)[0];
+        }
         invibes.visitId = invibes.visitId || generateRandomId();
+        cookieDomain = detectTopmostCookieDomain();
+        invibes.noCookies = invibes.noCookies || getCookie('ivNoCookie');
+        invibes.optIn = invibes.optIn || getCookie('ivOptIn');
 
-        // cookieDomain = detectTopmostCookieDomain();
-        // let detectTopmostCookieDomain = function () {
-        //     let testCookie = invibes.Uid.generate();
-        //     let hostParts = location.hostname.split('.');
-        //     if (hostParts.length === 1) {
-        //         return location.hostname;
-        //     }
-        //     for (let i = hostParts.length - 1; i >= 0; i--) {
-        //         let domain = '.' + hostParts.slice(i).join('.');
-        //         invibes.setCookie(testCookie, testCookie, 1, domain);
-        //         let val = invibes.getCookie(testCookie);
-        //         if (val === testCookie) {
-        //             invibes.setCookie(testCookie, testCookie, -1, domain);
-        //             return domain;
-        //         }
-        //     }
-        // };
-        ///////////END_RADU///////////////////
-        /* ------------------------ Get consent information -------------------------
-         * If you want to implement GDPR consent in your adapter, use the function
-         * ComplianceService.gdpr.getConsent() which will return an object.
-         *
-         * Here is what the values in that object mean:
-         *      - applies: the boolean value indicating if the request is subject to
-         *      GDPR regulations
-         *      - consentString: the consent string developed by GDPR Consent Working
-         *      Group under the auspices of IAB Europe
-         *
-         * The return object should look something like this:
-         * {
-         *      applies: true,
-         *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
-         * }
-         *
-         * You can also determine whether or not the publisher has enabled privacy
-         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
-         *
-         * This function will return a boolean, which indicates whether the wrapper's
-         * privacy features are on (true) or off (false). If they are off, the values
-         * returned from gdpr.getConsent() are safe defaults and no attempt has been
-         * made by the wrapper to contact a Consent Management Platform.
-         */
-        // var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        // if (privacyEnabled) {
-        //     var gdprStatus = ComplianceService.gdpr.getConsent();
-        //     payload.gdpr = {
-        //         applies: gdprStatus.applies,
-        //         consent: gdprStatus.consentString
-        //     };
-        // }
+        var data = {
+            location: getDocumentLocation(topWin),
+            videoAdHtmlId: 1,
 
-        /* ---------------- Craft bid request using the above returnParcels --------- */
+            // GenerateRandomId(),
+            showFallback: false,
+            ivbsCampIdsLocal: getCookie('IvbsCampIdsLocal'),
 
-        //var bidRequests = [];
-        var requestIds = [];
-        // for (var i = 0; i !== returnParcels.length; i++) {
-        //     var returnParcel = returnParcels[i];
-        //     var xSlotRef = returnParcel.xSlotRef;
-        //     var requestId = returnParcel.requestId;
-        //     bidRequests.push({
-        //         adUnitId: xSlotRef.adUnitId,
-        //         requestId: requestId
-        //     });
-        //     requestIds.push(requestId);
-        // }
+            // CurrentQueryStringParams['advs'] === '0',
 
-        //payload.bidRequests = bidRequests;
-        //baseUrl += '&requestIds=' + requestIds.join(',');
+            bidParamsJson: JSON.stringify({
+                placementIds: _placementIds,
+                auctionStartTime: _ivAuctionStart,
+                bidVersion: CONSTANTS.PREBID_VERSION
+            }),
 
-        /* -------------------------------------------------------------------------- */
+            capCounts: getCappedCampaignsAsString(),
+            BvId: 1,
+            vId: invibes.visitId,
+
+            width: topWin.innerWidth,
+            height: topWin.innerHeight,
+
+            noc: !cookieDomain,
+            oi: invibes.optIn,
+            kw: keywords
+        };
 
         return {
+            method: CONSTANTS.METHOD,
             url: baseUrl,
             data: data,
-            bidRequests: {},
+            bidRequests: returnParcels,
             contentType: 'application/json'
         };
     }
@@ -327,26 +373,9 @@ function InvibesHtb(configs) {
      */
     function adResponseCallback(adResponse) {
         /* Get callbackId from adResponse here */
-        var callbackId = 0;
-        debugger;
         __baseClass._adResponseStore[Partner.CallbackTypes.CALLBACK_NAME] = adResponse;
     }
 
-    /* -------------------------------------------------------------------------- */
-
-    /* Helpers
-     * ---------------------------------- */
-
-    /* =============================================================================
-     * STEP 5  | Rendering Pixel
-     * -----------------------------------------------------------------------------
-     *
-    */
-
-    /**
-     * This function will render the pixel given.
-     * @param  {string} pixelUrl Tracking pixel img url.
-     */
     function __renderPixel(pixelUrl) {
         if (pixelUrl) {
             Network.img({
@@ -370,34 +399,46 @@ function InvibesHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-        /* =============================================================================
-         * STEP 4  | Parse & store demand response
-         * -----------------------------------------------------------------------------
-         *
-         * Fill the below variables with information about the bid from the partner, using
-         * the adResponse variable that contains your module adResponse.
-         */
+        // eslint-disable-next-line no-multi-assign
+        invibes = Browser.topWindow.invibes = Browser.topWindow.invibes || {};
+        var bids = [];
+        if (returnParcels[0].htSlot.getSizes() === null || returnParcels.length === 0) {
+            Scribe.Info('Invibes Adapter - No bids have been requested');
 
-        /* This an array of all the bids in your response that will be iterated over below. Each of
-         * these will be mapped back to a returnParcel object using some criteria explained below.
-         * The following variables will also be parsed and attached to that returnParcel object as
-         * returned demand.
-         *
-         * Use the adResponse variable to extract your bid information and insert it into the
-         * bids array. Each element in the bids array should represent a single bid and should
-         * match up to a single element from the returnParcel array.
-         *
-         */
+            return [];
+        }
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
-        var bids =[];// adResponse.videoAdCOntentResult.Ads[0].BidPrice;
+        if (!adResponse) {
+            Scribe.Info('Invibes Adapter - Bid response is empty');
 
-        adResponse.videoAdContentResult.Ads.forEach(function (ad) {
-            bids.push(ad);
+            return [];
+        }
+        adResponse.videoAdContentResult.Ads.forEach(function (uniqueAd) {
+            bids.push(uniqueAd);
         });
-        //var bids = adResponse && adResponse.bids;
-        if (!bids) {
-            bids = [];
+
+        var responseObj = adResponse.videoAdContentResult || adResponse;
+        var bidModel = responseObj.BidModel;
+
+        if (typeof bidModel !== 'object') {
+            Scribe.Info('Invibes Adapter - Bidding is not configured');
+
+            return [];
+        }
+
+        if (typeof invibes.bidResponse === 'object') {
+            Scribe.Info('Invibes Adapter - Bid response received. Invibes responds to one bid request per user visit');
+
+            return [];
+        }
+
+        if (!Array.isArray(bids) || bids.length < 1) {
+            if (responseObj.AdReason !== null) {
+                Scribe.Info('Invibes Adapter - ' + responseObj.AdReason);
+            }
+            Scribe.Info('Invibes Adapter - No ads available');
+
+            return [];
         }
 
         /* --------------------------------------------------------------------------------- */
@@ -410,39 +451,16 @@ function InvibesHtb(configs) {
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
-            var curBid;
-            var bidModel;
-            var bidRequest;
-            
-
+            var ad = bids[0];
             if (typeof invibes.bidResponse === 'object') {
-                //utils.logInfo('Invibes Adapter - Bid response already received. Invibes only responds to one bid request per user visit');
                 return [];
             }
-        debugger;
+
+            bidModel = adResponse.videoAdContentResult.BidModel;
             invibes.bidResponse = adResponse.videoAdContentResult;
 
-            for (var i = 0; i < bids.length; i++) {
-                /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
-
-                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                //if (curReturnParcel.requestId === bids[i].requestId) {
-                    curBid = bids[i];
-                    bidModel = adResponse.videoAdContentResult.BidModel;
-                    bidRequest = bids[i];
-                    //bids.splice(i, 1);
-
-                  //  break;
-                //}
-            }
-
             /* No matching bid found so its a pass */
-            if (!curBid) {
+            if (!ad) {
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
@@ -457,19 +475,20 @@ function InvibesHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.BidPrice;
+            var bidPrice = ad.BidPrice;
 
             /* The size of the given slot */
-            var bidSize = [Number(200), Number(200)];
+            // Var bidSize = returnParcels[0].htSlot.getSizes();
+            var sizes = getBiggerSize(returnParcels[j].htSlot.getSizes());
+            var bidSize = [bidModel.width || sizes[0], bidModel.height || sizes[1]];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            //var bidCreative = renderCreative(adResponse.videoAdContentResult.BidModel.CreativeHtml);//urBid.HtmlString;\
             var bidCreative = renderCreative(bidModel);
-            //var bidCreative = curBid.HtmlString;
+
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.Token;
+            var bidDealId = returnParcels[0].requestId;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
@@ -482,7 +501,6 @@ function InvibesHtb(configs) {
 
             /* --------------------------------------------------------------------------------------- */
 
-            curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
                 Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
@@ -546,18 +564,6 @@ function InvibesHtb(configs) {
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
-            // debugger;
-            // var pubKitAdId = RenderService.registerAd({
-            //     sessionId: sessionId,
-            //     adm: bidCreative,
-            //     partnerId: __profile.partnerId,
-            //     requestId: curReturnParcel.requestId,
-            //     price: bids[0].BidPrice,
-            //     dealId: bidDealId || null,
-            //     timeOfExpiry: expiry,
-            //     auxFn: __renderPixel,
-            //     auxArgs: [pixelUrl]
-            // });
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
@@ -569,7 +575,6 @@ function InvibesHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================

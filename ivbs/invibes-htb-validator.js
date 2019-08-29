@@ -31,6 +31,7 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * https://atinux.fr/schema-inspector/.
  */
 
+// eslint-disable-next-line func-style
 var partnerValidator = function (configs) {
     var result = Inspector.validate({
         type: 'object',
