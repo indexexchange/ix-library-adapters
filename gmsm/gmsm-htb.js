@@ -73,34 +73,37 @@ function GmsmHtb(configs) {
      * ---------------------------------- */
     function flattenObject(ob) {
         var toReturn = {};
-        
+
         for (var i in ob) {
-            if (!ob.hasOwnProperty(i)) continue;
-            
-            if ((typeof ob[i]) == 'object' && !Array.isArray(ob[i])) {
+            if (!ob.hasOwnProperty(i)) {
+                continue;
+            }
+
+            if (Utilities.isObject(ob[i]) && !Utilities.isArray(ob[i])) {
                 var flatObject = flattenObject(ob[i]);
 
                 for (var x in flatObject) {
-                    if (!flatObject.hasOwnProperty(x)) continue;
+                    if (!flatObject.hasOwnProperty(x)) {
+                        continue;
+                    }
                     toReturn[i + '.' + x] = flatObject[x];
                 }
-
-            } else if (Array.isArray(ob[i])) {
+            } else if (Utilities.isArray(ob[i])) {
                 var values = '';
-                
-                ob[i].forEach(function(value) {
+                // eslint-disable-next-line no-loop-func
+                ob[i].forEach(function (value) {
                     values += value + ',';
                 });
 
-                values = values.slice(0, -1)
+                values = values.slice(0, -1);
                 toReturn[i] = values;
             } else {
                 toReturn[i] = ob[i];
             }
         }
+
         return toReturn;
-    };
-    
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -110,6 +113,7 @@ function GmsmHtb(configs) {
      *
      * @return {object}
      */
+
     function __generateRequestObj(returnParcels, optData) {
         //? if (DEBUG){
         var results = Inspector.validate({
@@ -182,29 +186,27 @@ function GmsmHtb(configs) {
          * Appends the results as top-level keys on the "returnObj"
          */
         if (Utilities.isObject(optData)) {
-            
             if (!Utilities.isEmpty(optData.keyValues.user)) {
                 var userKeywords = optData.keyValues.user;
+                var flatUserKws = flattenObject(userKeywords);
 
-                const flatUserKws = flattenObject(userKeywords);
-                Object.keys(flatUserKws).forEach(function(key) {
-                    var newUserKwKey = 'kw_user_' + key;
-
-                    queryObj[newUserKwKey] = flatUserKws[key];
-                });
+                Object.keys(flatUserKws)
+                    .forEach(function (key) {
+                        var newUserKwKey = 'kw_user_' + key;
+                        queryObj[newUserKwKey] = flatUserKws[key];
+                    });
             }
 
             if (!Utilities.isEmpty(optData.keyValues.site)) {
                 var siteKeywords = optData.keyValues.site;
-                
-                const flatSiteKws = flattenObject(siteKeywords);
-                Object.keys(flatSiteKws).forEach(function(key) {
-                    var newSiteKwKey = 'kw_site_' + key;
+                var flatSiteKws = flattenObject(siteKeywords);
 
-                    queryObj[newSiteKwKey] = flatSiteKws[key];
-                });
+                Object.keys(flatSiteKws)
+                    .forEach(function (key) {
+                        var newSiteKwKey = 'kw_site_' + key;
+                        queryObj[newSiteKwKey] = flatSiteKws[key];
+                    });
             }
-
         }
 
         var referrer = Browser.getPageUrl();
