@@ -80,7 +80,7 @@ function GmsmHtb(configs) {
      *
      * @return {object}
      */
-    function __generateRequestObj(returnParcels) {
+    function __generateRequestObj(returnParcels, optData) {
         //? if (DEBUG){
         var results = Inspector.validate({
             type: 'array',
@@ -145,6 +145,15 @@ function GmsmHtb(configs) {
 
                     queryObj[newKey] = values;
                 });
+        }
+
+        /* Check for a "optData" argument passed to __generateRequestObj()
+         * Expects...
+         */
+        if (Utilities.isObject(optData) && !Utilities.isEmpty(optData.keyValues)) {
+            var keywords = optData.keyValues;
+            // Object.keys(keywords)
+            console.log(keywords);
         }
 
         var referrer = Browser.getPageUrl();
