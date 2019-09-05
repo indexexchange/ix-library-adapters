@@ -71,6 +71,29 @@ function GmsmHtb(configs) {
 
     /* Utilities
      * ---------------------------------- */
+    function flattenObject (ob) {
+        var toReturn = {};
+        var flatObject;
+        for (var i in ob) {
+            if (!ob.hasOwnProperty(i)) {
+                continue;
+            }
+
+            if (typeof ob[i] === 'object') {
+                flatObject = flattenObject(ob[i]);
+                for (var x in flatObject) {
+                    if (!flatObject.hasOwnProperty(x)) {
+                        continue;
+                    }
+                    toReturn[i + (isNaN(x) ? '.' + x : '')] = flatObject[x];
+                }
+            } else {
+                toReturn[i] = ob[i];
+            }
+        }
+
+        return toReturn;
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -147,13 +170,29 @@ function GmsmHtb(configs) {
                 });
         }
 
-        /* Check for a "optData" argument passed to __generateRequestObj()
+        /* Check for a "optData" argument passed to __generateRequestObj();
          * Expects...
          */
-        if (Utilities.isObject(optData) && !Utilities.isEmpty(optData.keyValues)) {
-            var keywords = optData.keyValues;
-            // Object.keys(keywords)
-            console.log(keywords);
+        if (Utilities.isObject(optData)) {
+            if (!Utilities.isEmpty(optData.keyValues.user)) {
+                var userKeywords = optData.keyValues.user;
+                Object.keys(userKeywords)
+                    .forEach(function (key) {
+                        var newKey = 'kw_user_' + key;
+                        var values = '';
+
+                        userKeywords[key].forEach(function (val) {
+                            values += val + ',';
+                        });
+                        values = values.slice(0, -1);
+                        queryObj[newKey] = values;
+                    });
+            }
+
+            if (!Utilities.isEmpty(optData.keyValues.site)) {
+                var siteKeywords = optData.keyValues.site;
+            }
+
         }
 
         var referrer = Browser.getPageUrl();
