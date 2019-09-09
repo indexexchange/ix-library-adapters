@@ -24,12 +24,12 @@ var Whoopsie = require('whoopsie.js');
 //? }
 var CONSTANTS = {
     BIDDER_CODE: 'invibes',
-    BID_ENDPOINT: ' //localhost/KWEB.Website/bid/videoadcontent',
+    BID_ENDPOINT: '//localhost/KWEB.Website/bid/videoadcontent',
     SYNC_ENDPOINT: '//k.r66net.com/GetUserSync',
 
     TIME_TO_LIVE: 300,
     DEFAULT_CURRENCY: 'EUR',
-    PREBID_VERSION: 1,
+    PREBID_VERSION: 3,
     METHOD: 'GET',
     INVIBES_VENDOR_ID: 436
 };
@@ -340,7 +340,7 @@ function InvibesHtb(configs) {
             }),
 
             capCounts: getCappedCampaignsAsString(),
-            BvId: 1,
+            BvId: 101632,
             vId: invibes.visitId,
 
             width: topWin.innerWidth,
@@ -426,7 +426,7 @@ function InvibesHtb(configs) {
             return [];
         }
 
-        if (typeof invibes.bidResponse === 'object') {
+        if ((typeof invibes.bidResponse === 'object') && (adResponse.videoAdContentResult.invibes === null)) {
             Scribe.Info('Invibes Adapter - Bid response received. Invibes responds to one bid request per user visit');
 
             return [];
@@ -452,9 +452,6 @@ function InvibesHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var ad = bids[0];
-            if (typeof invibes.bidResponse === 'object') {
-                return [];
-            }
 
             bidModel = adResponse.videoAdContentResult.BidModel;
             invibes.bidResponse = adResponse.videoAdContentResult;
