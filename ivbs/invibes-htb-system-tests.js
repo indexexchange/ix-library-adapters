@@ -29,7 +29,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /localhost\/KWEB\.Website\/bid\/videoadcontent/
+        urlRegex: /bid\.videostep\.com\/bid\/videoadcontent/
     };
 }
 

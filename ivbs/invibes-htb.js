@@ -24,7 +24,7 @@ var Whoopsie = require('whoopsie.js');
 //? }
 var CONSTANTS = {
     BIDDER_CODE: 'invibes',
-    BID_ENDPOINT: '//localhost/KWEB.Website/bid/videoadcontent',
+    BID_ENDPOINT: '//bid.videostep.com/bid/videoadcontent',
     SYNC_ENDPOINT: '//k.r66net.com/GetUserSync',
 
     TIME_TO_LIVE: 300,
@@ -398,6 +398,7 @@ function InvibesHtb(configs) {
      * generateRequestObj to signal which slots need demand. In this funciton, the demand needs to be
      * attached to each one of the objects for which the demand was originally requested for.
      */
+    // eslint-disable-next-line consistent-return
     function __parseResponse(sessionId, adResponse, returnParcels) {
         // eslint-disable-next-line no-multi-assign
         invibes = Browser.topWindow.invibes = Browser.topWindow.invibes || {};
