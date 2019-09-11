@@ -64,10 +64,15 @@ function EyereturnHtb(configs) {
 
         // eslint-disable-next-line camelcase
         payload.request_id = returnParcel.requestId;
+
         payload.site = {
             url: Browser.getPageUrl(),
             referrer: Browser.getReferrer()
         };
+
+        // Get the unique publisher identifier from config
+        // eslint-disable-next-line camelcase
+        payload.site.publisher_org_id = configs.publisher_org_id;
 
         var baseUrl = 'https://prometheus-ix.eyereturn.com/prometheus/bid';
 
