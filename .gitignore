@@ -70,6 +70,7 @@ node_modules
 
 # Ignore `package-lock.json` file.
 # ------------------------------------------------------------------------------
+
 package-lock.json
 
 # Make exception for ESLint configuration files.
