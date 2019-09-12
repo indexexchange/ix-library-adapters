@@ -105,6 +105,43 @@ function getPassResponse(request) {
     return 'headertag.GmsmHtb.adResponseCallback(' + JSON.stringify(response) + ');';
 }
 
+function getValidResponseWithDeal(request, creative) {
+    var q = request.query;
+    var adm = creative;
+
+    var response = {
+        result: {
+            cpm: 20000,
+            width: 300,
+            height: 250,
+            creative_id: 100232340,
+            deal_id: 12345,
+            media_type_id: 1,
+            media_subtype_id: 1,
+            ad: adm,
+            is_bin_price_applicable: false
+        },
+        callback_uid: q.callback_uid
+    };
+    var jsonResponse = JSON.stringify(response);
+
+    return 'headertag.GmsmHtb.adResponseCallback(' + jsonResponse + ')';
+}
+
+function validateTargetingWithDeal(targetingMap) {
+    expect(targetingMap).toEqual(jasmine.objectContaining({
+        ix_gmsm_om: jasmine.arrayContaining(['300x250_200']),
+        ix_gmsm_id: jasmine.arrayContaining([jasmine.any(String)]),
+        ix_gmsm_dealid: jasmine.arrayContaining(['300x250_12345'])
+    }));
+}
+
+function validateBidRequestWithPrivacy(request) {
+    var r = request.query;
+    expect(r.gdpr).toBe('1');
+    expect(r.gdpr_consent).toBe('TEST_GDPR_CONSENT_STRING');
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -115,5 +152,8 @@ module.exports = {
     validateBidRequest: validateBidRequest,
     getValidResponse: getValidResponse,
     getPassResponse: getPassResponse,
-    validateTargeting: validateTargeting
+    validateTargeting: validateTargeting,
+    getValidResponseWithDeal: getValidResponseWithDeal,
+    validateTargetingWithDeal: validateTargetingWithDeal,
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
 };

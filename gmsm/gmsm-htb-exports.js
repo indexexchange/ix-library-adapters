@@ -10,10 +10,6 @@
   shellInterface.GmsmHtb = {
     render: SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'GmsmHtb')
 };
-
-/* Existing creatives use window.pbjs.renderGmsmAd */
-window.pbjs = window.pbjs || {};
-window.pbjs.renderGmsmAd = SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'GmsmHtb');
 //? }
 
 if (__directInterface.Layers.PartnersLayer.Partners.GmsmHtb) {

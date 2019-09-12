@@ -443,7 +443,7 @@ function GmsmHtb(configs) {
         }
         //? }
 
-        __baseUrl = Browser.getProtocol() + '//secure.adnxs.com/jpt';
+        __baseUrl = 'https://secure.adnxs.com/jpt';
         __parseFuncPath = SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback';
 
         __baseClass = Partner(__profile, configs, null, {
