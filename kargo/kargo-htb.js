@@ -96,26 +96,28 @@ function KargoHtb(configs) {
         }
     }
 
-    function __getTDID() {
-        var tdid = '';
-        var tdidDataStr = __getLocalStorageSafely('IXWRAPPERAdserverOrgIp');
-        if (tdidDataStr) {
-            try {
-                var tdidDataParsed = JSON.parse(tdidDataStr);
-                if (tdidDataParsed.hasOwnProperty('d')
-                    && tdidDataParsed.d.hasOwnProperty('data')
-                    && tdidDataParsed.d.data.hasOwnProperty('TDID')) {
-                    tdid = tdidDataParsed.d.data.TDID;
-                }
-            } catch (ex) {
-                //? if (DEBUG) {
-                Scribe.error('Unable to get TDID for Kargo');
-                Scribe.error(ex);
-                //? }
-            }
+    function __getTDID(returnParcels) {
+        var unifiedID = '';
+        var uids = []
+        if (returnParcels &&
+            returnParcels.length &&
+            returnParcels[0].identityData &&
+            returnParcels[0].identityData.AdserverOrgIp &&
+            returnParcels[0].identityData.AdserverOrgIp.data &&
+            returnParcels[0].identityData.AdserverOrgIp.data.uids) {
+            uids = returnParcels[0].identityData.AdserverOrgIp.data.uids;
+        } else {
+            return unifiedID;
         }
-
-        return tdid;
+        for (var i = 0; i < uids.length; i++) {
+            if (uids[i].ext &&
+                uids[i].ext.rtiPartner &&
+                uids[i].ext.rtiPartner === 'TDID') {
+                unifiedID = uids[i].id;
+                break;
+            }
+        };
+        return unifiedID;
     }
 
     function __getCrbFromCookie() {
@@ -161,13 +163,13 @@ function KargoHtb(configs) {
         return __getCrbFromCookie();
     }
 
-    function __getUserIds() {
+    function __getUserIds(returnParcels) {
         var crb = __getCrb();
 
         return {
             kargoID: crb.userId || '',
             clientID: crb.clientId || '',
-            tdID: __getTDID(),
+            tdID: __getTDID(returnParcels),
             crbIDs: crb.syncIds || {},
             optOut: crb.optOut || false
         };
@@ -305,7 +307,7 @@ function KargoHtb(configs) {
             adSlotIDs: adSlotIds,
             timestamp: (new Date())
                 .getTime(),
-            userIDs: __getUserIds(),
+            userIDs: __getUserIds(returnParcels),
             krux: __getKruxDmpData(),
             pageURL: Browser.getPageUrl(),
             rawCRB: Browser.readCookie('krg_crb'),

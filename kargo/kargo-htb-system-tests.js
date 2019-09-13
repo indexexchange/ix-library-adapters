@@ -32,24 +32,6 @@ function getConfig() {
             2: {
                 adSlotId: '1e976be9-c60f-413a-8e1a-047fc5b87296'
             }
-        },
-        mapping: {
-            'Fake Unit 1 728x90 | 300x250': ['1'],
-            'Fake Unit 2 728x90 | 300x250': ['2']
-        },
-        timeout: 0,
-        bidTransformer: {
-            floor: 5,
-            buckets: [
-                {
-                    max: 2000,
-                    step: 5
-                },
-                {
-                    step: 100,
-                    max: 5000
-                }
-            ]
         }
     };
 }
