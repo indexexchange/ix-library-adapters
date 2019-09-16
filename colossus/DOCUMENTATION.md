@@ -2,56 +2,93 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent |NO|
+| Native Ad Support |YES|
+| SafeFrame Support |NO|
+| PMP Support |NO|
  
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome |  |
-| Edge |  |
-| Firefox |  |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| Chrome |YES|
+| Edge |YES|
+| Firefox |YES|
+| Internet Explorer 9 |NO|
+| Internet Explorer 10 |YES|
+| Internet Explorer 11 |YES|
+| Safari |YES|
+| Mobile Chrome |YES|
+| Mobile Safari |YES|
+| UC Browser |NO|
+| Samsung Internet |YES|
+| Opera |YES|
  
 ## Adapter Information
 | Info | |
 |---|---|
 | Partner Id | ColossusHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
+| Bid Type (Gross / Net) |Net|
 | GAM Key (Open Market) | |
 | GAM Key (Private Market) | |
 | Ad Server URLs | |
-| Slot Mapping Sytle (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Slot Mapping Sytle (Size / Multiple Sizes / Slot) |Multiple Sizes|
+| Request Architecture (MRA / SRA) |SRA|
  
 ## Currencies Supported
- 
+USD
+
 ## Bid Request Information
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| placements | Yes | []placements{} | Array of each Slot info in request |
+| page | Yes | String | Page pathname |
+| host | Yes | String | The page hostname |
+| secure | Yes | Int | 1 if the page is secure, 0 otherwise |
+| deviceHeight | Yes | Int | User device height |
+| deviceWidth | Yes | Int | User device width |
+| wrapper | Yes | String | wrapper name |
  
 ### Example
 ```javascript
- 
+ {
+    "host": "test.com",
+    "page": "https://test.com/page/5/",
+    "deviceHeight": 768,
+    "deviceWidth": 1366,
+    "placements": [
+        {
+            "placementId": 100,
+            "bidId": "_YcTDz0Nh"
+        }
+    ],
+    "secure": 1,
+    "wrapper": "index",
+    "gdprStatus": {
+        "applies": true,
+        "consentString": ""
+    },
+    "privacyEnabled": false
+}
 ```
  
 ## Bid Response Information
 ### Bid Example
 ```javascript
- 
+ {
+            "width": 300,
+            "height": 60,
+            "cpm": 0.1,
+            "ad": "<script>document.write('')</script>",
+            "requestId": "_hK5vIC5I",
+            "ttl":120,
+            "creativeId": "fsdgsdgd346FSDG4",
+            "netRevenue":true,
+            "currency":"USD",
+            "dealId": "DEAL_JKBKdsd789",
+            "mediaType":"banner"
+}
 ```
 ### Pass Example
 ```javascript
@@ -62,8 +99,12 @@
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| placementId | Yes | String | Collossus placemnt id |
+| sizes | Yes | Int[][] | Ad slot sizes |
 ### Example
 ```javascript
- 
+{
+    "placementId": "222",
+    "sizes": [[728, 90], [300, 250]]
+}
 ```
