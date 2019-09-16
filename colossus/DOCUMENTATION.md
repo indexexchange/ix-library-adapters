@@ -54,7 +54,7 @@ USD
 ```javascript
  {
     "host": "test.com",
-    "page": "https://test.com/page/5/",
+    "page": "/page/5/",
     "deviceHeight": 768,
     "deviceWidth": 1366,
     "placements": [
