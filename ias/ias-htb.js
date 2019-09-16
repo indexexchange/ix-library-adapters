@@ -181,7 +181,7 @@ function IASHtb(configs) {
         }
 
         // `pubId` is the same for all xSlots
-        queryList.push(['anId', returnParcels[0].xSlotRef.pubId]);
+        queryList.push(['anId', returnParcels[0].pubId]);
 
         queryList = queryList.concat(returnParcels.reduce(function (qsList, parcel) {
             var slotObj = getSlotObj(parcel);
@@ -235,6 +235,17 @@ function IASHtb(configs) {
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
+
+        if (gdprStatus && privacyEnabled) {
+            if (typeof gdprStatus.applies === 'boolean') {
+                payload.regs = {
+                    ext: { gdpr: gdprStatus.applies ? 1 : 0 }
+                };
+            }
+            payload.user = {
+                ext: { consent: gdprStatus.consentString }
+            };
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -323,9 +334,37 @@ function IASHtb(configs) {
          */
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
+        function getPageLevelKeywordObj(response) {
+            var result = {},
+              brandSafetyObj = response.brandSafety;
 
-        var bids = adResponse;
+            Object.keys(brandSafetyObj).forEach(function(key) {
+                result[key] = brandSafetyObj[key];
+            });
+            result.fr = response.fr;
+            return result;
+        }
 
+        function shallowMerge(dest, src) {
+            Object.keys(src).reduce(function(dest, srcKey) {
+                dest[srcKey] = src[srcKey];
+                return dest;
+            }, dest);
+        }
+
+        function parseIASResponseIntoBids(response) {
+            var result = Object.keys(response.slots).reduce(function(slotList, slotId) {
+                var slotObj = {};
+                shallowMerge(slotObj, response.slots[slotId]);
+                slotObj.slotId = slotId;
+                shallowMerge(slotObj, getPageLevelKeywordObj(response));
+                slotList.push(slotObj);
+                return slotList;
+            }, []);
+            return result;
+        }
+        // var bids = adResponse;
+        var bids = parseIASResponseIntoBids(adResponse);
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
@@ -415,6 +454,15 @@ function IASHtb(configs) {
             curReturnParcel.size = bidSize;
             curReturnParcel.targetingType = 'slot';
             curReturnParcel.targeting = {};
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.adt] = bids[i].adt;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.alc] = bids[i].alc;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.dlm] = bids[i].dlm;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.drg] = bids[i].drg;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.hat] = bids[i].hat;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.off] = bids[i].off;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.vio] = bids[i].vio;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.fr] = bids[i].fr;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.vw] = bids[i].vw;
 
             var targetingCpm = '';
 
@@ -463,6 +511,7 @@ function IASHtb(configs) {
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
+
         }
     }
 
@@ -508,15 +557,23 @@ function IASHtb(configs) {
                 om: 'ix_ias_cpm',
                 pm: 'ix_ias_cpm',
                 pmid: 'ix_ias_dealid',
-                brandSafety: 'ix_ias_brandSafety',
+                adt: 'ix_ias_adt',
+                alc: 'ix_ias_alc',
+                dlm: 'ix_ias_dlm',
+                drg: 'ix_ias_drg',
+                hat: 'ix_ias_hat',
+                off: 'ix_ias_off',
+                vio: 'ix_ias_vio',
+                fr: 'ix_ias_fr',
+                vw: 'ix_ias_vw'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 1,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID,
-            architecture: Partner.Architectures.SRA,
-            requestType: Partner.RequestTypes.ANY
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.FSRA,
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */

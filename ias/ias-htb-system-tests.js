@@ -5,7 +5,7 @@ function getPartnerId() {
 }
 
 function getStatsId() {
-    return 'LKDM';
+    return 'IAS';
 }
 
 function getCallbackType() {
@@ -18,9 +18,9 @@ function getArchitecture() {
 
 function getConfig() {
     return {
+        pubId: '99',
         xSlots: {
             1: {
-                pubId: '99',
                 sizes: [[100, 200]],
                 adUnitPath: '/57514611/news.com'
             }
@@ -31,7 +31,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /pixel\.adsafeprotected\.com\/services\/pub/
+        urlRegex: /.*pixel\.adsafeprotected\.com\/services\/pub.*/
     };
 }
 
@@ -42,39 +42,22 @@ function validateBidRequest(request) {
     expect(request.query.sr).toBeDefined();
 }
 
-function getPassResponse(request) {
-    return request.query.cb + '({})';
-}
 
 function getValidResponse(request, creative) {
-    request.headers = {Referer: 'http://localhost:5837/public/tester/system-tester.html'};
-    var r = JSON.parse(request.query.r);
     var response = {
-        cur: 'USD',
-        id: r.id,
-        seatbid: [
-            {
-                bid: [
-                    {
-                        adid: '1487603',
-                        adm: creative,
-                        adomain: ['www.indexexchange.com'],
-                        ext: {
-                            advbrand: 'IX',
-                            advbrandid: '25661',
-                            pricelevel: '200'
-                        },
-                        id: 567841330,
-                        impid: '1',
-                        price: '200'
-                    }
-                ],
-                seat: '2439'
-            }
-        ]
+        request: request,
+        creative: creative
     };
+    return JSON.stringify(response);
+}
 
-    return 'headertag.IndexExchangeHtb.adResponseCallback(' + JSON.stringify(response) + ')';
+function getPassResponse(request) {
+    var response = { request: request };
+    return JSON.stringify(response);
+}
+
+function validateTargeting(targetingMap) {
+    expect(targetingMap).toEqual(jasmine.objectContaining({}));
 }
 
 module.exports = {
@@ -85,6 +68,7 @@ module.exports = {
     getConfig: getConfig,
     getBidRequestRegex: getBidRequestRegex,
     validateBidRequest: validateBidRequest,
-    getPassResponse: getPassResponse,
-    getValidResponse: getValidResponse
+    getValidResponse: getValidResponse,
+    validateTargeting: validateTargeting,
+    getPassResponse: getPassResponse
 };
