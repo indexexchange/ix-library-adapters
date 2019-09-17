@@ -18,10 +18,17 @@ function getArchitecture() {
 
 function getConfig() {
     return {
-        pubId: '99',
         xSlots: {
             1: {
-                sizes: [[100, 200]],
+                pubId: '99',
+                placementId: 1,
+                sizes: [[320, 50]],
+                adUnitPath: '/57514611/news.com'
+            },
+            2: {
+                pubId: '99',
+                placementId: 1,
+                sizes: [[320, 50]],
                 adUnitPath: '/57514611/news.com'
             }
         }
@@ -36,28 +43,64 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
+    console.error(request.query);
     expect(request.query.anId).toBeDefined();
     expect(request.query.slot).toBeDefined();
     expect(request.query.wr).toBeDefined();
     expect(request.query.sr).toBeDefined();
 }
 
-
 function getValidResponse(request, creative) {
-    var response = {
-        request: request,
-        creative: creative
-    };
-    return JSON.stringify(response);
-}
+    var response = [
+        {
+            slot: '1',
+            w: 320,
+            h: 50,
+            price: 200,
+            crid: 'crid_1',
+            adm: creative || '<div id="1"></div>'
+        },
+        {
+            slot: '2',
+            w: 320,
+            h: 250,
+            price: 200,
+            crid: 'crid_2',
+            adm: creative || '<div id="2"></div>'
+        }
+    ];
 
-function getPassResponse(request) {
-    var response = { request: request };
     return JSON.stringify(response);
 }
 
 function validateTargeting(targetingMap) {
-    expect(targetingMap).toEqual(jasmine.objectContaining({}));
+    expect(targetingMap).toEqual(jasmine.objectContaining({
+    }));
+}
+
+function getPassResponse(request) {
+    var response = {
+        brandSafety: {
+            adt: 'veryLow',
+            alc: 'veryLow',
+            dlm: 'veryLow',
+            drg: 'veryLow',
+            hat: 'veryLow',
+            off: 'veryLow',
+            vio: 'veryLow'
+        },
+        fr: 'false',
+        slots: {
+            htSlotDesktopAId: {
+                id: 'fdfcfa8b-d8ac-11e9-82e4-14dda9d4b6a0',
+                vw: ['40', '50'],
+                grm: ['40'],
+                price: 2.00
+            }
+        }
+    };
+
+    return JSON.stringify(response);
 }
 
 module.exports = {
