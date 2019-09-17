@@ -6,8 +6,7 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
-            // eslint-disable-next-line camelcase
-            publisher_org_id: {
+            wsid: {
                 type: 'string',
                 minLength: 1
             },
