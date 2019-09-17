@@ -6,14 +6,24 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
-            wsid: {
-                type: 'string',
-                minLength: 1
-            },
             xSlots: {
                 type: 'object',
                 properties: {
-
+                    '*': {
+                        type: 'object',
+                        properties: {
+                            ppid: {
+                                type: 'string',
+                                minLength: 1
+                            },
+                            width: {
+                                type: 'number'
+                            },
+                            height: {
+                                type: 'number'
+                            }
+                        }
+                    }
                 }
             }
         }

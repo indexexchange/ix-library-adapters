@@ -57,8 +57,8 @@ function EyereturnHtb(configs) {
         // eslint-disable-next-line camelcase
         payload.ad_slot = [
             {
-                width: parseInt(xSlot.w, 10),
-                height: parseInt(xSlot.h, 10)
+                width: xSlot.width,
+                height: xSlot.height
             }
         ];
 
@@ -68,7 +68,7 @@ function EyereturnHtb(configs) {
         payload.site = {
             url: Browser.getPageUrl(),
             referrer: Browser.getReferrer(),
-            wsid: configs.wsid
+            ppid: xSlot.ppid
         };
 
         var baseUrl = 'https://prometheus-ix.eyereturn.com/prometheus/bid';
