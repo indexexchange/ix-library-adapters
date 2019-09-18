@@ -1,4 +1,4 @@
-# JustPremium
+# Invibes
 ## General Compatibility
 |Feature|  |
 |---|---|
