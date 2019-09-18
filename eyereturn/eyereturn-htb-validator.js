@@ -21,6 +21,17 @@ function partnerValidator(configs) {
                             },
                             height: {
                                 type: 'number'
+                            },
+                            sizes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
                             }
                         }
                     }

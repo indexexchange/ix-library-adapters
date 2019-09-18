@@ -52,15 +52,20 @@ function EyereturnHtb(configs) {
         // MRA only get one parcel
         var returnParcel = returnParcels[0];
         var xSlot = returnParcel.xSlotRef;
-
         var payload = {};
         // eslint-disable-next-line camelcase
-        payload.ad_slot = [
-            {
-                width: xSlot.width,
-                height: xSlot.height
+        payload.ad_slot = [];
+
+        // Get the dimensions
+        for (var i = 0; i < xSlot.sizes.length; i++) {
+            var size = xSlot.sizes[i];
+            if (size.length === 2) {
+                payload.ad_slot.push({
+                    width: size[0],
+                    height: size[1]
+                });
             }
-        ];
+        }
 
         // eslint-disable-next-line camelcase
         payload.request_id = returnParcel.requestId;
