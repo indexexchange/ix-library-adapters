@@ -25,8 +25,8 @@ function getConfig() {
         xSlots: {
             1: {
                 // Slot level parameter
-                w: 300,
-                h: 250
+                ppid: '123abcd',
+                sizes: [[300, 250]]
             }
         }
     };

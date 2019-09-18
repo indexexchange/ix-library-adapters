@@ -16,12 +16,6 @@ function partnerValidator(configs) {
                                 type: 'string',
                                 minLength: 1
                             },
-                            width: {
-                                type: 'number'
-                            },
-                            height: {
-                                type: 'number'
-                            },
                             sizes: {
                                 type: 'array',
                                 minLength: 1,
