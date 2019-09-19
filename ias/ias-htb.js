@@ -333,6 +333,9 @@ function IASHtb(configs) {
                     result[key] = brandSafetyObj[key];
                 });
             result.fr = response.fr;
+            if (response.price) {
+                result.price = response.price;
+            }
 
             return result;
         }
@@ -383,27 +386,17 @@ function IASHtb(configs) {
                  * key to a key that represents the placement in the configuration and in the bid responses.
                  */
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
+
                 if (htSlotId === bids[i].slotId) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
                     break;
                 }
-                curReturnParcel.targetingType = 'slot';
-                curReturnParcel.targeting = {};
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = bids[i].id;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.adt] = bids[i].adt;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.alc] = bids[i].alc;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.dlm] = bids[i].dlm;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.drg] = bids[i].drg;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.hat] = bids[i].hat;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.off] = bids[i].off;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.vio] = bids[i].vio;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.fr] = bids[i].fr;
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.vw] = bids[i].vw;
             }
 
             /* No matching bid found so its a pass */
+
             if (!curBid) {
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
@@ -419,18 +412,19 @@ function IASHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.price;
+
+            var bidPrice = curBid && curBid.price ? curBid.price : 0;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [1, 1];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
+            var bidCreative = '<div></div>';
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId = curBid && curBid.id ? curBid.id : null;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
@@ -441,12 +435,23 @@ function IASHtb(configs) {
             */
             var pixelUrl = '';
 
+            var iasADT = curBid.adt;
+            var iasALC = curBid.alc;
+            var iasDLM = curBid.dlm;
+            var iasDRG = curBid.drg;
+            var iasHAT = curBid.hat;
+            var iasOFF = curBid.off;
+            var iasVIO = curBid.vio;
+            var iasFR = curBid.fr;
+            var iasVW = curBid.vw;
+
             /* --------------------------------------------------------------------------------------- */
 
             curBid = null;
+
             if (bidIsPass) {
                 //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + curBid.id + ' }.');
                 //? }
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
@@ -459,17 +464,25 @@ function IASHtb(configs) {
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
             }
-
             curReturnParcel.size = bidSize;
             curReturnParcel.targetingType = 'slot';
             curReturnParcel.targeting = {};
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = bidDealId;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.adt] = iasADT;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.alc] = iasALC;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.dlm] = iasDLM;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.drg] = iasDRG;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.hat] = iasHAT;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.off] = iasOFF;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.vio] = iasVIO;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.fr] = iasFR;
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.vw] = iasVW;
 
             var targetingCpm = '';
-
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
-            var sizeKey = Size.arrayToString(curReturnParcel.size);
 
+            var sizeKey = Size.arrayToString(curReturnParcel.size);
             if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
@@ -494,7 +507,6 @@ function IASHtb(configs) {
             if (__profile.features.demandExpiry.enabled) {
                 expiry = __profile.features.demandExpiry.value + System.now();
             }
-
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
@@ -507,7 +519,6 @@ function IASHtb(configs) {
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
-
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
