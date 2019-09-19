@@ -2,10 +2,10 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | Yes |
+| Native Ad Support | No |
+| SafeFrame Support | No |
+| PMP Support | No |
  
 ## Browser Compatibility
 | Browser |  |
@@ -27,13 +27,13 @@
 | Info | |
 |---|---|
 | Partner Id | MartinHtb |
-| Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
+| Ad Server Responds in (Cents, Dollars, etc) | Dollars |
+| Bid Type (Gross / Net) | Net |
+| GAM Key (Open Market) | ix_mar_cpm |
+| GAM Key (Private Market) | ix_mar_cpm |
 | Ad Server URLs | |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
+| Request Architecture (MRA / SRA) | MRA |
  
 ## Currencies Supported
  
