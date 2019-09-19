@@ -21,14 +21,12 @@ function getConfig() {
         xSlots: {
             1: {
                 pubId: '99',
-                placementId: 1,
                 sizes: [[320, 50]],
                 adUnitPath: '/57514611/news.com'
             },
             2: {
                 pubId: '99',
-                placementId: 1,
-                sizes: [[320, 50]],
+                sizes: [[200, 350]],
                 adUnitPath: '/57514611/news.com'
             }
         }
@@ -43,7 +41,6 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
-    console.error(request.query);
     expect(request.query.anId).toBeDefined();
     expect(request.query.slot).toBeDefined();
     expect(request.query.wr).toBeDefined();

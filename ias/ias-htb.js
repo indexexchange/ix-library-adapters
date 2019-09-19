@@ -14,7 +14,6 @@ var System = require('system.js');
 var Network = require('network.js');
 var Utilities = require('utilities.js');
 
-var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
@@ -209,7 +208,7 @@ function IASHtb(configs) {
         })
             .join('&');
 
-        baseUrl += '?' + queryString;        
+        baseUrl += '?' + queryString;
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -235,8 +234,6 @@ function IASHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -327,7 +324,44 @@ function IASHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse;
+        function getPageLevelKeywordObj(response) {
+            var result = {};
+            var brandSafetyObj = response.brandSafety;
+
+            Object.keys(brandSafetyObj)
+                .forEach(function (key) {
+                    result[key] = brandSafetyObj[key];
+                });
+            result.fr = response.fr;
+
+            return result;
+        }
+
+        function shallowMerge(dest, src) {
+            Object.keys(src)
+                .reduce(function (des, srcKey) {
+                    des[srcKey] = src[srcKey];
+
+                    return des;
+                }, dest);
+        }
+
+        function parseIASResponseIntoBids(response) {
+            var result = Object.keys(response.slots)
+                .reduce(function (slotList, slotId) {
+                    var slotObj = {};
+                    shallowMerge(slotObj, response.slots[slotId]);
+                    slotObj.slotId = slotId;
+                    shallowMerge(slotObj, getPageLevelKeywordObj(response));
+                    slotList.push(slotObj);
+
+                    return slotList;
+                }, []);
+
+            return result;
+        }
+
+        var bids = parseIASResponseIntoBids(adResponse);
 
         /* --------------------------------------------------------------------------------- */
 
@@ -348,14 +382,25 @@ function IASHtb(configs) {
                  * is usually some sort of placements or inventory codes. Please replace the someCriteria
                  * key to a key that represents the placement in the configuration and in the bid responses.
                  */
-
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                if (htSlotId === bids[i].slotId) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
                     break;
                 }
+                curReturnParcel.targetingType = 'slot';
+                curReturnParcel.targeting = {};
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = bids[i].id;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.adt] = bids[i].adt;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.alc] = bids[i].alc;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.dlm] = bids[i].dlm;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.drg] = bids[i].drg;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.hat] = bids[i].hat;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.off] = bids[i].off;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.vio] = bids[i].vio;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.fr] = bids[i].fr;
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.vw] = bids[i].vw;
             }
 
             /* No matching bid found so its a pass */
@@ -474,7 +519,6 @@ function IASHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
@@ -507,10 +551,19 @@ function IASHtb(configs) {
 
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_iat_id',
-                om: 'ix_iat_cpm',
-                pm: 'ix_iat_cpm',
-                pmid: 'ix_iat_dealid'
+                id: 'ix_ias_id',
+                om: 'ix_ias_cpm',
+                pm: 'ix_ias_cpm',
+                pmid: 'ix_ias_dealid',
+                adt: 'ix_ias_adt',
+                alc: 'ix_ias_alc',
+                dlm: 'ix_ias_dlm',
+                drg: 'ix_ias_drg',
+                hat: 'ix_ias_hat',
+                off: 'ix_ias_off',
+                vio: 'ix_ias_vio',
+                fr: 'ix_ias_fr',
+                vw: 'ix_ias_vw'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */

@@ -29,10 +29,6 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
-                                type: 'string',
-                                minLength: 1
-                            }
                         }
                     }
                 }
