@@ -71,6 +71,7 @@ function MartinHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
+        console.log("Martin generateRequestObj")
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -137,9 +138,8 @@ function MartinHtb(configs) {
             referrer: Browser.getReferrer(),
             ua: Browser.getUserAgent()
         };
-        var callbackId = System.generateUniqueId();
 
-        var baseUrl = Browser.getProtocol() + '//east.martin.ai/bid/ix';
+        var baseUrl = Browser.getProtocol() + '//martin.ai/bid/ix';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -176,25 +176,13 @@ function MartinHtb(configs) {
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId,
+            // callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
                 contentType: 'application/json'
             }
         };
     }
-
-    /* =============================================================================
-     * STEP 3  | Response callback
-     * -----------------------------------------------------------------------------
-     *
-     * This generator is only necessary if the partner's endpoint has the ability
-     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
-     * the response and save the response to adResponseStore keyed by that ID.
-     *
-     * If the endpoint does not have an appropriate field for this, set the profile's
-     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
-     */
 
     /* -------------------------------------------------------------------------- */
 
@@ -309,7 +297,7 @@ function MartinHtb(configs) {
         //? }
 
         //? if (FEATURES.RETURN_CREATIVE) {
-        returnParcel.adm = bid.adm;
+        returnParcel.adm = '<div>Testing</div>'; // bid.adm;
         //? }
 
         //? if (FEATURES.RETURN_PRICE) {
@@ -361,7 +349,7 @@ function MartinHtb(configs) {
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
-                requestTime: true
+                requestTime: false
             },
             features: {
                 demandExpiry: {
@@ -389,6 +377,8 @@ function MartinHtb(configs) {
             architecture: Partner.Architectures.MRA,
             requestType: Partner.RequestTypes.AJAX
         };
+
+        console.log("_profile is:", JSON.stringify(__profile))
 
         /* --------------------------------------------------------------------------------------- */
 
