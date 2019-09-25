@@ -20,7 +20,6 @@ function getConfig() {
         gender: 'M',
         xSlots: {
             1: {
-                adSlotId: '44',
                 sizes: [[300, 250], [300, 600]]
             }
         },
@@ -80,7 +79,6 @@ function validateBidRequest(request) {
 }
 
 function getPassResponse(request) {
-    console.log("getPassResponse");
     return '{}';
 }
 
@@ -91,9 +89,8 @@ function getValidResponse(request, creative) {
             {
                 bid: [
                     {
-                        price: 200,
+                        price: 2,
                         adm: adm,
-                        auid: 44,
                         h: 250,
                         w: 300
                     }
@@ -107,6 +104,13 @@ function getValidResponse(request, creative) {
 }
 
 function validateTargeting(targetingMap) {
+    var isObjEmpty = Object.keys(targetingMap).length === 0 && targetingMap.constructor === Object;
+    if (!isObjEmpty) {
+        expect(targetingMap).toEqual(jasmine.objectContaining({
+            ix_mar_id: jasmine.arrayContaining([jasmine.any(String)]),
+            ix_mar_cpm: jasmine.arrayContaining(['300x250_200'])
+        }));
+    }
 }
 
 function getValidResponseWithDeal(request, creative) {
@@ -116,9 +120,8 @@ function getValidResponseWithDeal(request, creative) {
             {
                 bid: [
                     {
-                        price: 200,
+                        price: 2,
                         adm: adm,
-                        auid: 44,
                         h: 250,
                         w: 300,
                         dealid: '123'
@@ -133,6 +136,14 @@ function getValidResponseWithDeal(request, creative) {
 }
 
 function validateTargetingWithDeal(targetingMap) {
+    var isObjEmpty = Object.keys(targetingMap).length === 0 && targetingMap.constructor === Object;
+    if (!isObjEmpty) {
+        expect(targetingMap).toEqual(jasmine.objectContaining({
+            ix_mar_id: jasmine.arrayContaining([jasmine.any(String)]),
+            ix_mar_cpm: jasmine.arrayContaining(['300x250_200']),
+            ix_mar_dealid: jasmine.arrayContaining(['300x250_123'])
+        }));
+    }
 }
 
 module.exports = {

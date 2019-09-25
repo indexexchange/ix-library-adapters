@@ -371,6 +371,8 @@ function MartinHtb(configs) {
          *
          */
 
+         console.log("in parseResponse")        
+
         // Ad response is 0 or 1 seat bids
         var returnParcel = returnParcels[0];
         var headerStatsInfo = {};
@@ -382,6 +384,7 @@ function MartinHtb(configs) {
             || !adResponse.hasOwnProperty('seatbid')
             || !Array.isArray(adResponse.seatbid)
             || adResponse.seatbid.length === 0) {
+            
             returnParcel.pass = true;
 
             if (__profile.enabledAnalytics.requestTime) {
@@ -392,7 +395,8 @@ function MartinHtb(configs) {
         }
 
         // Process bid
-        var bid = adResponse.seatbid[0].bid;
+        var bid = adResponse.seatbid[0].bid[0];
+        console.log("bid:", JSON.stringify(bid))
         if (!bid || bid.price === 0) {
             returnParcel.pass = true;
 
@@ -403,11 +407,14 @@ function MartinHtb(configs) {
             return;
         }
 
+        if (__profile.enabledAnalytics.requestTime) {
+            __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+        }
+
         // Things that should be unconditionally added to the return parcel
         returnParcel.size = [Number(bid.width), Number(bid.height)];
         returnParcel.targeting = {};
         returnParcel.targetingType = 'slot';
-        returnParcel.price = Number(__baseClass._bidTransformers.price.apply(bid.price));
 
         // Things that may be conditionally added to the return parcel
         var bidDealId = bid.dealid;
@@ -415,7 +422,7 @@ function MartinHtb(configs) {
 
         //? if (FEATURES.GPT_LINE_ITEMS) {
         targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.price);
-        var sizeKey = Size.arrayToString(returnParcel.size);
+        var sizeKey = Size.arrayToString([Number(bid.w), Number(bid.h)]);
 
         if (bidDealId) {
             returnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
@@ -427,7 +434,7 @@ function MartinHtb(configs) {
         //? }
 
         //? if (FEATURES.RETURN_CREATIVE) {
-        returnParcel.adm = '<div>Testing</div>'; // bid.adm;
+        returnParcel.adm = bid.adm;
         //? }
 
         //? if (FEATURES.RETURN_PRICE) {
@@ -454,6 +461,9 @@ function MartinHtb(configs) {
         //? if (FEATURES.INTERNAL_RENDER) {
         returnParcel.targeting.pubKitAdId = pubKitAdId;
         //? }
+
+        console.log("returnParcel:", JSON.stringify(returnParcel))
+
     }
 
     /* =====================================
@@ -479,7 +489,8 @@ function MartinHtb(configs) {
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
-                requestTime: false
+                // You're not actually allowed to set this to false, it will fail the headerStats tests if you do
+                requestTime: true
             },
             features: {
                 demandExpiry: {
