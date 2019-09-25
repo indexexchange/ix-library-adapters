@@ -24,6 +24,9 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
+// Declare a variable and don't define it to get around the linter undefined rule
+var undef;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,12 +58,133 @@ function MartinHtb(configs) {
      */
     var __profile;
 
+    /**
+     * Profile for this partner.
+     *
+     * @private {object}
+     */
+    var __globalConfigs;
+
     /* =====================================
      * Functions
      * ---------------------------------- */
 
     /* Utilities
      * ---------------------------------- */
+
+    function _parseSlotParam(paramName, paramValue) {
+        if (Utilities.isString(paramValue)) {
+            switch (paramName) {
+                case 'pmzoneid':
+
+                    return paramValue.split(',')
+                        .slice(0, 50)
+                        .map(function (id) {
+                            return id.trim();
+                        })
+                        .join();
+                case 'lat':
+                case 'lon':
+
+                    return parseFloat(paramValue) || undef;
+
+                default:
+
+                    return paramValue;
+            }
+        } else {
+            return undef;
+        }
+    }
+
+    function __populateImprObject(returnParcels) {
+        var retArr = [];
+        var impObj = {};
+        var sizes = [];
+        var sizeIndex = 0;
+
+        returnParcels.forEach(function (rp) {
+            sizeIndex = 0;
+            impObj = {
+                id: rp.htSlot.getId(),
+                secure: 1
+            };
+            sizes = rp.xSlotRef.sizes;
+            impObj.banner = {};
+            impObj.banner.format = [];
+            sizes.forEach(function (size) {
+                if (size.length === 2) {
+                    if (sizeIndex === 0) {
+                        impObj.banner.w = size[0];
+                        impObj.banner.h = size[1];
+                        sizeIndex++;
+                    } else {
+                        impObj.banner.format.push(
+                            {
+                                w: size[0],
+                                h: size[1]
+                            }
+                        );
+                    }
+                }
+            });
+            if (impObj.banner.format.length === 0) {
+                delete impObj.banner.format;
+            }
+            retArr.push(impObj);
+        });
+
+        return retArr;
+    }
+
+    function __populateSiteObject(publisherId) {
+        var retObj = {
+            page: Browser.topWindow.location.href,
+            ref: Browser.topWindow.document.referrer,
+            publisher: {
+                id: publisherId,
+                domain: Browser.topWindow.location.hostname
+            },
+            domain: Browser.topWindow.location.hostname
+        };
+
+        return retObj;
+    }
+
+    function __populateDeviceInfo() {
+        var dnt = Browser.topWindow.navigator.doNotTrack === 'yes'
+            || Browser.topWindow.navigator.doNotTrack === '1'
+            || Browser.topWindow.navigator.msDoNotTrack === '1' ? 1 : 0;
+
+        return {
+            ua: Browser.getUserAgent(),
+            js: 1,
+            dnt: dnt,
+            h: Browser.getScreenHeight(),
+            w: Browser.getScreenWidth(),
+            language: Browser.getLanguage(),
+            geo: {
+                lat: _parseSlotParam('lat', __globalConfigs.lat),
+                lon: _parseSlotParam('lon', __globalConfigs.lon)
+            }
+        };
+    }
+
+    function __populateUserInfo(rp, idData) {
+        var userObj = {
+            gender: __globalConfigs.gender ? __globalConfigs.gender.trim() : undef,
+            geo: {
+                lat: _parseSlotParam('lat', __globalConfigs.lat),
+                lon: _parseSlotParam('lon', __globalConfigs.lon)
+            }
+        };
+
+        if (idData && idData.hasOwnProperty('AdserverOrgIp') && idData.AdserverOrgIp.hasOwnProperty('data')) {
+            userObj.eids = [idData.AdserverOrgIp.data];
+        }
+
+        return userObj;
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -71,7 +195,6 @@ function MartinHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        console.log("Martin generateRequestObj")
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -130,16 +253,18 @@ function MartinHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var queryObj = {
-            page: Browser.topWindow.location.href,
-            domain: Browser.topWindow.location.hostname,
-            search: Browser.topWindow.location.search,
-            secure: Browser.getProtocol() === 'https:' ? 1 : 0,
-            referrer: Browser.getReferrer(),
-            ua: Browser.getUserAgent()
+        
+        var baseUrl = Browser.getProtocol() + '//east.martin.ai/bid/ix';
+        var idData = returnParcels[0] && returnParcels[0].identityData;
+        var requestBody = {
+            id: String(new Date()
+                .getTime()),
+            cur: ['USD'],
+            imp: __populateImprObject(returnParcels),
+            site: __populateSiteObject(__globalConfigs.pubId),
+            device: __populateDeviceInfo(),
+            user: __populateUserInfo(returnParcels[0], idData)
         };
-
-        var baseUrl = Browser.getProtocol() + '//martin.ai/bid/ix';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -165,18 +290,23 @@ function MartinHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
         if (privacyEnabled) {
-            queryObj.gdpr = gdprStatus.applies ? 1 : 0;
-            queryObj.gdprConsent = gdprStatus.consentString;
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+            requestBody.user.ext = {
+                consent: gdprStatus.consentString
+            };
+            requestBody.regs = {
+                ext: {
+                    gdpr: gdprStatus.applies ? 1 : 0
+                }
+            };
         }
 
         return {
             url: baseUrl,
-            data: queryObj,
-            // callbackId: callbackId,
+            data: requestBody,
             networkParamOverrides: {
                 method: 'POST',
                 contentType: 'application/json'
@@ -378,8 +508,6 @@ function MartinHtb(configs) {
             requestType: Partner.RequestTypes.AJAX
         };
 
-        console.log("_profile is:", JSON.stringify(__profile))
-
         /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
@@ -389,6 +517,17 @@ function MartinHtb(configs) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
+
+        __globalConfigs = {
+            pubId: configs.publisherId,
+
+            /* Pubmatic specific values. required in the api request */
+            lat: configs.lat || undef,
+            lon: configs.lon || undef,
+            gender: configs.gender || undef,
+            profile: configs.profile || undef,
+            version: configs.version || undef
+        };
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
