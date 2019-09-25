@@ -36,7 +36,7 @@ function getArchitecture() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /.*martin\.ai\/bid\/ix.*/
+        urlRegex: /.*martin\.ai\/bid\/index.*/
     };
 }
 

@@ -254,7 +254,7 @@ function MartinHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         
-        var baseUrl = Browser.getProtocol() + '//east.martin.ai/bid/ix';
+        var baseUrl = Browser.getProtocol() + '//east.martin.ai/bid/index';
         var idData = returnParcels[0] && returnParcels[0].identityData;
         var requestBody = {
             id: String(new Date()
@@ -369,9 +369,7 @@ function MartinHtb(configs) {
          * bids array. Each element in the bids array should represent a single bid and should
          * match up to a single element from the returnParcel array.
          *
-         */
-
-         console.log("in parseResponse")        
+         */    
 
         // Ad response is 0 or 1 seat bids
         var returnParcel = returnParcels[0];
@@ -396,7 +394,6 @@ function MartinHtb(configs) {
 
         // Process bid
         var bid = adResponse.seatbid[0].bid[0];
-        console.log("bid:", JSON.stringify(bid))
         if (!bid || bid.price === 0) {
             returnParcel.pass = true;
 
@@ -461,9 +458,6 @@ function MartinHtb(configs) {
         //? if (FEATURES.INTERNAL_RENDER) {
         returnParcel.targeting.pubKitAdId = pubKitAdId;
         //? }
-
-        console.log("returnParcel:", JSON.stringify(returnParcel))
-
     }
 
     /* =====================================
