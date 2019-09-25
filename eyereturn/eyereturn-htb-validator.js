@@ -13,8 +13,7 @@ function partnerValidator(configs) {
                         type: 'object',
                         properties: {
                             ppid: {
-                                type: 'string',
-                                minLength: 1
+                                type: 'integer'
                             },
                             sizes: {
                                 type: 'array',
