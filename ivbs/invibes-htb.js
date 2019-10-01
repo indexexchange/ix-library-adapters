@@ -340,7 +340,6 @@ function InvibesHtb(configs) {
             }),
 
             capCounts: getCappedCampaignsAsString(),
-            BvId: 101632,
             vId: invibes.visitId,
 
             width: topWin.innerWidth,
@@ -355,7 +354,6 @@ function InvibesHtb(configs) {
             method: CONSTANTS.METHOD,
             url: baseUrl,
             data: data,
-            bidRequests: returnParcels,
             contentType: 'application/json'
         };
     }
