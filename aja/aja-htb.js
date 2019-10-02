@@ -415,7 +415,7 @@ function AJAHtb(configs) {
                 dealId: bidDealId || null,
                 timeOfExpiry: expiry,
                 auxFn: __renderPixel,
-                auxArgs: pixelUrls
+                auxArgs: [pixelUrls]
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
