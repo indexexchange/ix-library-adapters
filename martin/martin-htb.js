@@ -485,7 +485,7 @@ function MartinHtb(configs) {
             partnerId: 'MartinHtb',
             namespace: 'MartinHtb',
             statsId: 'MAR',
-            version: '2.0.0',
+            version: '1.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 // You're not actually allowed to set this to false, it will fail the headerStats tests if you do
@@ -531,7 +531,7 @@ function MartinHtb(configs) {
         __globalConfigs = {
           pubId: configs.publisherId,
 
-          /* Pubmatic specific values. required in the api request */
+          /* Martin specific values. required in the api request */
           lat: configs.lat || undef,
           lon: configs.lon || undef,
           country: configs.country || undef,

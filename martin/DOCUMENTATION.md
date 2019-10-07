@@ -5,7 +5,7 @@
 | Consent | Yes |
 | Native Ad Support | No |
 | SafeFrame Support | No |
-| PMP Support | No |
+| PMP Support | Yes |
  
 ## Browser Compatibility
 | Browser |  |
@@ -89,13 +89,6 @@
      }
  	},
  	"user": {
- 		"geo": {
-       "lat": 12.34,
-			 "lon": 56.78,
-			 "country": "USA",
-			 "region": "OH",
-			 "zip": "45202"
-     }
  	}
  }
 ```
