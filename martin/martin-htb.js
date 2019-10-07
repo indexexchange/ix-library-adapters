@@ -165,17 +165,22 @@ function MartinHtb(configs) {
             language: Browser.getLanguage(),
             geo: {
                 lat: _parseSlotParam('lat', __globalConfigs.lat),
-                lon: _parseSlotParam('lon', __globalConfigs.lon)
+                lon: _parseSlotParam('lon', __globalConfigs.lon),
+                country: _parseSlotParam('lon', __globalConfigs.country),
+                region: _parseSlotParam('lon', __globalConfigs.region),
+                zip: _parseSlotParam('lon', __globalConfigs.zip)
             }
         };
     }
 
     function __populateUserInfo(rp, idData) {
         var userObj = {
-            gender: __globalConfigs.gender ? __globalConfigs.gender.trim() : undef,
             geo: {
                 lat: _parseSlotParam('lat', __globalConfigs.lat),
-                lon: _parseSlotParam('lon', __globalConfigs.lon)
+                lon: _parseSlotParam('lon', __globalConfigs.lon),
+                country: _parseSlotParam('lon', __globalConfigs.country),
+                region: _parseSlotParam('lon', __globalConfigs.region),
+                zip: _parseSlotParam('lon', __globalConfigs.zip)
             }
         };
 
@@ -524,14 +529,16 @@ function MartinHtb(configs) {
         //? }
 
         __globalConfigs = {
-            pubId: configs.publisherId,
+          pubId: configs.publisherId,
 
-            /* Pubmatic specific values. required in the api request */
-            lat: configs.lat || undef,
-            lon: configs.lon || undef,
-            gender: configs.gender || undef,
-            profile: configs.profile || undef,
-            version: configs.version || undef
+          /* Pubmatic specific values. required in the api request */
+          lat: configs.lat || undef,
+          lon: configs.lon || undef,
+          country: configs.country || undef,
+          region: configs.region || undef,
+          zip: configs.zip || undef,
+          profile: configs.profile || undef,
+          version: configs.version || undef
         };
 
         __baseClass = Partner(__profile, configs, null, {

@@ -82,13 +82,19 @@
  		"language": "en-US",
  		"geo": {
        "lat": 12.34,
-       "lon": 56.78
+			 "lon": 56.78,
+			 "country": "USA",
+			 "region": "OH",
+			 "zip": "45202"
      }
  	},
  	"user": {
  		"geo": {
        "lat": 12.34,
-       "lon": 56.78
+			 "lon": 56.78,
+			 "country": "USA",
+			 "region": "OH",
+			 "zip": "45202"
      }
  	}
  }
@@ -124,7 +130,9 @@
 |publisherId|Yes|string|Publisher ID|
 |lat|No|string|latitude|
 |lon|No|string|longitude|
-|gender|No|string|Gender Information|
+|country|No|string|3 letter country code using ISO-3166-1-alpha-3|
+|region|No|string|2 letter region code using ISO-3166-2|
+|zip|No|string|Zip or postal code|
 ### Example
 ```javascript
  
@@ -134,9 +142,11 @@
 (Test configuration or methodology that can be used to retrieve & render a test creative from Martin's platform)
 ```javascript
  {
-        publisherId: '156209',
-        lat: '40.712775',
-        lon: '-74.005973',
-        gender: 'M',
+        "publisherId": "156209",
+        "lat": "40.712775",
+				"lon": "-74.005973",
+				"country": "USA",
+				"region": "OH",
+				"zip": "45202"
       }
 ```
