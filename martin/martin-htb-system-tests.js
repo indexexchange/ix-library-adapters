@@ -42,6 +42,8 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
+     expect(request.query.cachebuster).toBeDefined();
+    
     var body = JSON.parse(request.body);
     var config = getConfig();
 
