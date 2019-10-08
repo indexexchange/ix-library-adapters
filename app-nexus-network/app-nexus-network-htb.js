@@ -143,16 +143,19 @@ function AppNexusNetworkHtb(configs) {
             });
 
             var numPlacementId = parseInt(parcel.xSlotRef.placementId, 10);
+            var allowSmallerSizes = parcel.xSlotRef.allowSmallerSizes || false;
+            var usePaymentRule = parcel.xSlotRef.usePaymentRule || false;
+
             /* eslint-disable camelcase */
             var tag = {
                 ad_types: ['banner'],
-                allow_smaller_sizes: false,
+                allow_smaller_sizes: allowSmallerSizes,
                 disable_psa: true,
                 id: numPlacementId,
                 prebid: true,
                 primary_size: objSizes[0],
                 sizes: objSizes,
-                use_pmt_rule: false,
+                use_pmt_rule: usePaymentRule,
                 uuid: System.generateUniqueId(14, 'ALPHANUM')
             };
             /* eslint-enable camelcase */
@@ -176,7 +179,6 @@ function AppNexusNetworkHtb(configs) {
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
-            queryObj.gdpr = gdprStatus.applies ? 1 : 0;
             /* eslint-disable camelcase */
             queryObj.gdpr_consent = {
                 consent_required: gdprStatus.applies,
@@ -435,7 +437,7 @@ function AppNexusNetworkHtb(configs) {
         }
         //? }
 
-        __baseUrl = Browser.getProtocol() + '//ib.adnxs.com/ut/v3';
+        __baseUrl = Browser.getProtocol() + '//ib.adnxs.com/ut/v3/prebid';
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj

@@ -19,7 +19,7 @@ function getArchitecture() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /.*ib\.adnxs\.com\/ut\/v3*/
+        urlRegex: /.*ib\.adnxs\.com\/ut\/v3\/prebid*/
     };
 }
 
@@ -31,14 +31,18 @@ function getConfig() {
                 sizes: [[300, 250]],
                 keywords: {
                     music: ['classical', 'piano']
-                }
+                },
+                usePaymentRule: false,
+                allowSmallerSizes: false
             },
             2: {
                 placementId: '15901268',
                 sizes: [[300, 250], [300, 600]],
                 keywords: {
                     music: ['classical', 'piano']
-                }
+                },
+                usePaymentRule: false,
+                allowSmallerSizes: false
             }
         },
         mapping: {
@@ -56,6 +60,8 @@ function validateBidRequest(request) {
     expect(data.tags[0].primary_size).toBeDefined();
     expect(data.tags[0].sizes).toBeDefined();
     expect(data.tags[0].uuid).toBeDefined();
+    expect(data.tags[0].use_pmt_rule).toBeDefined();
+    expect(data.tags[0].allow_smaller_sizes).toBeDefined();
     expect(data.tags[0].keywords).toBeDefined();
     expect(data.tags[0].keywords[0].key).toBeDefined();
     expect(data.tags[0].keywords[0].key).toEqual('music');
