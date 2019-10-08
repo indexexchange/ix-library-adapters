@@ -194,7 +194,7 @@ function AppNexusNetworkHtb(configs) {
             networkParamOverrides: {
                 method: 'POST',
                 contentType: 'text/plain'
-          }
+            }
         };
     }
 
@@ -269,7 +269,7 @@ function AppNexusNetworkHtb(configs) {
                 if (curReturnParcel.xSlotRef.placementId === bids[i].tag_id.toString() && !bids[i].nobid) {
                     curBid = bids[i];
                     bids.splice(i, 1);
-                    
+
                     break;
                 }
             }
@@ -347,7 +347,7 @@ function AppNexusNetworkHtb(configs) {
             if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
             }
-            
+
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
             //? }

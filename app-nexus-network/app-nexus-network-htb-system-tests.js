@@ -58,7 +58,7 @@ function validateBidRequest(request) {
     expect(data.tags[0].uuid).toBeDefined();
     expect(data.tags[0].keywords).toBeDefined();
     expect(data.tags[0].keywords[0].key).toBeDefined();
-    expect(data.tags[0].keywords[0].key).toEqual('music')
+    expect(data.tags[0].keywords[0].key).toEqual('music');
     expect(data.tags[0].keywords[0].value).toBeDefined();
     expect(data.tags[0].keywords[0].value).toEqual(['classical', 'piano']);
     expect(data.referrer_detection).toBeDefined();
