@@ -296,18 +296,18 @@ function MartinHtb(configs) {
          * made by the wrapper to contact a Consent Management Platform.
          */
 
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        if (privacyEnabled) {
-            var gdprStatus = ComplianceService.gdpr.getConsent();
-            requestBody.user.ext = {
-                consent: gdprStatus.consentString
-            };
-            requestBody.regs = {
-                ext: {
-                    gdpr: gdprStatus.applies ? 1 : 0
-                }
-            };
-        }
+        // var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        // if (privacyEnabled) {
+        //     var gdprStatus = ComplianceService.gdpr.getConsent();
+        //     requestBody.user.ext = {
+        //         consent: gdprStatus.consentString
+        //     };
+        //     requestBody.regs = {
+        //         ext: {
+        //             gdpr: gdprStatus.applies ? 1 : 0
+        //         }
+        //     };
+        // }
 
         return {
             url: baseUrl,
