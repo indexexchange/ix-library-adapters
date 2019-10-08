@@ -112,9 +112,7 @@
 }
 ```
 ### Pass Example
-```javascript
- 
-```
+`HTTP Status 204 (No Content)`
  
 ## Configuration Information
 ### Configuration Keys
