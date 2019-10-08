@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 'use strict';
 
 function getPartnerId() {
@@ -64,10 +65,6 @@ function validateBidRequest(request) {
 
     // // Validate user
     expect(body.user).toBeDefined();
-    expect(body.user.geo).toBeDefined();
-    expect(body.user.geo.lat).toEqual(parseFloat(config.lat));
-    expect(body.user.geo.lon).toEqual(parseFloat(config.lon));
-    expect(body.user.gender).toEqual(config.gender);
 
     // // Validate device
     expect(body.device).toBeDefined();
@@ -85,17 +82,22 @@ function getPassResponse(request) {
 function getValidResponse(request, creative) {
     var adm = creative;
     var response = {
+        id: "123",
+        cur: "USD",
         seatbid: [
             {
+                seat: "1",
                 bid: [
                     {
+                        id: "1l84f9sf3k1gvrm2q",
+                        impid: "456",
                         price: 2,
                         adm: adm,
+                        crid: "431006.8739438078",
                         h: 250,
                         w: 300
                     }
-                ],
-                seat: '1'
+                ]
             }
         ]
     };
@@ -116,18 +118,23 @@ function validateTargeting(targetingMap) {
 function getValidResponseWithDeal(request, creative) {
     var adm = creative;
     var response = {
+        id: "123",
+        cur: "USD",
         seatbid: [
             {
+                seat: "1",
                 bid: [
                     {
+                        id: "1l84f9sf3k1gvrm2q",
+                        impid: "456",
                         price: 2,
                         adm: adm,
+                        crid: "431006.8739438078",
                         h: 250,
                         w: 300,
-                        dealid: '123'
+                        // dealid: "123"
                     }
-                ],
-                seat: '1'
+                ]
             }
         ]
     };
