@@ -37,7 +37,7 @@ function getArchitecture() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /.*mrtnsvr\.com\/bid\/index.*/
+        urlRegex: /.*mrtnsvr\.com\/bid\/indexhtb.*/
     };
 }
 
