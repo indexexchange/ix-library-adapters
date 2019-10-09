@@ -259,7 +259,7 @@ function MartinHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         
-        var baseUrl = Browser.getProtocol() + '//east.martin.ai/bid/index?cachebuster=' + System.generateUniqueId();
+        var baseUrl = Browser.getProtocol() + '//east.mrtnsvr.com/bid/index?cachebuster=' + System.generateUniqueId();
         var idData = returnParcels[0] && returnParcels[0].identityData;
         var requestBody = {
             id: String(new Date()
