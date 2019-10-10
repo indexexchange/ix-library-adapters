@@ -103,6 +103,8 @@ function MartinHtb(configs) {
         var sizes = [];
         var sizeIndex = 0;
 
+        console.log("returnParcels:", JSON.stringify(returnParcels))
+
         returnParcels.forEach(function (rp) {
             sizeIndex = 0;
             impObj = {
@@ -175,19 +177,8 @@ function MartinHtb(configs) {
 
     function __populateUserInfo(rp, idData) {
         var userObj = {
-            geo: {
-                lat: _parseSlotParam('lat', __globalConfigs.lat),
-                lon: _parseSlotParam('lon', __globalConfigs.lon),
-                country: _parseSlotParam('lon', __globalConfigs.country),
-                region: _parseSlotParam('lon', __globalConfigs.region),
-                zip: _parseSlotParam('lon', __globalConfigs.zip)
-            }
         };
-
-        if (idData && idData.hasOwnProperty('AdserverOrgIp') && idData.AdserverOrgIp.hasOwnProperty('data')) {
-            userObj.eids = [idData.AdserverOrgIp.data];
-        }
-
+        
         return userObj;
     }
 
@@ -514,7 +505,7 @@ function MartinHtb(configs) {
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,
-            architecture: Partner.Architectures.MRA,
+            architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
 

@@ -15,23 +15,26 @@ function getCallbackType() {
 
 function getConfig() {
     return {
-        publisherId: '5890',
-        lat: '40.712775',
-        lon: '-74.005973',
-        gender: 'M',
-        xSlots: {
-            1: {
-                sizes: [[300, 250], [300, 600]]
-            }
+      publisherId: "5890",
+      lat: "40.712775",
+      lon: "-74.005973",
+      xSlots: {
+        1: {
+          sizes: [[300, 250]]
         },
-        mapping: {
-            htSlot1: ['1']
+        2: {
+          sizes: [[300, 600]]
         }
+      },
+      mapping: {
+        htSlot1: ["1"],
+        htSlot2: ["2"]
+      }
     };
 }
 
 function getArchitecture() {
-    return 'MRA';
+    return 'SRA';
 }
 
 function getBidRequestRegex() {
@@ -42,33 +45,36 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
+    
     expect(request.query.cachebuster).toBeDefined();
 
     var body = JSON.parse(request.body);
     var config = getConfig();
 
+    console.log("body:", JSON.stringify(body));
+
     expect(body.id).toBeDefined();
     expect(body.cur[0]).toEqual('USD');
 
     // Validate imp
-    var sizes1 = config.xSlots[1].sizes;
-    expect(body.imp.length).toEqual(1);
-    expect(body.imp[0].banner.format).toBeDefined();
-    expect(body.imp[0].banner.format.length).toEqual(sizes1.length - 1);
-    expect(body.imp[0].banner.w).toEqual(sizes1[0][0]);
-    expect(body.imp[0].banner.h).toEqual(sizes1[0][1]);
-    expect(body.imp[0].banner.format[0].w).toEqual(sizes1[1][0]);
-    expect(body.imp[0].banner.format[0].h).toEqual(sizes1[1][1]);
+    expect(body.imp.length).toEqual(2);
+
+    for (var i = 0; i < body.imp.length; i++) {
+        var sizes = config.xSlots[i + 1].sizes;
+        var imp = body.imp[i];
+        expect(imp.banner.w).toEqual(sizes[0][0]);
+        expect(imp.banner.h).toEqual(sizes[0][1]);
+    }
 
     // Validate site/publisher
     expect(body.site.publisher).toBeDefined();
     expect(body.site.publisher.domain).toBeDefined();
     expect(body.site.publisher.id).toEqual(config.publisherId);
 
-    // // Validate user
+    // Validate user
     expect(body.user).toBeDefined();
 
-    // // Validate device
+    // Validate device
     expect(body.device).toBeDefined();
     expect(body.device.h).toBeDefined();
     expect(body.device.w).toBeDefined();
@@ -134,7 +140,7 @@ function getValidResponseWithDeal(request, creative) {
                         crid: "431006.8739438078",
                         h: 250,
                         w: 300,
-                        // dealid: "123"
+                        dealid: "123"
                     }
                 ]
             }
