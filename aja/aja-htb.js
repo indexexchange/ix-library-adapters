@@ -58,8 +58,7 @@ function AJAHtb(configs) {
      *
      * @private {string}
      */
-    // TODO: delete stg
-    var __endpoint = Browser.getProtocol() + '//stg-ad.as.amanad.adtdp.com';
+    var __endpoint = Browser.getProtocol() + '//ad.as.amanad.adtdp.com';
 
     /**
      * Version
