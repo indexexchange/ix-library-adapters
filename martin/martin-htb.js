@@ -103,8 +103,6 @@ function MartinHtb(configs) {
         var sizes = [];
         var sizeIndex = 0;
 
-        console.log("returnParcels:", JSON.stringify(returnParcels))
-
         returnParcels.forEach(function (rp) {
             sizeIndex = 0;
             impObj = {
@@ -168,9 +166,9 @@ function MartinHtb(configs) {
             geo: {
                 lat: _parseSlotParam('lat', __globalConfigs.lat),
                 lon: _parseSlotParam('lon', __globalConfigs.lon),
-                country: _parseSlotParam('lon', __globalConfigs.country),
-                region: _parseSlotParam('lon', __globalConfigs.region),
-                zip: _parseSlotParam('lon', __globalConfigs.zip)
+                country: _parseSlotParam('country', __globalConfigs.country),
+                region: _parseSlotParam('region', __globalConfigs.region),
+                zip: _parseSlotParam('zip', __globalConfigs.zip)
             }
         };
     }
@@ -178,7 +176,7 @@ function MartinHtb(configs) {
     function __populateUserInfo(rp, idData) {
         var userObj = {
         };
-        
+
         return userObj;
     }
 
@@ -249,7 +247,7 @@ function MartinHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        
+
         var baseUrl = Browser.getProtocol() + '//east.mrtnsvr.com/bid/indexhtb?cachebuster=' + System.generateUniqueId();
         var idData = returnParcels[0] && returnParcels[0].identityData;
         var requestBody = {
@@ -287,15 +285,15 @@ function MartinHtb(configs) {
          * made by the wrapper to contact a Consent Management Platform.
          */
 
-        // var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        // if (privacyEnabled) {
-        //     var gdprStatus = ComplianceService.gdpr.getConsent();
-        //     requestBody.user.ext = {
-        //         consent: gdprStatus.consentString
+        // Var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        // If (privacyEnabled) {
+        //     Var gdprStatus = ComplianceService.gdpr.getConsent();
+        //     RequestBody.user.ext = {
+        //         Consent: gdprStatus.consentString
         //     };
-        //     requestBody.regs = {
-        //         ext: {
-        //             gdpr: gdprStatus.applies ? 1 : 0
+        //     RequestBody.regs = {
+        //         Ext: {
+        //             Gdpr: gdprStatus.applies ? 1 : 0
         //         }
         //     };
         // }
@@ -335,6 +333,31 @@ function MartinHtb(configs) {
     }
 
     /**
+     * Returns the bid that matches the returnParcel, or null if none match
+     * @param {object} returnParcel
+     * @param {object[]} bids
+     * @return {object|null}
+     */
+    function __getMatchingBid(returnParcel, bids) {
+        // Check parcel against each bid
+        for (var i = 0; i < bids.length; i++) {
+            // Check parcel against each bid's sizes
+            for (var j = 0; j < returnParcel.xSlotRef.sizes.length; j++) {
+                var sizes = returnParcel.xSlotRef.sizes[j];
+                if (bids[i].impid === returnParcel.htSlot.getId()) {
+                    if (parseInt(bids[i].w, 10) === parseInt(sizes[0], 10)
+                        && parseInt(bids[i].h, 10) === parseInt(sizes[1], 10)) {
+                        // Return upon finding a match
+                        return bids[i];
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Parses and extracts demand from adResponse according to the adapter and then attaches it
      * to the corresponding bid's returnParcel in the correct format using targeting keys.
      *
@@ -365,95 +388,119 @@ function MartinHtb(configs) {
          * bids array. Each element in the bids array should represent a single bid and should
          * match up to a single element from the returnParcel array.
          *
-         */    
+         */
 
-        // Ad response is 0 or 1 seat bids
-        var returnParcel = returnParcels[0];
-        var headerStatsInfo = {};
-        var htSlotId = returnParcel.htSlot.getId();
-        headerStatsInfo[htSlotId] = {};
-        headerStatsInfo[htSlotId][returnParcel.requestId] = [returnParcel.xSlotName];
+        // Extract bids
+        var bids = [];
+        if (
+            adResponse
+            && adResponse.seatbid
+            && Utilities.isArray(adResponse.seatbid)
+            && adResponse.seatbid.length > 0
+        ) {
+            for (var i = 0; i < adResponse.seatbid.length; i++) {
+                bids = bids.concat(adResponse.seatbid[i].bid);
+            }
+        }
 
-        if (!adResponse
-            || !adResponse.hasOwnProperty('seatbid')
-            || !Array.isArray(adResponse.seatbid)
-            || adResponse.seatbid.length === 0) {
-            
-            returnParcel.pass = true;
+        // Process each return parcel
+        for (var j = 0; j < returnParcels.length; j++) {
+            var returnParcel = returnParcels[j];
+            var headerStatsInfo = {};
+            var htSlotId = returnParcel.htSlot.getId();
+            headerStatsInfo[htSlotId] = {};
+            headerStatsInfo[htSlotId][returnParcel.requestId] = [returnParcel.xSlotName];
 
-            if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+            var matchingBid = __getMatchingBid(returnParcel, bids);
+            if (!bids || bids.length === 0 || !matchingBid) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(
+                        sessionId,
+                        'hs_slot_pass',
+                        headerStatsInfo
+                    );
+                }
+                returnParcel.pass = true;
+
+                continue;
             }
 
-            return;
-        }
-
-        // Process bid
-        var bid = adResponse.seatbid[0].bid[0];
-        if (!bid || bid.price === 0) {
-            returnParcel.pass = true;
-
             if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                __baseClass._emitStatsEvent(
+                    sessionId,
+                    'hs_slot_bid',
+                    headerStatsInfo
+                );
             }
 
-            return;
+            // Things that should be unconditionally added to the return parcel
+            returnParcel.size = [
+                Number(matchingBid.width), Number(matchingBid.height)
+            ];
+            returnParcel.targeting = {};
+            returnParcel.targetingType = 'slot';
+
+            // Things that may be conditionally added to the return parcel
+            var bidDealId = matchingBid.dealid;
+            var targetingCpm = '';
+
+            //? if (FEATURES.GPT_LINE_ITEMS) {
+            targetingCpm = __baseClass._bidTransformers.targeting.apply(
+                matchingBid.price
+            );
+            var sizeKey = Size.arrayToString([
+                Number(matchingBid.w), Number(matchingBid.h)
+            ]);
+
+            if (bidDealId) {
+                returnParcel.targeting[
+                    __baseClass._configs.targetingKeys.pmid
+                ] = [sizeKey + '_' + bidDealId];
+                returnParcel.targeting[
+                    __baseClass._configs.targetingKeys.pm
+                ] = [sizeKey + '_' + targetingCpm];
+            } else {
+                returnParcel.targeting[
+                    __baseClass._configs.targetingKeys.om
+                ] = [sizeKey + '_' + targetingCpm];
+            }
+            returnParcel.targeting[
+                __baseClass._configs.targetingKeys.id
+            ] = [returnParcel.requestId];
+            //? }
+
+            //? if (FEATURES.RETURN_CREATIVE) {
+            returnParcel.adm = matchingBid.adm;
+            //? }
+
+            //? if (FEATURES.RETURN_PRICE) {
+            returnParcel.price = Number(
+                __baseClass._bidTransformers.price.apply(matchingBid.price)
+            );
+            //? }
+
+            var expiry = 0;
+            if (__profile.features.demandExpiry.enabled) {
+                expiry
+              = __profile.features.demandExpiry.value + System.now();
+            }
+
+            var pubKitAdId = RenderService.registerAd({
+                sessionId: sessionId,
+                partnerId: __profile.partnerId,
+                adm: matchingBid.adm,
+                requestId: returnParcel.requestId,
+                size: returnParcel.size,
+                price: targetingCpm,
+                dealId: bidDealId || null,
+                timeOfExpiry: expiry,
+                auxFn: __renderPixel
+            });
+
+            //? if (FEATURES.INTERNAL_RENDER) {
+            returnParcel.targeting.pubKitAdId = pubKitAdId;
+            //? }
         }
-
-        if (__profile.enabledAnalytics.requestTime) {
-            __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
-        }
-
-        // Things that should be unconditionally added to the return parcel
-        returnParcel.size = [Number(bid.width), Number(bid.height)];
-        returnParcel.targeting = {};
-        returnParcel.targetingType = 'slot';
-
-        // Things that may be conditionally added to the return parcel
-        var bidDealId = bid.dealid;
-        var targetingCpm = '';
-
-        //? if (FEATURES.GPT_LINE_ITEMS) {
-        targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.price);
-        var sizeKey = Size.arrayToString([Number(bid.w), Number(bid.h)]);
-
-        if (bidDealId) {
-            returnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-            returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-        } else {
-            returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
-        }
-        returnParcel.targeting[__baseClass._configs.targetingKeys.id] = [returnParcel.requestId];
-        //? }
-
-        //? if (FEATURES.RETURN_CREATIVE) {
-        returnParcel.adm = bid.adm;
-        //? }
-
-        //? if (FEATURES.RETURN_PRICE) {
-        returnParcel.price = Number(__baseClass._bidTransformers.price.apply(bid.price));
-        //? }
-
-        var expiry = 0;
-        if (__profile.features.demandExpiry.enabled) {
-            expiry = __profile.features.demandExpiry.value + System.now();
-        }
-
-        var pubKitAdId = RenderService.registerAd({
-            sessionId: sessionId,
-            partnerId: __profile.partnerId,
-            adm: bid.adm,
-            requestId: returnParcel.requestId,
-            size: returnParcel.size,
-            price: targetingCpm,
-            dealId: bidDealId || null,
-            timeOfExpiry: expiry,
-            auxFn: __renderPixel
-        });
-
-        //? if (FEATURES.INTERNAL_RENDER) {
-        returnParcel.targeting.pubKitAdId = pubKitAdId;
-        //? }
     }
 
     /* =====================================
@@ -520,16 +567,16 @@ function MartinHtb(configs) {
         //? }
 
         __globalConfigs = {
-          pubId: configs.publisherId,
+            pubId: configs.publisherId,
 
-          /* Martin specific values. required in the api request */
-          lat: configs.lat || undef,
-          lon: configs.lon || undef,
-          country: configs.country || undef,
-          region: configs.region || undef,
-          zip: configs.zip || undef,
-          profile: configs.profile || undef,
-          version: configs.version || undef
+            /* Martin specific values. required in the api request */
+            lat: configs.lat || undef,
+            lon: configs.lon || undef,
+            country: configs.country || undef,
+            region: configs.region || undef,
+            zip: configs.zip || undef,
+            profile: configs.profile || undef,
+            version: configs.version || undef
         };
 
         __baseClass = Partner(__profile, configs, null, {

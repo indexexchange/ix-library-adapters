@@ -15,21 +15,24 @@ function getCallbackType() {
 
 function getConfig() {
     return {
-      publisherId: "5890",
-      lat: "40.712775",
-      lon: "-74.005973",
-      xSlots: {
-        1: {
-          sizes: [[300, 250]]
+        publisherId: "5890",
+        lat: "40.712775",
+        lon: "-74.005973",
+        country: "USA",
+        region: "OH",
+        zip: "45231",
+        xSlots: {
+            1: {
+                sizes: [[300, 250]]
+            },
+            2: {
+                sizes: [[300, 600]]
+            }
         },
-        2: {
-          sizes: [[300, 600]]
+        mapping: {
+            htSlot1: ["1"],
+            htSlot2: ["2"]
         }
-      },
-      mapping: {
-        htSlot1: ["1"],
-        htSlot2: ["2"]
-      }
     };
 }
 
@@ -45,13 +48,10 @@ function getBidRequestRegex() {
 }
 
 function validateBidRequest(request) {
-    
     expect(request.query.cachebuster).toBeDefined();
 
     var body = JSON.parse(request.body);
     var config = getConfig();
-
-    console.log("body:", JSON.stringify(body));
 
     expect(body.id).toBeDefined();
     expect(body.cur[0]).toEqual('USD');
@@ -90,19 +90,33 @@ function getPassResponse(request) {
 function getValidResponse(request, creative) {
     var adm = creative;
     var response = {
-        id: "123",
+        id: "1570802330832",
         cur: "USD",
         seatbid: [
             {
-                seat: "1",
+                seat: "964465.7504190569",
                 bid: [
                     {
-                        id: "1l84f9sf3k1gvrm2q",
-                        impid: "456",
+                        id: "1l84f915plk1m77zb0",
+                        impid: "htSlotDesktopAId",
                         price: 2,
                         adm: adm,
-                        crid: "431006.8739438078",
+                        crid: "152822.93355613973",
                         h: 250,
+                        w: 300
+                    }
+                ]
+            },
+            {
+                seat: "964465.7504190569",
+                bid: [
+                    {
+                        id: "1l84f915plk1m77zb1",
+                        impid: "htSlotDesktopAId",
+                        price: 2,
+                        adm: adm,
+                        crid: "288768.3608938596",
+                        h: 600,
                         w: 300
                     }
                 ]
@@ -126,19 +140,34 @@ function validateTargeting(targetingMap) {
 function getValidResponseWithDeal(request, creative) {
     var adm = creative;
     var response = {
-        id: "123",
+        id: "1570802330832",
         cur: "USD",
         seatbid: [
             {
-                seat: "1",
+                seat: "964465.7504190569",
                 bid: [
                     {
-                        id: "1l84f9sf3k1gvrm2q",
-                        impid: "456",
+                        id: "1l84f915plk1m77zb0",
+                        impid: "htSlotDesktopAId",
                         price: 2,
                         adm: adm,
-                        crid: "431006.8739438078",
+                        crid: "152822.93355613973",
                         h: 250,
+                        w: 300,
+                        dealid: "123"
+                    }
+                ]
+            },
+            {
+                seat: "964465.7504190569",
+                bid: [
+                    {
+                        id: "1l84f915plk1m77zb1",
+                        impid: "htSlotDesktopAId",
+                        price: 2,
+                        adm: adm,
+                        crid: "288768.3608938596",
+                        h: 600,
                         w: 300,
                         dealid: "123"
                     }
