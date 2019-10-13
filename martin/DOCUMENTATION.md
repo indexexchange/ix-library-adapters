@@ -16,9 +16,9 @@
 | Internet Explorer 9 |  |
 | Internet Explorer 10 |  |
 | Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
+| Safari | Yes |
+| Mobile Chrome | Yes |
+| Mobile Safari | Yes |
 | UC Browser | |
 | Samsung Internet | |
 | Opera | |
