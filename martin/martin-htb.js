@@ -14,13 +14,15 @@ var System = require('system.js');
 var Network = require('network.js');
 var Utilities = require('utilities.js');
 
-var ComplianceService;
+// Everything related to ComplianceService is for gdpr.
+// Disabled for now, but we may implement it at some point.
+// eslint-disable-next-line capitalized-comments
+// var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
 var PartnerSpecificValidator = require('martin-htb-validator.js');
-var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
@@ -173,7 +175,7 @@ function MartinHtb(configs) {
         };
     }
 
-    function __populateUserInfo(rp, idData) {
+    function __populateUserInfo() {
         var userObj = {
         };
 
@@ -248,7 +250,10 @@ function MartinHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
 
-        var baseUrl = Browser.getProtocol() + '//east.mrtnsvr.com/bid/indexhtb?cachebuster=' + System.generateUniqueId();
+        var baseUrl
+          = Browser.getProtocol()
+          + '//east.mrtnsvr.com/bid/indexhtb?cachebuster='
+          + System.generateUniqueId();
         var idData = returnParcels[0] && returnParcels[0].identityData;
         var requestBody = {
             id: String(new Date()
@@ -434,9 +439,7 @@ function MartinHtb(configs) {
             }
 
             // Things that should be unconditionally added to the return parcel
-            returnParcel.size = [
-                Number(matchingBid.width), Number(matchingBid.height)
-            ];
+            returnParcel.size = [Number(matchingBid.width), Number(matchingBid.height)];
             returnParcel.targeting = {};
             returnParcel.targetingType = 'slot';
 
@@ -448,9 +451,7 @@ function MartinHtb(configs) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(
                 matchingBid.price
             );
-            var sizeKey = Size.arrayToString([
-                Number(matchingBid.w), Number(matchingBid.h)
-            ]);
+            var sizeKey = Size.arrayToString([Number(matchingBid.w), Number(matchingBid.h)]);
 
             if (bidDealId) {
                 returnParcel.targeting[
@@ -508,7 +509,7 @@ function MartinHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
+        // ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================

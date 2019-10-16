@@ -83,7 +83,7 @@ function validateBidRequest(request) {
     expect(body.device.geo.lon).toEqual(parseFloat(config.lon));
 }
 
-function getPassResponse(request) {
+function getPassResponse() {
     return '{}';
 }
 
