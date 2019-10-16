@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | ix_mar_cpm |
 | GAM Key (Private Market) | ix_mar_cpm |
-| Ad Server URLs | https://east.martin.ai/bid/index, https://west.martin.ai/bid/index |
+| Ad Server URLs | https://east.mrtnsvr.com/bid/index, https://west.mrtnsvr.com/bid/index |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | SRA |
  
@@ -103,7 +103,7 @@
 		"bid": [{
 			"id": "456",
 			"impid": "789",
-			"adm": "<a href=\"https://martin.ai\"><img id=\"123\" src=\"https://martin.ai\"></a>",
+			"adm": "<a href=\"https://mrtnsvr.com\"><img id=\"123\" src=\"https://mrtnsvr.com\"></a>",
 			"price": 3.00,
 			"w": 300,
 			"h": 250
