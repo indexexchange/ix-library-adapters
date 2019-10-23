@@ -29,9 +29,9 @@
 | Partner Id | ColossusHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | |
 | Bid Type (Gross / Net) |Net|
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
-| Ad Server URLs | |
+| GAM Key (Open Market) |ix_clss_cpm|
+| GAM Key (Private Market) |ix_clss_cpm|
+| Ad Server URLs |https://colossusssp.com/|
 | Slot Mapping Sytle (Size / Multiple Sizes / Slot) |Multiple Sizes|
 | Request Architecture (MRA / SRA) |SRA|
  
