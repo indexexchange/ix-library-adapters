@@ -242,11 +242,14 @@ function UndertoneHtb(configs) {
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
+        var gdprValue = '';
+        var consentString = '';
         var gdprConsent = ComplianceService.gdpr.getConsent();
-        if (gdprConsent) {
-            var gdprValue = gdprConsent.applies ? 1 : 0;
-            requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + gdprConsent.consentString;
+        if (ComplianceService.isPrivacyEnabled() && gdprConsent) {
+            gdprValue = gdprConsent.applies ? 1 : 0;
+            consentString = gdprConsent.consentString;
         }
+        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString;
 
         /* -------------------------------------------------------------------------- */
 
