@@ -40,7 +40,7 @@
 ## Bid Request Information
 ### Parameters
 | Key | Required | Type | Description |
-|---|---|
+|---|---|---|---|
 | id | Yes | string | The ID of the request |
 | site | Yes | object | An object representing the site, as in an RTB bid request |
 | imp | Yes | object | An object representing the impression, as in an RTB bid request |
