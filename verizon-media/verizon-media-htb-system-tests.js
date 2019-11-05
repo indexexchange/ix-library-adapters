@@ -64,7 +64,7 @@ function getValidResponse(request, creative) {
     return JSON.stringify(response);
 }
 
-function getPassResponse(request) {
+function getPassResponse() {
     var response = {
         id: 'e021dfe2638542f8b37891a17692c9fc',
         seatbid: [],
