@@ -11,15 +11,13 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
-var Network = require('network.js');
 
 var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('inskin-media-htb-validator.js');
-var Scribe = require('scribe.js');
+var PartnerSpecificValidator = require('quantcast-htb-validator.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
@@ -32,7 +30,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function InskinMediaHtb(configs) {
+function QuantcastHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -57,6 +55,21 @@ function InskinMediaHtb(configs) {
     /* =====================================
      * Functions
      * ---------------------------------- */
+
+    /* Helpers
+     * ---------------------------------- */
+
+    function makeSizesFromHtSlot(sizes) {
+        var res = [];
+        for (var i = 0; i < sizes.length; i++) {
+            res.push({
+                width: sizes[i][0],
+                height: sizes[i][1]
+            });
+        }
+
+        return res;
+    }
 
     /* Utilities
      * ---------------------------------- */
@@ -128,17 +141,26 @@ function InskinMediaHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var data = {
-            time: System.now(),
-            user: {},
-            url: Browser.getPageUrl(),
-            referrer: Browser.getReferrer(),
-            enableBotFiltering: true,
-            includePricingData: true
+        var parcel = returnParcels[0];
+        var queryObj = {
+            publisherId: configs.publisherId,
+            requestId: parcel.requestId,
+            imp: [
+                {
+                    banner: {
+                        battr: parcel.xSlotRef.battr || configs.battr || [],
+                        sizes: parcel.xSlotRef.sizes || makeSizesFromHtSlot(parcel.htSlot.getSizes()),
+                        pos: parcel.xSlotRef.adPos || configs.adPos || 0
+                    },
+                    placementCode: parcel.htSlot.getId(),
+                    bidFloor: parcel.xSlotRef.bidFloor || configs.bidFloor || 0
+                }
+            ]
         };
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//mfad.inskinad.com/api/v2';
+        var port = Browser.getProtocol() === 'http:' ? 8080 : 8443;
+        var baseUrl = Browser.getProtocol() + '//qcx.quantserve.com:' + port + '/qchb';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -165,99 +187,26 @@ function InskinMediaHtb(configs) {
          * made by the wrapper to contact a Consent Management Platform.
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
-        if (gdprStatus.applies) {
-            data.consent = {
-                gdprVendorId: 150,
-                gdprConsentString: gdprStatus.consentString,
-                gdprConsentRequired: true
-            };
+        queryObj.gdprSignal = Number(privacyEnabled && gdprStatus.applies);
+        if (queryObj.gdprSignal === 1) {
+            queryObj.gdprConsent = gdprStatus.consentString;
         }
 
-        data.placements = [];
-        for (var k = 0; k < returnParcels.length; k++) {
-            var parcel = returnParcels[k];
-            var placement = {
-                networkId: configs.networkId,
-                siteId: configs.siteId,
-                divName: parcel.xSlotName,
-                adTypes: [
-                    5,
-                    9,
-                    163,
-                    2163,
-                    3006
-                ],
-                eventIds: [40],
-                properties: {
-                    screenWidth: Browser.getScreenWidth(),
-                    screenHeight: Browser.getScreenHeight()
-                }
-            };
+        /* ---------------- Craft bid request using the above returnParcels --------- */
 
-            var i;
+        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
-            for (i = 201; i <= 240; i++) {
-                placement.eventIds.push(i);
-            }
-
-            for (i = 261; i <= 295; i++) {
-                placement.eventIds.push(i);
-            }
-
-            data.placements.push(placement);
-        }
+        /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
-            data: data,
+            data: queryObj,
             networkParamOverrides: {
-                method: 'POST',
-                contentType: 'text/plain',
-                withCredentials: true
+                method: 'POST'
             }
         };
-    }
-
-    /* =============================================================================
-     * STEP 3  | Response callback
-     * -----------------------------------------------------------------------------
-     *
-     * This generator is only necessary if the partner's endpoint has the ability
-     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
-     * the response and save the response to adResponseStore keyed by that ID.
-     *
-     * If the endpoint does not have an appropriate field for this, set the profile's
-     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
-     */
-    function adResponseCallback(adResponse) {
-        /* Get callbackId from adResponse here */
-        var callbackId = 0;
-        __baseClass._adResponseStore[callbackId] = adResponse;
-    }
-
-    /* -------------------------------------------------------------------------- */
-
-    /* Helpers
-     * ---------------------------------- */
-
-    /* =============================================================================
-     * STEP 5  | Rendering Pixel
-     * -----------------------------------------------------------------------------
-     *
-    */
-
-    /**
-     * This function will render the pixel given.
-     * @param  {string} pixelUrl Tracking pixel img url.
-     */
-    function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
-        }
     }
 
     /**
@@ -293,170 +242,66 @@ function InskinMediaHtb(configs) {
          *
          */
 
-        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
+        var parcel = returnParcels[0];
+        var bid = adResponse.bids[0];
 
-        /* --------------------------------------------------------------------------------- */
+        var headerStatsInfo = {};
+        var htSlotId = parcel.htSlot.getId();
+        headerStatsInfo[htSlotId] = {};
+        headerStatsInfo[htSlotId][parcel.requestId] = [parcel.xSlotName];
 
-        var hasBids = false;
-        var bidsMap = {};
-
-        for (var j = 0; j < returnParcels.length; j++) {
-            var curReturnParcel = returnParcels[j];
-
-            var headerStatsInfo = {};
-            var htSlotId = curReturnParcel.htSlot.getId();
-            headerStatsInfo[htSlotId] = {};
-            headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
-
-            var curBid = adResponse.decisions[curReturnParcel.xSlotName];
-
-            /* No matching bid found so its a pass */
-            if (!curBid) {
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-
-                continue;
+        if (adResponse.bidderCode !== 'quantcast'
+            || htSlotId !== bid.placementCode
+            || bid.statusCode !== 1) {
+            if (__profile.enabledAnalytics.requestTime) {
+                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
             }
-
-            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
-
-            /* Using the above variable, curBid, extract various information about the bid and assign it to
-             * these local variables */
-
-            /* The bid price for the given slot */
-            var clearPrice = curBid.pricing && curBid.pricing.clearPrice;
-            var data = curBid.contents && curBid.contents[0] && curBid.contents[0].data;
-            var pubCPM = data && data.customData && data.customData.pubCPM;
-            var bidPrice = pubCPM || clearPrice;
-
-            /* The size of the given slot */
-            var bidSize = [1, 1];
-
-            /* The creative/adm for the given slot that will be rendered if is the winner.
-             * Please make sure the URL is decoded and ready to be document.written.
-             */
-            var bidCreative = curBid.adm || [
-                '<script>',
-                'window.top.postMessage({from: "ism-bid", bidId: "',
-                curReturnParcel.xSlotName,
-                '"}, "*");',
-                '\x3c/script>'
-            ].join('');
-
-            var bidDealId = null;
-
-            /* Explicitly pass */
-            var bidIsPass = bidPrice <= 0;
-
-            /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-            * If firing a tracking pixel is not required or the pixel url is part of the adm,
-            * leave empty;
-            */
-            var pixelUrl = curBid.impressionUrl + '&property:pubcpm=' + bidPrice;
-
-            /* --------------------------------------------------------------------------------------- */
-
-            curBid = null;
-            if (bidIsPass) {
-                //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
-                //? }
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-
-                continue;
-            }
-
-            hasBids = true;
-            bidsMap[curReturnParcel.xSlotName] = {
-                siteId: configs.siteId,
-                price: bidPrice
-            };
-
+            parcel.pass = true;
+        } else {
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
             }
 
-            curReturnParcel.size = bidSize;
-            curReturnParcel.targetingType = 'slot';
-            curReturnParcel.targeting = {};
-
-            var targetingCpm = '';
+            parcel.pass = false;
+            parcel.size = [Number(bid.width), Number(bid.height)];
+            parcel.targetingType = 'slot';
+            parcel.targeting = {};
+            var targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.cpm);
 
             //? if (FEATURES.GPT_LINE_ITEMS) {
-            targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
-            var sizeKey = Size.arrayToString(curReturnParcel.size);
-
-            if (bidDealId) {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            var sizeKey = Size.arrayToString(parcel.size);
+            if (bid.dealId) {
+                parcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bid.dealId];
+                parcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
             } else {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+                parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             }
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
+            parcel.targeting[__baseClass._configs.targetingKeys.id] = [parcel.requestId];
             //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {
-            curReturnParcel.adm = bidCreative;
-            if (pixelUrl) {
-                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
-            }
+            parcel.adm = bid.ad;
             //? }
 
             //? if (FEATURES.RETURN_PRICE) {
-            curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
+            parcel.price = Number(__baseClass._bidTransformers.price.apply(bid.cpm));
             //? }
 
-            var expiry = 0;
-            if (__profile.features.demandExpiry.enabled) {
-                expiry = __profile.features.demandExpiry.value + System.now();
-            }
-
+            var expiryTime = __profile.features.demandExpiry.value + System.now();
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
-                adm: bidCreative,
-                requestId: curReturnParcel.requestId,
-                size: curReturnParcel.size,
+                adm: bid.ad,
+                requestId: parcel.requestId,
+                size: parcel.size,
                 price: targetingCpm,
-                dealId: bidDealId || null,
-                timeOfExpiry: expiry,
-                auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
+                dealId: bid.dealId,
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? expiryTime : 0
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
-            curReturnParcel.targeting.pubKitAdId = pubKitAdId;
+            parcel.targeting.pubKitAdId = pubKitAdId;
             //? }
-        }
-
-        if (hasBids) {
-            var win = Browser.topWindow;
-            win.addEventListener('message', function (e) {
-                if (!e.data || e.data.from !== 'ism-bid') {
-                    return;
-                }
-
-                var decision = adResponse.decisions && adResponse.decisions[e.data.bidId];
-                if (!decision) {
-                    return;
-                }
-
-                var id = 'ism_tag_' + Math.floor(Math.random() * 10e16);
-                win[id] = {
-                    bidId: e.data.bidId,
-                    bidPrice: bidsMap[e.data.bidId].price,
-                    serverResponse: adResponse
-                };
-
-                var script = win.document.createElement('script');
-                script.src = 'https://cdn.inskinad.com/isfe/publishercode/' + bidsMap[e.data.bidId].siteId + '/default.js?autoload&id=' + id;
-                win.document.getElementsByTagName('head')[0].appendChild(script);
-            });
         }
     }
 
@@ -477,9 +322,9 @@ function InskinMediaHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'InskinMediaHtb',
-            namespace: 'InskinMediaHtb',
-            statsId: 'ISM',
+            partnerId: 'QuantcastHtb',
+            namespace: 'QuantcastHtb',
+            statsId: 'QUA',
             version: '2.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -498,17 +343,17 @@ function InskinMediaHtb(configs) {
 
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_ism_id',
-                om: 'ix_ism_cpm',
-                pm: 'ix_ism_cpm',
-                pmid: 'ix_ism_dealid'
+                id: 'ix_qua_id',
+                om: 'ix_qua_cpm',
+                pm: 'ix_qua_cpm',
+                pmid: 'ix_qua_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,
-            architecture: Partner.Architectures.SRA,
+            architecture: Partner.Architectures.MRA,
             requestType: Partner.RequestTypes.AJAX
         };
 
@@ -524,8 +369,7 @@ function InskinMediaHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj,
-            adResponseCallback: adResponseCallback
+            generateRequestObj: __generateRequestObj
         });
     })();
 
@@ -538,7 +382,7 @@ function InskinMediaHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'InskinMediaHtb',
+        __type__: 'QuantcastHtb',
         //? }
 
         //? if (TEST) {
@@ -557,8 +401,7 @@ function InskinMediaHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback
+        generateRequestObj: __generateRequestObj
         //? }
     };
 
@@ -569,4 +412,4 @@ function InskinMediaHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = InskinMediaHtb;
+module.exports = QuantcastHtb;

@@ -141,8 +141,8 @@ function getValidResponse(request, creative) {
                 pricing: {
                     clearPrice: 1
                 },
-                width: 980,
-                height: 300,
+                width: 1,
+                height: 1,
                 impressionUrl: 'https://via.placeholder.com/1'
             },
             2: {
@@ -150,8 +150,8 @@ function getValidResponse(request, creative) {
                 pricing: {
                     clearPrice: 2
                 },
-                width: 980,
-                height: 300,
+                width: 1,
+                height: 1,
                 impressionUrl: 'https://via.placeholder.com/1'
             }
         }
@@ -171,7 +171,7 @@ function getPassResponse() {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_ism_cpm: jasmine.arrayContaining(['980x300_100', '980x300_200']),
+        ix_ism_cpm: jasmine.arrayContaining(['1x1_100', '1x1_200']),
         ix_ism_id: jasmine.arrayContaining([jasmine.any(String), jasmine.any(String)])
     }));
 }
