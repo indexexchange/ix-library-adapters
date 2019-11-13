@@ -41,8 +41,11 @@ function getBidRequestRegex() {
     };
 }
 
-function validateBidRequest() {
-    // Optional, not implemented
+function validateBidRequest(request) {
+    var r = JSON.parse(request.body);
+    expect(r.site.url).toBeDefined();
+    expect(r.site.referrer).toBeDefined();
+    expect(r.site.ppid).toBeDefined();
 }
 
 function getValidResponse(request, creative) {
