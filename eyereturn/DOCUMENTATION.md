@@ -41,7 +41,7 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| ad_slot | yes | object | container for ad slot properties |
+| ad_slot | yes | array | container for ad slot properties |
 | ad_slot.width | yes | int | width of ad slot |
 | ad_slot.height | yes | int | height of ad slot |
 | request_id | yes | string | unique id for the request |
