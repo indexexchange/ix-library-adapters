@@ -48,12 +48,13 @@
 | site | yes | object | container for site properties |
 | site.url | yes | string | the url of the page the ad will be served on |
 | site.referrer | yes |  string | the referrer for the page the ad will be served on |
+| site.ppid | yes | integer | publisher placement id used for reporting |
  
 ### Example
 ```javascript
 Request URL: https://prometheus-ix.eyereturn.com/prometheus/bid
 Request Method: POST
-Request Payload: {"ad_slot":[{"width":300,"height":250}],"request_id":"_BOOepaBY","site":{"url":"http://localhost:5837/public/debugger/adapter-debugger.html","referrer":"http://localhost:5837/public/debugger/adapter-debugger.html"}}
+Request Payload: {"ad_slot":[{"width":300,"height":250}],"request_id":"_BOOepaBY","site":{"url":"http://localhost:5837/public/debugger/adapter-debugger.html","referrer":"http://localhost:5837/public/debugger/adapter-debugger.html", "ppid": 1234}}
 ```
  
 ## Bid Response Information
