@@ -19,9 +19,6 @@ function getStatsId() {
 function getConfig() {
     var config = {
         // Partner level parameter
-        id: 'FA2F43C00DD40E23',
-        ua: 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
-        ip: '199.166.10.82',
         xSlots: {
             1: {
                 // Slot level parameter
