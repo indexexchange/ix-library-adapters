@@ -41,7 +41,7 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| ad_slot | yes | array | container for ad slot properties |
+| ad_slot | yes | array | collection of ad slot objects |
 | ad_slot.width | yes | int | width of ad slot |
 | ad_slot.height | yes | int | height of ad slot |
 | request_id | yes | string | unique id for the request |
@@ -54,7 +54,7 @@
 ```javascript
 Request URL: https://prometheus-ix.eyereturn.com/prometheus/bid
 Request Method: POST
-Request Payload: {"ad_slot":[{"width":300,"height":250}],"request_id":"_BOOepaBY","site":{"url":"http://localhost:5837/public/debugger/adapter-debugger.html","referrer":"http://localhost:5837/public/debugger/adapter-debugger.html", "ppid": 1234}}
+Request Payload: {"ad_slot":[{"width":300,"height":250}],"request_id":"_BOOepaBY","site":{"url":"http://localhost:5837/public/debugger/adapter-debugger.html","referrer":"http://localhost:5837/public/debugger/adapter-debugger.html", "ppid": 7743613}}
 ```
  
 ## Bid Response Information
@@ -91,8 +91,10 @@ Request Payload: {"ad_slot":[{"width":300,"height":250}],"request_id":"_BOOepaBY
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| ppid | yes | integer | publisher placement id used for reporting |
 ### Example
 ```javascript
- 
+{
+   "ppid": 7743613
+}
 ```
