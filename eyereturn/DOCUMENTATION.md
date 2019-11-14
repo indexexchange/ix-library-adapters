@@ -32,7 +32,7 @@
 | GAM Key (Open Market) | |
 | GAM Key (Private Market) | |
 | Ad Server URLs | https://prometheus-ix.eyereturn.com/prometheus/bid, https://p3.eyereturn.com/|
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Size |
 | Request Architecture (MRA / SRA) | MRA |
  
 ## Currencies Supported
