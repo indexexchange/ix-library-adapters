@@ -89,11 +89,6 @@ function EyereturnHtb(configs) {
         };
     }
 
-    function adResponseCallback(adResponse) {
-        var callbackId = 0;
-        __baseClass._adResponseStore[callbackId] = adResponse;
-    }
-
     /**
      * This function will render the pixel given.
      * @param  {string} pixelUrl Tracking pixel img url.
