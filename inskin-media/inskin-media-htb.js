@@ -332,7 +332,7 @@ function InskinMediaHtb(configs) {
             var bidPrice = pubCPM || clearPrice;
 
             /* The size of the given slot */
-            var bidSize = [1, 1];
+            var bidSize = [Number(curBid.width), Number(curBid.height)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
@@ -389,7 +389,7 @@ function InskinMediaHtb(configs) {
 
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
-            var sizeKey = Size.arrayToString(curReturnParcel.size);
+            var sizeKey = Size.arrayToString([1,1]);
 
             if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
