@@ -250,7 +250,6 @@ function SovrnHtb(configs) {
             if (bid.dealid) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bid.dealid];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-
             }
             //? }
 
