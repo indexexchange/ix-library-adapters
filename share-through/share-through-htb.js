@@ -83,7 +83,7 @@ function ShareThroughHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var baseUrl = Browser.getProtocol() + '//btlr.sharethrough.com/t6oivhQt/v1';
+        var baseUrl = 'https://btlr.sharethrough.com/t6oivhQt/v1';
 
         var queryObj = {
             placement_key: returnParcels[0].xSlotRef.placementKey,
@@ -93,6 +93,9 @@ function ShareThroughHtb(configs) {
             hbVersion: "2.1.2",
             cbust: System.now()
         };
+
+        var nonHttp = __getProtocol().indexOf('http') < 0;
+        queryObj.secure = nonHttp || (__getProtocol().indexOf('https') > -1);
 
         var unifiedID = __getUnifiedID(returnParcels);
         if (unifiedID) {
@@ -158,6 +161,10 @@ function ShareThroughHtb(configs) {
         } else {
             return false;
         }
+    }
+
+    function __getProtocol() {
+        return document.location.protocol;
     }
 
     /* =============================================================================
@@ -385,7 +392,8 @@ function ShareThroughHtb(configs) {
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
-            b64EncodeUnicode: __b64EncodeUnicode
+            b64EncodeUnicode: __b64EncodeUnicode,
+            getProtocol: __getProtocol
         });
     })();
 
