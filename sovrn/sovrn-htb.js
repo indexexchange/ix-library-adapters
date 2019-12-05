@@ -25,14 +25,14 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
+
 var EventsService;
 var RenderService;
 var ComplianceService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('sovrn-htb-validator.js');
+var SovrnValidator = require('sovrn-htb-validator.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
@@ -82,79 +82,81 @@ function SovrnHtb(configs) {
      * ---------------------------------- */
 
     /**
-     * Generates the request URL to the endpoint for the xSlots in the given
+     * Generates the request object to the endpoint for the xSlots in the given
      * returnParcels.
      *
      * @param  {object[]} returnParcels
-     * @return {string}
+     * @return {Object}                 Request object
      */
     function __generateRequestObj(returnParcels) {
-        /* generate a unique request identifier for storing request-specific information */
+        /* Generate a unique request identifier for storing request-specific information */
         var requestId = '_' + System.generateUniqueId();
 
-        /* build imps */
-        var imps = [];
-        for (var i = 0; i < returnParcels.length; i++) {
-
-            /* If htSlot does not have an ixSlot mapping no impressions needed */
-            if (!returnParcels[i].hasOwnProperty('xSlotRef')) {
-                continue;
+        /* Build imps */
+        var imps = returnParcels.map(function (parcel) {
+            var banner = {};
+            if (parcel.xSlotRef.sizes) {
+                if (parcel.xSlotRef.sizes.length === 1) {
+                    banner.w = parcel.xSlotRef.sizes[0][0];
+                    banner.h = parcel.xSlotRef.sizes[0][1];
+                } else {
+                    var format = [];
+                    parcel.xSlotRef.sizes.forEach(function (size) {
+                        format.push({
+                            w: size[0],
+                            h: size[1]
+                        });
+                    });
+                    banner.format = format;
+                }
+            } else {
+                banner.w = 1;
+                banner.h = 1;
             }
-            var curParcel = returnParcels[i];
-            var xSlot = curParcel.xSlotRef;
-            curParcel.size = xSlot.size;
-            var impid = System.generateUniqueId();
 
-            imps.push({
-                id: impid,
-                banner: {
-                    w: xSlot.size[0],
-                    h: xSlot.size[1]
-                },
-                tagid: xSlot.tagId
-            });
-            curParcel.impid = impid;
-        }
+            return {
+                id: parcel.htSlot.getId(),
+                tagid: parcel.xSlotRef.tagid,
+                banner: banner
+            };
+        });
 
-        /* build request params */
+        /* Build request params */
         var br = {
             id: requestId,
             site: {
                 domain: Browser.getHostname(),
-                page: Browser.getPathname()
+                page: Browser.getPageUrl()
             },
             imp: imps
         };
 
-        if(ComplianceService.isPrivacyEnabled()) {
+        if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
-            if(gdprStatus.applies !== null) {
+            if (gdprStatus.applies !== null) {
                 br.regs = {
                     ext: {
                         gdpr: gdprStatus.applies ? 1 : 0
                     }
-                }
+                };
             }
 
-            if(gdprStatus.consentString !== null && gdprStatus.consentString !== "") {
+            if (gdprStatus.consentString !== null && gdprStatus.consentString !== '') {
                 br.user = {
                     ext: {
                         consent: gdprStatus.consentString
                     }
-                }
+                };
             }
         }
 
         return {
+            url: __baseUrl,
             callbackId: requestId,
-            networkParamOverrides: {
-                url: __baseUrl,
-                contentType: false,
-                data: {
-                    callback: 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback',
-                    br: JSON.stringify(br),
-                    src: 'ix_' + __profile.version
-                }
+            data: {
+                callback: 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallback',
+                br: JSON.stringify(br),
+                src: 'ix_' + __profile.version
             }
         };
     }
@@ -170,7 +172,8 @@ function SovrnHtb(configs) {
             var ortbResponse = OpenRtb.BidResponse(adResponse);
             __baseClass._adResponseStore[ortbResponse.getId()] = ortbResponse;
         } catch (ex) {
-            EventsService.emit('internal_error', 'Error occurred while saving response for "' + __profile.partnerId + '".', ex.stack);
+            EventsService.emit('internal_error',
+                'Error occurred while saving response for "' + __profile.partnerId + '".', ex.stack);
         }
     }
 
@@ -185,14 +188,14 @@ function SovrnHtb(configs) {
         if (nurl) {
             Network.img({
                 url: decodeURIComponent(nurl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
 
     /* Parse adResponse, put demand into outParcels.
      */
-    function __parseResponse(sessionId, ortbResponse, returnParcels, outstandingXSlotNames) {
+    function __parseResponse(sessionId, ortbResponse, returnParcels) {
         var bids = ortbResponse.getBids();
 
         var unusedReturnParcels = returnParcels.slice();
@@ -202,9 +205,10 @@ function SovrnHtb(configs) {
             var bid = bids[i];
 
             for (var j = unusedReturnParcels.length - 1; j >= 0; j--) {
-                if (unusedReturnParcels[j].impid === bid.impid) {
+                if (unusedReturnParcels[j].htSlot.getId() === bid.impid) {
                     curReturnParcel = unusedReturnParcels[j];
                     unusedReturnParcels.splice(j, 1);
+
                     break;
                 }
             }
@@ -215,45 +219,43 @@ function SovrnHtb(configs) {
 
             if (!bid.hasOwnProperty('price') || bid.price <= 0) {
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
             var bidPriceLevel = bid.price;
-            var curHtSlotId = curReturnParcel.htSlot.getId();
 
             if (__profile.enabledAnalytics.requestTime) {
-                EventsService.emit('hs_slot_bid', {
+                var curHtSlotId = curReturnParcel.htSlot.getId();
+                var headerStatsInfo = {
                     sessionId: sessionId,
                     statsId: __profile.statsId,
                     htSlotId: curHtSlotId,
                     requestId: curReturnParcel.requestId,
                     xSlotNames: [curReturnParcel.xSlotName]
-                });
-
-                if (outstandingXSlotNames[curHtSlotId] && outstandingXSlotNames[curHtSlotId][curReturnParcel.requestId]) {
-                    Utilities.arrayDelete(outstandingXSlotNames[curHtSlotId][curReturnParcel.requestId], curReturnParcel.xSlotName);
-                }
+                };
+                EventsService.emit('hs_slot_bid', headerStatsInfo);
             }
 
-            var bidCreative = decodeURIComponent(bid.adm);
-
+            curReturnParcel.size = [Number(bid.w), Number(bid.h)];
             curReturnParcel.targetingType = 'slot';
             curReturnParcel.targeting = {};
 
-            var targetingCpm = '';
-
             //? if(FEATURES.GPT_LINE_ITEMS) {
-            targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPriceLevel);
+            var targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPriceLevel);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
 
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
-            if(bid.dealid) {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = bid.dealId;
+            if (bid.dealid) {
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bid.dealid];
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+
             }
             //? }
 
-            ////? if(FEATURES.RETURN_CREATIVE) {
+            var bidCreative = bid.adm;
+            //? if(FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
             if (bid.nurl) {
                 curReturnParcel.winNotice = __renderPixel.bind(null, bid.nurl);
@@ -271,7 +273,9 @@ function SovrnHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
+                timeOfExpiry:
+                    __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value
+                        + System.now() : 0,
                 auxFn: __renderPixel,
                 auxArgs: [bid.nurl]
             });
@@ -281,14 +285,22 @@ function SovrnHtb(configs) {
             //? }
         }
 
-        /* all parcels which didn't get a match are passes */
+        /* All parcels which didn't get a match are passes */
         for (var k = 0; k < unusedReturnParcels.length; k++) {
-            unusedReturnParcels[k].pass = true;
-        }
+            var unusedParcel = unusedReturnParcels[k];
+            unusedParcel.pass = true;
 
-        /* any requests that didn't get a response above are passes */
-        if (__profile.enabledAnalytics.requestTime) {
-            __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', outstandingXSlotNames);
+            if (__profile.enabledAnalytics.requestTime) {
+                var unusedHtSlotId = unusedParcel.htSlot.getId();
+                var unusedHeaderStatsInfo = {
+                    sessionId: sessionId,
+                    statsId: __profile.statsId,
+                    htSlotId: unusedHtSlotId,
+                    requestId: unusedParcel.requestId,
+                    xSlotNames: [unusedParcel.xSlotName]
+                };
+                EventsService.emit('hs_slot_pass', unusedHeaderStatsInfo);
+            }
         }
     }
 
@@ -321,27 +333,28 @@ function SovrnHtb(configs) {
                 }
             },
             targetingKeys: {
-                om: 'ix_sovrn_om',
                 id: 'ix_sovrn_id',
+                om: 'ix_sovrn_om',
+                pm: 'ix_sovrn_pm',
                 pmid: 'ix_sovrn_pmid'
             },
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.ID,
-            architecture: Partner.Architectures.FSRA,
+            architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.ANY
         };
 
         //? if (DEBUG) {
-        var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
+        var results = ConfigValidators.partnerBaseConfig(configs) || SovrnValidator(configs);
 
         if (results) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
 
-        /* build base bid request url */
-        __baseUrl = Browser.getProtocol() + '//ap.lijit.com/rtb/bid';
+        /* Build base bid request url */
+        __baseUrl = 'https://ap.lijit.com/rtb/bid';
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
@@ -356,7 +369,7 @@ function SovrnHtb(configs) {
             window[SpaceCamp.NAMESPACE][__profile.namespace] = window[SpaceCamp.NAMESPACE][__profile.namespace] || {};
             window[SpaceCamp.NAMESPACE][__profile.namespace].adResponseCallback = adResponseCallback;
         }
-        //?}
+        //? }
     })();
 
     /* =====================================
@@ -390,7 +403,7 @@ function SovrnHtb(configs) {
         __generateRequestObj: __generateRequestObj,
         __parseResponse: __parseResponse,
         adResponseCallback: adResponseCallback
-            //? }
+        //? }
     };
 
     return Classify.derive(__baseClass, derivedClass);

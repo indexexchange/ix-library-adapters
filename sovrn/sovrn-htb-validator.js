@@ -22,39 +22,38 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-var partnerValidator = function (configs) {
+function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
-            informer: {
-                type: 'string',
-                minLength: 1
-            },
-            viewId: {
-                type: 'string',
-                minLength: 1
-            },
             xSlots: {
                 type: 'object',
                 properties: {
                     '*': {
                         type: 'object',
                         properties: {
-                            tagId: {
+                            tagid: {
                                 type: 'string',
                                 minLength: 1
                             },
-                            size: {
+                            sizes: {
                                 type: 'array',
-                                exactLength: 2,
+                                optional: true,
+                                minLength: 1,
                                 items: {
-                                    type: 'integer',
-                                    gt: 0
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            },
+            mapping: {
+                type: 'object'
             }
         }
     }, configs);
@@ -64,6 +63,6 @@ var partnerValidator = function (configs) {
     }
 
     return null;
-};
+}
 
 module.exports = partnerValidator;
