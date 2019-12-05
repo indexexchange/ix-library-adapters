@@ -10,7 +10,7 @@ function getStatsId() {
 function getBidRequestRegex() {
   return {
     method: "GET",
-    urlRegex: /.*btlr\.sharethrough\.com\/t6oivhQt\/.*/
+    urlRegex: /https:\/\/btlr\.sharethrough\.com\/t6oivhQt\/.*/
   };
 }
 
@@ -47,6 +47,7 @@ function validateBidRequest(request) {
   expect(queryObj.hbVersion).toEqual("2.2.0");
   expect(queryObj.cbust).toBeDefined();
   expect(queryObj.consent_required).toEqual("false");
+  expect(queryObj.secure).toBeDefined();
 }
 
 function validateBidRequestWithPrivacy(request) {
