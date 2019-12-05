@@ -69,7 +69,7 @@ function getValidResponse(request, creative) {
     creatives: [
       {
         adm: creative,
-        cpm: 2,
+        cpm: 2
       }
     ]
   });
