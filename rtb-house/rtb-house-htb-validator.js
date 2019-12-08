@@ -23,6 +23,16 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            region: {
+                type: 'string'
+            },
+            publisherId: {
+                type: 'string'
+            },
+            bidfloor: {
+                type: 'number',
+                optional: true
+            },
             xSlots: {
                 type: 'object',
                 properties: {

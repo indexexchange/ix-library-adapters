@@ -111,10 +111,16 @@ user|false|object|Contains GDPR consent if applicable.|
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+|region|true|string|region specific for a bidding to happen, values: prebid-[eu/us/asia]|
+|publisherId|true|string|publisher-specific key|
+|bidfloor|false|number|minimal bid value, Dollars|
 ### Example
 ```javascript
- 
+{
+    region: "prebid-eu",
+    publisherId: "_TEST_ID", 
+    bidfloor: 0.01
+}
 ```
 
 ## Test Configuration

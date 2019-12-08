@@ -129,11 +129,34 @@ function RTBHouseHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var queryObj = {};
         var callbackId = System.generateUniqueId();
+        var queryObj = {
+            id: callbackId,
+            imp: [], // TODO from parcels, push slots
+            site: {
+                publisher: {
+                    id: configs.publisherId
+                },
+                page: Browser.getPathname(),
+                name: Browser.getHostname(),
+            },
+            cur: ['USD'],
+            'test': 0,
+            source: {
+            },
+            regs: {
+                ext: {
+                }
+            },
+            user: {
+                ext: {
+                }
+            },
+        };
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var ENDPOINT_URL = 'todo.later.creativecdn.com/bidder/prebid/bids'; //TODO
+        var baseUrl = Browser.getProtocol() + '//' + configs.region + '.' + ENDPOINT_URL; //TODO
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -161,17 +184,43 @@ function RTBHouseHtb(configs) {
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
-
         /* ---------------- Craft bid request using the above returnParcels --------- */
+        for (var i = 0; i < returnParcels.length; i++){
+            var xSlotRef = returnParcels[i].xSlotRef;
+            var placementId = String(xSlotRef.placementId);
+            var slotWidth = xSlotRef.size[0];
+            var slotHeight = xSlotRef.size[1];
+            var slotData = {
+                id: placementId,
+                banner: {
+                    w: slotWidth,
+                    h: slotHeight,
+                    format: [{
+                        w: slotWidth,
+                        h: slotHeight
+                    }]
+                }
+            };
+            queryObj.imp.push(slotData);
+        }
 
-        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
+            /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
+        if (privacyEnabled) {
+            queryObj.user.ext.consent = gdprStatus.consentString;
+            queryObj.regs.ext.gdpr = gdprStatus.applies ? 1 : 0
+        }
+
 
         /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            callbackId: callbackId,
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
