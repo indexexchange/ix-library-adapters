@@ -59,6 +59,14 @@ function partnerValidator(configs) {
                                         }
                                     }
                                 }
+                            },
+                            usePaymentRule: {
+                                type: 'boolean',
+                                optional: true
+                            },
+                            allowSmallerSizes: {
+                                type: 'boolean',
+                                optional: true
                             }
                         }
                     }
