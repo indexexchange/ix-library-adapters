@@ -44,7 +44,12 @@ var partnerValidator = function (configs) {
                         type: 'object',
                         properties: {
                             zoneId: {
-                                type: 'string'
+                                type: 'number'
+                            },
+                            sizes: {
+                                type: 'array',
+                                optional: true,
+                                items: {type: 'array'}
                             },
                             allow: {
                                 type: 'array',
