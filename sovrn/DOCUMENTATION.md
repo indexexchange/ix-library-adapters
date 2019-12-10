@@ -87,7 +87,7 @@ headertag.SovrnHtb.adResponseCallback({"id": "uN6FCa3i"});
 ### Example
 ```javascript
 {
-  "tagd": "15894224",
+  "tagid": "15894224",
   "sizes": [[300, 250], [300, 600], [300, 300]],
 }
 ```
