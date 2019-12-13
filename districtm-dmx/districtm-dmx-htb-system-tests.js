@@ -51,7 +51,7 @@ function validateBidRequest(request) {
     expect(r.imp[0]).toEqual({
         id: jasmine.stringMatching(/.*/),
         tagid: '123',
-        secure: 0,
+        secure: 1,
         banner: {
             topframe: 1,
             w: 300,
@@ -68,7 +68,7 @@ function validateBidRequest(request) {
     expect(r.imp[1]).toEqual({
         id: jasmine.stringMatching(/.*/),
         tagid: '123',
-        secure: 0,
+        secure: 1,
         banner: {
             topframe: 1,
             w: 320,

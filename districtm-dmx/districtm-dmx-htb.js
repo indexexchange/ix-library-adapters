@@ -154,7 +154,7 @@ function DistrictmDmxHtb(configs) {
             obj.id = System.generateUniqueId();
             obj.tagid = String(tag.xSlotRef.dmxid);
             tag.xSlotRef.id = obj.id;
-            obj.secure = window.location.protocol === 'https' ? 1 : 0;
+            obj.secure = 1;
             obj.banner = {
                 topframe: 1,
                 w: tag.xSlotRef.sizes[0][0],

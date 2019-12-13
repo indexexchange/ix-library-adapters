@@ -1,7 +1,10 @@
+# 1.3
+- Fix trailing slash in network request
+- Update network call to use CloudFront
+
 # 1.2
 - Strip #values from the URL
 - Remove CacheBuster
-- Update network call to use CloudFront
 - Update to new Index Exchange Process and Repo
 
 # 1.1
