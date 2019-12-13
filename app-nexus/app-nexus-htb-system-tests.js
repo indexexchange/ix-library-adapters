@@ -72,6 +72,7 @@ function validateBidRequest(request) {
     expect(data.gdpr_consent).toBeDefined();
     expect(data.gdpr_consent.consent_required).toBeDefined();
     expect(data.gdpr_consent.consent_string).toBeDefined();
+    expect(data.us_privacy).toBeDefined();
 }
 
 function getValidResponse(request, creative) {

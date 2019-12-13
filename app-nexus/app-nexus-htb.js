@@ -185,6 +185,9 @@ function AppNexusHtb(configs) {
                 consent_required: gdprStatus.applies,
                 consent_string: gdprStatus.consentString
             };
+
+            var uspStatus = ComplianceService.usp.getConsent();
+            queryObj.us_privacy = uspStatus.consentString;
             /* eslint-enable camelcase */
         }
 
