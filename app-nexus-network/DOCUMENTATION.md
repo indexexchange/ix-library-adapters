@@ -45,7 +45,8 @@
 | hb_source | true | Number | Identifies type of source making the header bid request; has to be 2 |
 | referrer_detection | true | Object | Contains referrer values of the current page |
 | tags | true | Object[] | Contains information about the requested placement |
-| gdpr_consent | false | Object | Contains consent related information on user |
+| gdpr_consent | false | Object | Contains GDPR consent related information on user |
+| us_privacy | false | String | Contains USP consent related information on user |
  
 ### Example
 ```javascript
@@ -87,7 +88,8 @@
   "gdpr_consent":{
     "consent_required":false,
     "consent_string":""
-  }
+  },
+  "us_privacy": ""
 }
 ```
  
