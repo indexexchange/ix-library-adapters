@@ -174,6 +174,10 @@ function LockerDomeHtb(configs) {
                 applies: gdprStatus.applies,
                 consent: gdprStatus.consentString
             };
+            var uspStatus = ComplianceService.usp.getConsent();
+            payload.us_privacy = {
+              consent: uspStatus.consentString
+            };
         }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
@@ -447,7 +451,7 @@ function LockerDomeHtb(configs) {
             partnerId: 'LockerDomeHtb',
             namespace: 'LockerDomeHtb',
             statsId: 'LKDM',
-            version: '2.0.0',
+            version: '2.1.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
