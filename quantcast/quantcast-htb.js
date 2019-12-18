@@ -186,12 +186,21 @@ function QuantcastHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
+        if (privacyEnabled && gdprConsent.applies) {
+            queryObj.gdprSignal = 1;
+            queryObj.gdprConsent = gdprConsent.consentString;
+        } else {
+            queryObj.gdprSignal = 0;
+        }
 
-        queryObj.gdprSignal = Number(privacyEnabled && gdprStatus.applies);
-        if (queryObj.gdprSignal === 1) {
-            queryObj.gdprConsent = gdprStatus.consentString;
+        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
+        if (privacyEnabled && uspConsent) {
+            queryObj.uspSignal = 1;
+            queryObj.uspConsent = uspConsent.uspString;
+        } else {
+            queryObj.uspSignal = 0;
         }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
