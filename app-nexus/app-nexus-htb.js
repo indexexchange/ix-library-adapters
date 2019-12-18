@@ -187,7 +187,7 @@ function AppNexusHtb(configs) {
             };
 
             var uspStatus = ComplianceService.usp.getConsent();
-            queryObj.us_privacy = uspStatus.consentString;
+            queryObj.us_privacy = uspStatus.uspString;
             /* eslint-enable camelcase */
         }
 
