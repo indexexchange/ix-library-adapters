@@ -334,7 +334,7 @@ function QuantcastHtb(configs) {
             partnerId: 'QuantcastHtb',
             namespace: 'QuantcastHtb',
             statsId: 'QUA',
-            version: '2.0.0',
+            version: '2.1.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
