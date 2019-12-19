@@ -149,7 +149,7 @@ function QuantcastHtb(configs) {
                 {
                     banner: {
                         battr: parcel.xSlotRef.battr || configs.battr || [],
-                        sizes: parcel.xSlotRef.sizes || makeSizesFromHtSlot(parcel.htSlot.getSizes()),
+                        sizes: makeSizesFromHtSlot(parcel.xSlotRef.sizes || parcel.htSlot.getSizes()),
                         pos: parcel.xSlotRef.adPos || configs.adPos || 0
                     },
                     placementCode: parcel.htSlot.getId(),
