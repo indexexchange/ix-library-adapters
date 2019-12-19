@@ -75,7 +75,7 @@ function AppNexusNetworkHtb(configs) {
      */
     var __baseUrl;
 
-    var __version = '2.4.0';
+    var __version = '2.5.0';
 
     /* =====================================
      * Functions
@@ -184,6 +184,9 @@ function AppNexusNetworkHtb(configs) {
                 consent_required: gdprStatus.applies,
                 consent_string: gdprStatus.consentString
             };
+
+            var uspStatus = ComplianceService.usp.getConsent();
+            queryObj.us_privacy = uspStatus.uspString;
             /* eslint-enable camelcase */
         }
 
