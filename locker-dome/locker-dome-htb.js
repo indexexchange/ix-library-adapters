@@ -176,7 +176,7 @@ function LockerDomeHtb(configs) {
             };
             var uspStatus = ComplianceService.usp.getConsent();
             payload.us_privacy = {
-              consent: uspStatus.consentString
+              consent: uspStatus.uspString
             };
         }
 
