@@ -154,7 +154,7 @@ function SovrnHtb(configs) {
                 br.regs = br.regs || {}
                 br.regs.ext = br.regs.ext || {}
                 // eslint-disable-next-line camelcase
-                br.regs.ext.us_privacy = uspStatus.consentString;
+                br.regs.ext.us_privacy = uspStatus.uspString;
             }
         }
 
