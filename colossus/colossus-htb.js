@@ -179,8 +179,7 @@ function ColossusHtb(configs) {
             queryObj.gdprStatus = ComplianceService.gdpr.getConsent();
             queryObj.privacyEnabled = ComplianceService.isPrivacyEnabled();
             queryObj.ccpa = ComplianceService.usp && ComplianceService.usp.getConsent();
-        }
-        
+        }  
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
