@@ -175,8 +175,9 @@ function LockerDomeHtb(configs) {
                 consent: gdprStatus.consentString
             };
             var uspStatus = ComplianceService.usp.getConsent();
+            // eslint-disable-next-line camelcase
             payload.us_privacy = {
-              consent: uspStatus.uspString
+                consent: uspStatus.uspString
             };
         }
 
