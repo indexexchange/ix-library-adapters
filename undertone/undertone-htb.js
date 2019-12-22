@@ -74,7 +74,7 @@ function UndertoneHtb(configs) {
     /* Utilities
      * ---------------------------------- */
     var publisherId = configs.publisherId;
-    var adapterVersion = '1.1.0';
+    var adapterVersion = '1.2.0';
 
     function getPublisherId() {
         return publisherId;
@@ -244,12 +244,17 @@ function UndertoneHtb(configs) {
 
         var gdprValue = '';
         var consentString = '';
+        var uspString = '';
         var gdprConsent = ComplianceService.gdpr.getConsent();
         if (ComplianceService.isPrivacyEnabled() && gdprConsent) {
             gdprValue = gdprConsent.applies ? 1 : 0;
             consentString = gdprConsent.consentString;
         }
-        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString;
+
+        if (ComplianceService.isPrivacyEnabled() && ComplianceService.usp.getConsent()) {
+            uspString = ComplianceService.usp.getConsent();
+        }
+        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString + '&ccpa=' + uspString;
 
         /* -------------------------------------------------------------------------- */
 
