@@ -301,6 +301,8 @@ function RTBHouseHtb(configs) {
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = adResponse;
+        //TODO: start from here
+        console.log('parseRespo in main');
 
         /* --------------------------------------------------------------------------------- */
 
