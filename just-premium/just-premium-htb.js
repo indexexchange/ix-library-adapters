@@ -25,6 +25,7 @@ var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
 var Utilities = require('utilities.js');
+
 var ComplianceService;
 var EventsService;
 var RenderService;
@@ -71,29 +72,6 @@ function JustPremiumHtb(configs) {
      * Functions
      * ---------------------------------- */
 
-    function __findBid(parcel, bids) {
-        var params = parcel.xSlotRef;
-        for (var zoneId in bids) {
-            if (bids.hasOwnProperty(zoneId)) {
-                if (parseInt(params.zoneId) === parseInt(zoneId)) {
-                    var len = bids[zoneId].length;
-                    while (len--) {
-                        var bid = bids[zoneId][len];
-                        if (
-                            bid.rid === parcel.requestId &&
-                            __passCond(params, bids[zoneId][len])
-                        ) {
-                            var selectedBid = bids[zoneId].splice(len, 1);
-                            return selectedBid.length ? selectedBid[0] : null;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
     function __passCond(params, bid) {
         var format = bid.format;
 
@@ -108,6 +86,30 @@ function JustPremiumHtb(configs) {
         return true;
     }
 
+    function __findBid(parcel, bids) {
+        var params = parcel.xSlotRef;
+        for (var zoneId in bids) {
+            if (bids.hasOwnProperty(zoneId)) {
+                if (parseInt(params.zoneId, 10) === parseInt(zoneId, 10)) {
+                    var len = bids[zoneId].length;
+                    while (len--) {
+                        var bid = bids[zoneId][len];
+                        if (
+                            bid.rid === parcel.requestId
+                            && __passCond(params, bids[zoneId][len])
+                        ) {
+                            var selectedBid = bids[zoneId].splice(len, 1);
+
+                            return selectedBid.length ? selectedBid[0] : null;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     /* Utilities
      * ---------------------------------- */
 
@@ -120,27 +122,28 @@ function JustPremiumHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         var callbackId = System.generateUniqueId();
         var queryObj = {};
 
         var baseUrl = Browser.getProtocol() + '//pre.ads.justpremium.com/v/2.0/t/ie';
         var gdprStatus = ComplianceService.gdpr.getConsent();
+
         /* ---------------- Craft bid request using the above returnParcels --------- */
         queryObj.hostname = Browser.getHostname();
-        queryObj.protocol = Browser.getProtocol().replace(':', '');
+        queryObj.protocol = Browser.getProtocol()
+            .replace(':', '');
         queryObj.sw = Browser.getScreenWidth();
         queryObj.sh = Browser.getScreenHeight();
         queryObj.ww = Browser.getViewportWidth();
         queryObj.wh = Browser.getViewportHeight();
-        queryObj.cs = gdprStatus.applies ? (gdprStatus.consentString || '1') : '0';
+        queryObj.cs = gdprStatus.applies ? gdprStatus.consentString || '1' : '0';
         queryObj.json = JSON.stringify(returnParcels.map(function (parcel) {
             return {
                 rid: parcel.requestId,
                 zid: parcel.xSlotRef.zoneId,
                 al: parcel.xSlotRef.allow,
                 ex: parcel.xSlotRef.exclude
-            }
+            };
         }));
         queryObj.i = System.now();
 
@@ -165,7 +168,7 @@ function JustPremiumHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
-        /* get callbackId from adResponse here */
+        /* Get callbackId from adResponse here */
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
@@ -189,7 +192,7 @@ function JustPremiumHtb(configs) {
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
-                method: 'GET',
+                method: 'GET'
             });
         }
     }
@@ -208,16 +211,14 @@ function JustPremiumHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
-        /* ---------- Process adResponse and extract the bids into the bids array ------------*/
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var jPAM = Browser.topWindow.jPAM = Browser.topWindow.jPAM || {};
-        jPAM.ie = jPAM.ie || {bids: []};
+        jPAM.ie = jPAM.ie || { bids: [] };
 
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
-
             var curBid = null;
             var curReturnParcel = returnParcels[j];
             var headerStatsInfo = {};
@@ -230,7 +231,8 @@ function JustPremiumHtb(configs) {
                 curBid = __findBid(curReturnParcel, adResponse);
             }
 
-            var bidPrice = curBid && curBid.price || 0;
+            var bidPrice = (curBid && curBid.price) || 0;
+
             /* No matching bid found or price is 0 so its a pass */
             if (!curBid || parseFloat(bidPrice) <= 0) {
                 //? if (DEBUG) {
@@ -240,17 +242,19 @@ function JustPremiumHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
             jPAM.ie.bids.push(curBid);
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------*/
+            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
             var bidSize = [Number(curBid.width), Number(curBid.height)];
             var bidCreative = curBid.adm;
             var bidDealId = curBid.dealid;
             var pixelUrl = '';
-            /* ---------------------------------------------------------------------------------------*/
+
+            /* --------------------------------------------------------------------------------------- */
 
             if (__profile.enabledAnalytics.requestTime) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
@@ -293,8 +297,8 @@ function JustPremiumHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                dealId: bidDealId || undefined,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? (__profile.features.demandExpiry.value + System.now()) : 0,
+                dealId: bidDealId,
+                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -314,11 +318,11 @@ function JustPremiumHtb(configs) {
         EventsService = SpaceCamp.services.EventsService;
         RenderService = SpaceCamp.services.RenderService;
 
-        /* ---------- Please fill out this partner profile according to your module ------------*/
+        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'JustPremiumHtb', // PartnerName
-            namespace: 'JustPremiumHtb', // Should be same as partnerName
-            statsId: 'JUSTP', // Unique partner identifier
+            partnerId: 'JustPremiumHtb',
+            namespace: 'JustPremiumHtb',
+            statsId: 'JUSTP',
             version: '2.1.1',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -334,19 +338,18 @@ function JustPremiumHtb(configs) {
                     value: 0
                 }
             },
-            targetingKeys: { // Targeting keys for demand, should follow format ix_{statsId}_id
+            targetingKeys: {
                 id: 'ix_justp_id',
                 om: 'ix_justp_cpm',
                 pm: 'ix_justp_cpm',
                 pmid: 'ix_justp_dealid'
             },
-            bidUnitInCents: 100, // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE, // Callback type, please refer to the readme for details
-            architecture: Partner.Architectures.FSRA, // Request architecture, please refer to the readme for details
-            requestType: Partner.RequestTypes.AJAX // Request type, jsonp, ajax, or any.
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.FSRA,
+            requestType: Partner.RequestTypes.AJAX
         };
-        /* ---------------------------------------------------------------------------------------*/
 
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
@@ -392,7 +395,7 @@ function JustPremiumHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
