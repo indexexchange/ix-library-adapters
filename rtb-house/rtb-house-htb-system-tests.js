@@ -79,9 +79,10 @@ function validateBidRequest(request) {
 
 
 function validateTargeting(targetingMap) {
+    // debugger;
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_rtb_om: jasmine.arrayContaining(['300x250_200']),
-        ix_rtb_id: jasmine.arrayContaining([jasmine.any(String)])
+        ix_rtb_cpm: jasmine.arrayContaining('300x250_200'),
+        ix_rtb_id: jasmine.arrayContaining(jasmine.any(String))
     }));
 }
 
@@ -91,23 +92,22 @@ function getPassResponse() {
 
 function getValidResponse(request, creative) {
     //TODO: start from here
-    console.log('reading getvalidResp', request);
     var body = JSON.parse(request.body);
-    var response = [
-        {
-            "id": "_TEST_ID",
-            "impid": "301a387bd0aac8",
-            "price": 200,
-            "adid": "3aZh9mMlUJkW57mUB4kN",
-            "adm": creative,
-            "adomain": ["rtbhouse.com"],
-            "cid": "dH7Yk9plMI2QrA05L0TT",
-            "w": 300,
-            "h": 250
-        }
-
+    var response =
+        [
+                {
+                    id: body.imp[0].id,
+                    impid: "301a387bd0aac8",
+                    price: 2,
+                    adid: "3aZh9mMlUJkW57mUB4kN",
+                    adm: creative,
+                    adomain: ["rtbhouse.com"],
+                    cid: "dH7Yk9plMI2QrA05L0TT",
+                    w: 300,
+                    h: 250
+                }
     ];
-
+    // debugger;
     return JSON.stringify(response);
 }
 

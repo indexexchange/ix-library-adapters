@@ -132,7 +132,7 @@ function RTBHouseHtb(configs) {
         var callbackId = System.generateUniqueId();
         var queryObj = {
             id: callbackId,
-            imp: [], // TODO from parcels, push slots
+            imp: [],
             site: {
                 publisher: {
                     id: configs.publisherId
@@ -201,6 +201,7 @@ function RTBHouseHtb(configs) {
                     }]
                 }
             };
+            console.log('slotData debug', slotData);
             queryObj.imp.push(slotData);
         }
 
@@ -302,7 +303,9 @@ function RTBHouseHtb(configs) {
 
         var bids = adResponse;
         //TODO: start from here
-        console.log('parseRespo in main');
+        console.log('parseRespo in main', sessionId);
+        console.log('parseRespo in main', adResponse);
+        console.log('parseRespo in main', returnParcels);
 
         /* --------------------------------------------------------------------------------- */
 
@@ -325,7 +328,8 @@ function RTBHouseHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                // debugger;
+                if (String(curReturnParcel.xSlotRef.placementId) === bids[i].id) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
@@ -352,7 +356,7 @@ function RTBHouseHtb(configs) {
             var bidPrice = curBid.price;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
@@ -360,7 +364,7 @@ function RTBHouseHtb(configs) {
             var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId = curBid.dealid; //TODO? what here?
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
@@ -399,7 +403,7 @@ function RTBHouseHtb(configs) {
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
-
+            // debugger;
             if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
