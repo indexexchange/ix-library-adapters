@@ -157,6 +157,10 @@ function RTBHouseHtb(configs) {
         /* Change this to your bidder endpoint. */
         var ENDPOINT_URL = 'todo.later.creativecdn.com/bidder/prebid/bids'; //TODO
         var baseUrl = Browser.getProtocol() + '//' + configs.region + '.' + ENDPOINT_URL; //TODO
+        // uncomment to use designated endpoint (unfinished)
+        // var ENDPOINT_URL = 'ixwrapper-c2s-ams.creativecdn.com/bidder/ixwrapper/bids'; //TODO
+        // var baseUrl = Browser.getProtocol() + '//' /*+ configs.region + '.'*/ + ENDPOINT_URL; //TODO
+
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -201,7 +205,6 @@ function RTBHouseHtb(configs) {
                     }]
                 }
             };
-            console.log('slotData debug', slotData);
             queryObj.imp.push(slotData);
         }
 
@@ -302,10 +305,6 @@ function RTBHouseHtb(configs) {
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = adResponse;
-        //TODO: start from here
-        console.log('parseRespo in main', sessionId);
-        console.log('parseRespo in main', adResponse);
-        console.log('parseRespo in main', returnParcels);
 
         /* --------------------------------------------------------------------------------- */
 
@@ -328,7 +327,6 @@ function RTBHouseHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                // debugger;
                 if (String(curReturnParcel.xSlotRef.placementId) === bids[i].id) {
                     curBid = bids[i];
                     bids.splice(i, 1);
@@ -403,7 +401,6 @@ function RTBHouseHtb(configs) {
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
-            // debugger;
             if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];

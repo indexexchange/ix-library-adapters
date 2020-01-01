@@ -79,7 +79,6 @@ function validateBidRequest(request) {
 
 
 function validateTargeting(targetingMap) {
-    // debugger;
     expect(targetingMap).toEqual(jasmine.objectContaining({
         ix_rtb_cpm: jasmine.arrayContaining('300x250_200'),
         ix_rtb_id: jasmine.arrayContaining(jasmine.any(String))
@@ -91,7 +90,6 @@ function getPassResponse() {
 }
 
 function getValidResponse(request, creative) {
-    //TODO: start from here
     var body = JSON.parse(request.body);
     var response =
         [
@@ -107,7 +105,6 @@ function getValidResponse(request, creative) {
                     h: 250
                 }
     ];
-    // debugger;
     return JSON.stringify(response);
 }
 
