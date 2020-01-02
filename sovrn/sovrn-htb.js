@@ -78,6 +78,42 @@ function SovrnHtb(configs) {
      * Functions
      * ---------------------------------- */
 
+    function _getDigiTrustQueryParams() {
+        function getDigiTrustId() {
+            var digiTrustUser;
+            var _window;
+
+            if (!Browser.isTopFrame()) {
+                try {
+                    _window = window.top;
+                } catch (e) {
+                    _window = Browser.topWindow;
+                }
+            } else {
+                _window = window;
+            }
+
+            try {
+                // TO DO: find digitrust member id
+                digiTrustUser = _window.DigiTrust.getUser({ member: 'kCw195nJ1fs' });
+            } catch (e) {}
+
+            return (digiTrustUser && digiTrustUser.success && digiTrustUser.identity) || null;
+        }
+        var digiTrustId = configs.digitrustId || getDigiTrustId();
+
+        // Verify there is an ID and this user has not opted out
+        if (!digiTrustId || (digiTrustId.privacy && digiTrustId.privacy.optout)) {
+            return {};
+        }
+        var _dt = {
+            id: digiTrustId.id,
+            keyv: digiTrustId.keyv
+        };
+
+        return _dt;
+    }
+
     /* Utilities
      * ---------------------------------- */
 
@@ -155,6 +191,13 @@ function SovrnHtb(configs) {
                 br.regs.ext = br.regs.ext || {};
                 // eslint-disable-next-line camelcase
                 br.regs.ext.us_privacy = uspStatus.uspString;
+            }
+
+            var dt = _getDigiTrustQueryParams();
+            if (dt) {
+                br.user = br.user || {};
+                br.user.ext = br.user.ext || {};
+                br.user.ext.digitrust = dt;
             }
         }
 
