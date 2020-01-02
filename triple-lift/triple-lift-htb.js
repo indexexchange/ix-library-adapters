@@ -156,6 +156,7 @@ function TripleLiftHtb(configs) {
 
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* MRA partners receive only one parcel in the array. */
         var returnParcel = returnParcels[0];
@@ -175,6 +176,10 @@ function TripleLiftHtb(configs) {
         if (privacyEnabled) {
               requestParams.gdpr = gdprStatus.applies;
               requestParams.cmp_cs = gdprStatus.consentString;
+
+              if (uspConsent) {
+                  requestParams.us_privacy = uspConsent.uspString;
+              }
         }
         if (xSlot.floor) {
             requestParams.floor = xSlot.floor;
