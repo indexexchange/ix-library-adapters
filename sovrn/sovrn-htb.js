@@ -151,8 +151,8 @@ function SovrnHtb(configs) {
 
             var uspStatus = ComplianceService.usp.getConsent();
             if (uspStatus) {
-                br.regs = br.regs || {}
-                br.regs.ext = br.regs.ext || {}
+                br.regs = br.regs || {};
+                br.regs.ext = br.regs.ext || {};
                 // eslint-disable-next-line camelcase
                 br.regs.ext.us_privacy = uspStatus.uspString;
             }
