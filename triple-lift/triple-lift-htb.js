@@ -331,7 +331,7 @@ function TripleLiftHtb(configs) {
             partnerId: 'TripleLiftHtb',
             namespace: 'TripleLiftHtb',
             statsId: 'TPL',
-            version: '2.1.1',
+            version: '2.1.2',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
