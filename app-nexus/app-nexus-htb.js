@@ -174,8 +174,8 @@ function AppNexusHtb(configs) {
             // eslint-disable-next-line camelcase
             queryObj.gdpr_consent = gdprStatus.consentString;
 
-            // eslint-disable-next-line camelcase
             var uspStatus = ComplianceService.usp.getConsent();
+            // eslint-disable-next-line camelcase
             queryObj.us_privacy = uspStatus.uspString;
         }
 
