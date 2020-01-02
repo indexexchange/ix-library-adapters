@@ -365,7 +365,7 @@ function TripleLiftHtb(configs) {
         //? }
 
         /* build base bid request url */
-        __baseUrl = Browser.getProtocol() + '//tlx.3lift.com/header/auction';
+        __baseUrl = 'https://tlx.3lift.com/header/auction';
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,

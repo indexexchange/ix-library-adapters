@@ -30,7 +30,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /tlx\.3lift\.com\/header\/auction/
+        urlRegex: /https:\/\/tlx\.3lift\.com\/header\/auction/
     };
 }
 
