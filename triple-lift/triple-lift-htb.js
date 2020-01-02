@@ -168,7 +168,8 @@ function TripleLiftHtb(configs) {
             fe: Browser.isFlashSupported() ? 1 : 0,
             size: Size.arrayToString(xSlot.sizes),
             referrer: Browser.getPageUrl(),
-            v: '2.1'
+            v: '2.1',
+            tmax: configs.timeout || 0
         };
 
         if (privacyEnabled) {
