@@ -26,6 +26,7 @@ var System = require('system.js');
 var Network = require('network.js');
 
 var RenderService;
+var ComplianceService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
@@ -165,13 +166,15 @@ function KargoHtb(configs) {
 
     function __getUserIds(returnParcels) {
         var crb = __getCrb();
+        var uspStatus = ComplianceService.usp.getConsent();
 
         return {
             kargoID: crb.userId || '',
             clientID: crb.clientId || '',
             tdID: __getTDID(returnParcels),
             crbIDs: crb.syncIds || {},
-            optOut: crb.optOut || false
+            optOut: crb.optOut || false,
+            usp: uspStatus.uspString
         };
     }
 
@@ -560,6 +563,7 @@ function KargoHtb(configs) {
 
     (function __constructor() {
         RenderService = SpaceCamp.services.RenderService;
+        ComplianceService = SpaceCamp.services.ComplianceService;
 
         /* =============================================================================
          * STEP 1  | Partner Configuration
