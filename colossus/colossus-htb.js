@@ -175,7 +175,7 @@ function ColossusHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        if(ComplianceService){
+        if (ComplianceService) {
             queryObj.gdprStatus = ComplianceService.gdpr.getConsent();
             queryObj.privacyEnabled = ComplianceService.isPrivacyEnabled();
             queryObj.ccpa = ComplianceService.usp && ComplianceService.usp.getConsent();
