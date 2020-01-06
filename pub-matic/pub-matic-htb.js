@@ -327,6 +327,7 @@ function PubMaticHtb(configs) {
         var isPrivacyEnabled = ComplianceService.isPrivacyEnabled();
         if (isPrivacyEnabled) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
+            var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
             payload.user.ext = {
                 consent: gdprStatus.consentString
             };
@@ -335,6 +336,10 @@ function PubMaticHtb(configs) {
                     gdpr: gdprStatus.applies ? 1 : 0
                 }
             };
+            if (uspConsentObj) {
+                // eslint-disable-next-line camelcase
+                payload.regs.ext.us_privacy = uspConsentObj.uspString;
+            }
         }
 
         /* -------------------------------------------------------------------------- */
