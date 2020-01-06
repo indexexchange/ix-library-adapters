@@ -627,7 +627,7 @@ function PubMaticHtb(configs) {
 
             // Unique partner identifier
             statsId: 'PUBM',
-            version: '2.1.3',
+            version: '2.1.4',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: !0
