@@ -93,7 +93,7 @@ function BRealTimeHtb(configs) {
      */
     function __generateRequestObj(returnParcels) {
         var timeout = SpaceCamp.globalTimeout || 1500;
-        var version = '1.0.0';
+        var version = '1.1.0';
 
         var timestamp = System.now();
         var baseUrl = Browser.getProtocol() + __endpoint + ('?t=' + timeout + '&ts=' + timestamp);
@@ -102,8 +102,9 @@ function BRealTimeHtb(configs) {
         var pageUrl = Browser.getPageUrl();
         var pageHost = Browser.getHostname();
         var callbackId = System.generateUniqueId();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
         var gdprStatus = ComplianceService.gdpr.getConsent();
-        var gdprPrivacyEnabled = ComplianceService.isPrivacyEnabled();
+        var ccpaStatus = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* =============================================================================
          * STEP 2  | Generate Request URL
@@ -151,7 +152,7 @@ function BRealTimeHtb(configs) {
             }
         };
 
-        if (gdprPrivacyEnabled) {
+        if (privacyEnabled) {
             /* eslint-disable camelcase */
             if (gdprStatus.hasOwnProperty('consentString')) {
                 __emxData.user = {
@@ -160,7 +161,6 @@ function BRealTimeHtb(configs) {
                     }
                 };
             }
-            /* eslint-enable camelcase */
 
             if (gdprStatus.hasOwnProperty('applies')) {
                 __emxData.regs = {
@@ -169,6 +169,12 @@ function BRealTimeHtb(configs) {
                     }
                 };
             }
+
+            if (ccpaStatus) {
+                __emxData.us_privacy = ccpaStatus;
+            }
+
+            /* eslint-enable camelcase */
         }
 
         /* -------------------------------------------------------------------------- */

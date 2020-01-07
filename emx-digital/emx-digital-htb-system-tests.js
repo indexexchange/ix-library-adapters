@@ -185,6 +185,14 @@ function validateTargetingWithDeal(targetingMap) {
     }));
 }
 
+function validateBidRequestWithPrivacy(request) {
+    var r = request.query;
+    expect(r.gdpr).toBe('1');
+    expect(r.gdpr_consent).toBe('TEST_GDPR_CONSENT_STRING');
+    expect(r.us_privacy).toBeDefined();
+    expect(r.us_privacy).toBe('1YNN');
+}
+
 function getPassResponse(request) {
     var response = { request: request };
 
@@ -203,5 +211,6 @@ module.exports = {
     getValidResponse: getValidResponse,
     getPassResponse: getPassResponse,
     getValidResponseWithDeal: getValidResponseWithDeal,
-    validateTargetingWithDeal: validateTargetingWithDeal
+    validateTargetingWithDeal: validateTargetingWithDeal,
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
 };
