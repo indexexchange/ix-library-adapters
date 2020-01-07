@@ -186,11 +186,9 @@ function validateTargetingWithDeal(targetingMap) {
 }
 
 function validateBidRequestWithPrivacy(request) {
-    var r = request.query;
-    expect(r.gdpr).toBe('1');
-    expect(r.gdpr_consent).toBe('TEST_GDPR_CONSENT_STRING');
-    expect(r.us_privacy).toBeDefined();
-    expect(r.us_privacy).toBe('1YNN');
+    var req = JSON.parse(request.body);
+    expect(req.regs.ext.gdpr).toBe(1);
+    expect(req.user.ext.consent).toBe('TEST_GDPR_CONSENT_STRING');
 }
 
 function getPassResponse(request) {
