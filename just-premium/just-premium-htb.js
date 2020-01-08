@@ -126,7 +126,11 @@ function JustPremiumHtb(configs) {
 
         var baseUrl = Browser.getProtocol() + '//pre.ads.justpremium.com/v/2.0/t/ie';
         var gdprStatus = ComplianceService.gdpr.getConsent();
+        var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
         /* ---------------- Craft bid request using the above returnParcels --------- */
+        if (uspConsentObj) {
+            queryObj.us_privacy = uspConsentObj.uspString;
+        }
         queryObj.hostname = Browser.getHostname();
         queryObj.protocol = Browser.getProtocol().replace(':', '');
         queryObj.sw = Browser.getScreenWidth();
