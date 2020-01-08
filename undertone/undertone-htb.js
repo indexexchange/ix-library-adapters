@@ -1,3 +1,15 @@
+/**
+ * @author:    Partner
+ * @license:   UNLICENSED
+ *
+ * @copyright: Copyright (c) 2017 by Index Exchange. All rights reserved.
+ *
+ * The information contained within this document is confidential, copyrighted
+ * and or a trade secret. No part of this document may be reproduced or
+ * distributed in any form or by any means, in whole or in part, without the
+ * prior written permission of Index Exchange.
+ */
+
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,13 +23,16 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
+var Network = require('network.js');
+var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('quantcast-htb-validator.js');
+var PartnerSpecificValidator = require('undertone-htb-validator.js');
+var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
@@ -30,7 +45,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function QuantcastHtb(configs) {
+function UndertoneHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -56,23 +71,32 @@ function QuantcastHtb(configs) {
      * Functions
      * ---------------------------------- */
 
-    /* Helpers
-     * ---------------------------------- */
-
-    function makeSizesFromHtSlot(sizes) {
-        var res = [];
-        for (var i = 0; i < sizes.length; i++) {
-            res.push({
-                width: sizes[i][0],
-                height: sizes[i][1]
-            });
-        }
-
-        return res;
-    }
-
     /* Utilities
      * ---------------------------------- */
+    var publisherId = configs.publisherId;
+    var adapterVersion = '1.1.0';
+
+    function getPublisherId() {
+        return publisherId;
+    }
+
+    /**
+     * A utility function that returns the page canonical url if it exists and if the top level window is accessible.
+     * If not - null will be returned
+     * @returns {String} - a canonical url if it exists, otherwise null
+     */
+    function getCanonicalUrl() {
+        try {
+            var doc = window.top.document;
+            var element = doc.querySelector('link[rel="canonical"]');
+            if (element !== null) {
+                return element.href;
+            }
+        } catch (e) {
+        }
+
+        return null;
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -141,26 +165,53 @@ function QuantcastHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var parcel = returnParcels[0];
-        var queryObj = {
-            publisherId: configs.publisherId,
-            requestId: parcel.requestId,
-            imp: [
-                {
-                    banner: {
-                        battr: parcel.xSlotRef.battr || configs.battr || [],
-                        sizes: makeSizesFromHtSlot(parcel.xSlotRef.sizes || parcel.htSlot.getSizes()),
-                        pos: parcel.xSlotRef.adPos || configs.adPos || 0
-                    },
-                    placementCode: parcel.htSlot.getId(),
-                    bidFloor: parcel.xSlotRef.bidFloor || configs.bidFloor || 0
-                }
-            ]
-        };
+        /* MRA partners receive only one parcel in the array. */
+        var requestUrl = null;
+        var bidsArray = [];
+        var pubId = getPublisherId();
+        for (var index = 0; index < returnParcels.length; index++) {
+            var returnParcel = returnParcels[index];
+            var xSlot = returnParcel.xSlotRef;
 
-        /* Change this to your bidder endpoint. */
-        var port = Browser.getProtocol() === 'http:' ? 8080 : 8443;
-        var baseUrl = Browser.getProtocol() + '//qcx.quantserve.com:' + port + '/qchb';
+            var currBidId = System.generateUniqueId();
+            var sizes = xSlot.sizes;
+            xSlot.bidId = currBidId;
+
+            var placementId = xSlot.placementId;
+            var pageUrl = getCanonicalUrl() || Browser.getPageUrl();
+            var hostname = Browser.getHostname();
+            var domains = (/[-\w]+\.([-\w]+|[-\w]{3,}|[-\w]{1,3}\.[-\w]{2})$/i).exec(hostname);
+            var domain = null;
+            if (domains !== null && domains.length > 0) {
+                domain = domains[0];
+                for (var domainsIdx = 1; domainsIdx < domains.length; domainsIdx++) {
+                    if (domains[domainsIdx].length > domain.length) {
+                        domain = domains[domainsIdx];
+                    }
+                }
+            }
+
+            var baseUrl = Browser.getProtocol() + '//hb.undertone.com/hb';
+            requestUrl = baseUrl + '?pid=' + pubId + '&domain=' + domain;
+
+            bidsArray.push({
+                bidRequestId: currBidId,
+                hbadaptor: 'indexexchange',
+                url: pageUrl,
+                domain: domain,
+                placementId: placementId,
+                publisherId: parseInt(pubId, 10),
+                sizes: sizes
+            });
+        }
+
+        var queryObj = {
+            'x-ut-hb-params': bidsArray,
+            commons: {
+                adapterVersion: adapterVersion,
+                uids: returnParcels[0].identityData
+            }
+        };
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -186,36 +237,78 @@ function QuantcastHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
-        if (privacyEnabled && gdprConsent.applies) {
-            queryObj.gdprSignal = 1;
-            queryObj.gdprConsent = gdprConsent.consentString;
-        } else {
-            queryObj.gdprSignal = 0;
-        }
-
-        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
-        if (privacyEnabled && uspConsent) {
-            queryObj.uspSignal = 1;
-            queryObj.uspConsent = uspConsent.uspString;
-        } else {
-            queryObj.uspSignal = 0;
-        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
+        var gdprValue = '';
+        var consentString = '';
+        var gdprConsent = ComplianceService.gdpr.getConsent();
+        if (ComplianceService.isPrivacyEnabled() && gdprConsent) {
+            gdprValue = gdprConsent.applies ? 1 : 0;
+            consentString = gdprConsent.consentString;
+        }
+        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString;
+
         /* -------------------------------------------------------------------------- */
 
         return {
-            url: baseUrl,
+            url: requestUrl,
             data: queryObj,
+            callbackId: System.generateUniqueId(),
             networkParamOverrides: {
-                method: 'POST'
+                method: 'POST',
+                contentType: 'text/plain'
             }
         };
+    }
+
+    /* =============================================================================
+     * STEP 3  | Response callback
+     * -----------------------------------------------------------------------------
+     *
+     * This generator is only necessary if the partner's endpoint has the ability
+     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
+     * the response and save the response to adResponseStore keyed by that ID.
+     *
+     * If the endpoint does not have an appropriate field for this, set the profile's
+     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
+     */
+    function adResponseCallback(adResponse) {
+        /* Get callbackId from adResponse here */
+        if (adResponse === null || !Utilities.isArray(adResponse) || adResponse.length === 0) {
+            return;
+        }
+
+        for (var i = 0; i < adResponse.length; i++) {
+            var currBidResponse = adResponse[i];
+            __baseClass._adResponseStore[currBidResponse.bidRequestId] = currBidResponse;
+        }
+    }
+
+    /* -------------------------------------------------------------------------- */
+
+    /* Helpers
+     * ---------------------------------- */
+
+    /* =============================================================================
+     * STEP 5  | Rendering Pixel
+     * -----------------------------------------------------------------------------
+     *
+    */
+
+    /**
+     * This function will render the pixel given.
+     * @param  {string} pixelUrl Tracking pixel img url.
+     */
+    function __renderPixel(pixelUrl) {
+        if (pixelUrl) {
+            Network.img({
+                url: decodeURIComponent(pixelUrl),
+                method: 'GET'
+            });
+        }
     }
 
     /**
@@ -251,66 +344,108 @@ function QuantcastHtb(configs) {
          *
          */
 
-        var parcel = returnParcels[0];
-        var bid = adResponse.bids[0];
-
-        var headerStatsInfo = {};
-        var htSlotId = parcel.htSlot.getId();
-        headerStatsInfo[htSlotId] = {};
-        headerStatsInfo[htSlotId][parcel.requestId] = [parcel.xSlotName];
-
-        if (adResponse.bidderCode !== 'quantcast'
-            || htSlotId !== bid.placementCode
-            || bid.statusCode !== 1) {
-            if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+        var adResponseDic = {};
+        if (typeof adResponse !== 'undefined') {
+            for (var idx = 0; idx < adResponse.length; idx++) {
+                adResponseDic[adResponse[idx].bidRequestId] = adResponse[idx];
             }
-            parcel.pass = true;
-        } else {
-            if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+        }
+
+        /* MRA partners receive only one parcel in the array. */
+        for (var parcelIdx = 0; parcelIdx < returnParcels.length; parcelIdx++) {
+            var returnParcel = returnParcels[parcelIdx];
+
+            /* Header stats information */
+            var headerStatsInfo = {};
+            var htSlotId = returnParcel.htSlot.getId();
+            headerStatsInfo[htSlotId] = {};
+            headerStatsInfo[htSlotId][returnParcel.requestId] = [returnParcel.xSlotName];
+
+            returnParcel.targetingType = 'slot';
+            returnParcel.targeting = {};
+            returnParcel.pass = false;
+
+            var currAdResponse = adResponseDic[returnParcel.xSlotRef.bidId];
+            if (typeof currAdResponse === 'undefined') {
+                currAdResponse = {};
             }
 
-            parcel.pass = false;
-            parcel.size = [Number(bid.width), Number(bid.height)];
-            parcel.targetingType = 'slot';
-            parcel.targeting = {};
-            var targetingCpm = __baseClass._bidTransformers.targeting.apply(bid.cpm);
+            if (typeof currAdResponse.ad === 'undefined' || currAdResponse.cpm <= 0) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                returnParcel.pass = true;
 
-            //? if (FEATURES.GPT_LINE_ITEMS) {
-            var sizeKey = Size.arrayToString(parcel.size);
-            if (bid.dealId) {
-                parcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bid.dealId];
-                parcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+                continue;
+            }
+
+            var bidCreative = currAdResponse.ad || '';
+            var bidPrice = currAdResponse.cpm || 0;
+            var bidDealId = '';
+            var pixelUrl = '';
+
+            if (typeof currAdResponse.width !== 'undefined') {
+                returnParcel.size = [Number(currAdResponse.width), Number(currAdResponse.height)];
             } else {
-                parcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+                returnParcel.size = [0, 0];
             }
-            parcel.targeting[__baseClass._configs.targetingKeys.id] = [parcel.requestId];
+
+            var targetingCpm = '';
+            //? if (FEATURES.GPT_LINE_ITEMS) {
+            targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
+            var sizeKey = Size.arrayToString(returnParcel.size);
+
+            if (bidDealId) {
+                returnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
+                returnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            } else {
+                returnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            }
+            returnParcel.targeting[__baseClass._configs.targetingKeys.id] = [returnParcel.requestId];
             //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {
-            parcel.adm = bid.ad;
+            returnParcel.adm = bidCreative;
+            if (pixelUrl) {
+                returnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+            }
             //? }
 
             //? if (FEATURES.RETURN_PRICE) {
-            parcel.price = Number(__baseClass._bidTransformers.price.apply(bid.cpm));
+            returnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
 
-            var expiryTime = __profile.features.demandExpiry.value + System.now();
-            var pubKitAdId = RenderService.registerAd({
-                sessionId: sessionId,
-                partnerId: __profile.partnerId,
-                adm: bid.ad,
-                requestId: parcel.requestId,
-                size: parcel.size,
-                price: targetingCpm,
-                dealId: bid.dealId,
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? expiryTime : 0
-            });
+            var expirationTime = 0;
+            if (__profile.features.demandExpiry.enabled) {
+                expirationTime = __profile.features.demandExpiry.value + System.now();
+            }
 
-            //? if (FEATURES.INTERNAL_RENDER) {
-            parcel.targeting.pubKitAdId = pubKitAdId;
-            //? }
+            if (returnParcel.pass) {
+                //? if (DEBUG) {
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
+                //? }
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+            } else {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+                }
+
+                var pubKitAdId = RenderService.registerAd({
+                    sessionId: sessionId,
+                    partnerId: __profile.partnerId,
+                    adm: bidCreative,
+                    requestId: returnParcel.requestId,
+                    size: returnParcel.size,
+                    price: targetingCpm,
+                    timeOfExpiry: expirationTime
+                });
+
+                //? if (FEATURES.INTERNAL_RENDER) {
+                returnParcel.targeting.pubKitAdId = pubKitAdId;
+                //? }
+            }
         }
     }
 
@@ -329,11 +464,10 @@ function QuantcastHtb(configs) {
          * Please fill out the below partner profile according to the steps in the README doc.
          */
 
-        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'QuantcastHtb',
-            namespace: 'QuantcastHtb',
-            statsId: 'QUA',
+            partnerId: 'UndertoneHtb',
+            namespace: 'UndertoneHtb',
+            statsId: 'UNDR',
             version: '2.1.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -349,20 +483,16 @@ function QuantcastHtb(configs) {
                     value: 0
                 }
             },
-
-            /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_qua_id',
-                om: 'ix_qua_cpm',
-                pm: 'ix_qua_cpm',
-                pmid: 'ix_qua_dealid'
+                id: 'ix_undr_id',
+                om: 'ix_undr_cpm',
+                pm: 'ix_undr_cpm',
+                pmid: 'ix_undr_dealid'
             },
-
-            /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.NONE,
-            architecture: Partner.Architectures.MRA,
+            architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
 
@@ -378,7 +508,8 @@ function QuantcastHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj
+            generateRequestObj: __generateRequestObj,
+            adResponseCallback: adResponseCallback
         });
     })();
 
@@ -391,7 +522,7 @@ function QuantcastHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'QuantcastHtb',
+        __type__: 'UndertoneHtb',
         //? }
 
         //? if (TEST) {
@@ -410,7 +541,8 @@ function QuantcastHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj
+        generateRequestObj: __generateRequestObj,
+        adResponseCallback: adResponseCallback
         //? }
     };
 
@@ -421,4 +553,4 @@ function QuantcastHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = QuantcastHtb;
+module.exports = UndertoneHtb;
