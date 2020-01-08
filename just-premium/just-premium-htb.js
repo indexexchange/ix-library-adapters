@@ -129,7 +129,7 @@ function JustPremiumHtb(configs) {
         var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
         /* ---------------- Craft bid request using the above returnParcels --------- */
         if (uspConsentObj) {
-            queryObj.us_privacy = uspConsentObj.uspString;
+            queryObj.usPrivacy = uspConsentObj.uspString;
         }
         queryObj.hostname = Browser.getHostname();
         queryObj.protocol = Browser.getProtocol().replace(':', '');
