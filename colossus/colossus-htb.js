@@ -175,8 +175,11 @@ function ColossusHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        queryObj.gdprStatus = ComplianceService.gdpr.getConsent();
-        queryObj.privacyEnabled = ComplianceService.isPrivacyEnabled();
+        if (ComplianceService) {
+            queryObj.gdprStatus = ComplianceService.gdpr.getConsent();
+            queryObj.privacyEnabled = ComplianceService.isPrivacyEnabled();
+            queryObj.ccpa = ComplianceService.usp && ComplianceService.usp.getConsent();
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -432,7 +435,7 @@ function ColossusHtb(configs) {
             partnerId: 'ColossusHtb',
             namespace: 'ColossusHtb',
             statsId: 'CLSS',
-            version: '2.0.0',
+            version: '2.1.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
