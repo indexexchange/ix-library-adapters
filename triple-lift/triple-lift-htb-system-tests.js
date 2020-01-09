@@ -40,7 +40,6 @@ function validateBidRequest(request) {
     expect(r.lib).toBe('ix');
     expect(r.inv_code).toBe('test');
     expect(r.size).toBe('300x250');
-    expect(r.fe).toBe('0');
     expect(r.cmp_cs).toBe('');
     expect(r.gdpr).toBe('false');
     expect(r.referrer).toBe(document.URL);
@@ -53,7 +52,6 @@ function validateBidRequestWithPrivacy(request) {
     expect(r.lib).toBe('ix');
     expect(r.inv_code).toBe('test');
     expect(r.size).toBe('300x250');
-    expect(r.fe).toBe('0');
     expect(r.gdpr).toBe('true');
     expect(r.cmp_cs).toBe('TEST_GDPR_CONSENT_STRING');
     expect(r.referrer).toBe(document.URL);

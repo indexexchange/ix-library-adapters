@@ -168,7 +168,6 @@ function TripleLiftHtb(configs) {
         var requestParams = {
             inv_code: xSlot.inventoryCode, // jshint ignore:line
             lib: 'ix',
-            fe: Browser.isFlashSupported() ? 1 : 0,
             size: Size.arrayToString(xSlot.sizes),
             referrer: Browser.getPageUrl(),
             v: CURRENT_VERSION,
