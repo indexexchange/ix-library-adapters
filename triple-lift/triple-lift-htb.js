@@ -40,6 +40,8 @@ var Whoopsie = require('whoopsie.js');
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+var CURRENT_VERSION = '2.1.2';
+
 /**
  * Triple Lift Header Tag Bidder module.
  *
@@ -169,7 +171,7 @@ function TripleLiftHtb(configs) {
             fe: Browser.isFlashSupported() ? 1 : 0,
             size: Size.arrayToString(xSlot.sizes),
             referrer: Browser.getPageUrl(),
-            v: '2.1',
+            v: CURRENT_VERSION,
             tmax: configs.timeout || 0
         };
 
@@ -331,7 +333,7 @@ function TripleLiftHtb(configs) {
             partnerId: 'TripleLiftHtb',
             namespace: 'TripleLiftHtb',
             statsId: 'TPL',
-            version: '2.1.2',
+            version: CURRENT_VERSION,
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

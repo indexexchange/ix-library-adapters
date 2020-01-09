@@ -36,7 +36,7 @@ function getBidRequestRegex() {
 
 function validateBidRequest(request) {
     var r = request.query;
-    expect(r.v).toBe('2.1');
+    expect(r.v).toBe('2.1.2');
     expect(r.lib).toBe('ix');
     expect(r.inv_code).toBe('test');
     expect(r.size).toBe('300x250');
@@ -49,7 +49,7 @@ function validateBidRequest(request) {
 
 function validateBidRequestWithPrivacy(request) {
     var r = request.query;
-    expect(r.v).toBe('2.1');
+    expect(r.v).toBe('2.1.2');
     expect(r.lib).toBe('ix');
     expect(r.inv_code).toBe('test');
     expect(r.size).toBe('300x250');
