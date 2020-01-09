@@ -3,8 +3,8 @@
 |Feature|  |
 |---|---|
 | Consent | yes |
-| Native Ad Support | No |
-| SafeFrame Support | No |
+| Native Ad Support | no |
+| SafeFrame Support | no |
 | PMP Support | yes |
  
 ## Browser Compatibility
