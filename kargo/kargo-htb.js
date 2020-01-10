@@ -166,7 +166,8 @@ function KargoHtb(configs) {
 
     function __getUserIds(returnParcels) {
         var crb = __getCrb();
-        var uspStatus = ComplianceService.usp.getConsent();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         return {
             kargoID: crb.userId || '',
@@ -174,7 +175,7 @@ function KargoHtb(configs) {
             tdID: __getTDID(returnParcels),
             crbIDs: crb.syncIds || {},
             optOut: crb.optOut || false,
-            usp: uspStatus.uspString
+            usp: privacyEnabled && uspConsentObj ? uspConsentObj.uspString : null
         };
     }
 
