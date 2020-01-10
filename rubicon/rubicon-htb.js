@@ -408,7 +408,6 @@ function RubiconModule(configs) {
         var queryObj = {
             account_id: configs.accountId,
             size_id: rubiSizeIds[0],
-            p_pos: slotFirstPartyData.position ? slotFirstPartyData.position : 'btf',
             rp_floor: 0.01,
             rf: referrer ? referrer : '',
             p_screen_res: Browser.getScreenWidth() + 'x' + Browser.getScreenHeight(),
@@ -419,7 +418,13 @@ function RubiconModule(configs) {
             rand: Math.random(),
             dt: _getDigiTrustQueryParams()
         };
+
+        // Add p_pos only if it exists
+        if (slotFirstPartyData.position) {
+            queryObj.p_pos = slotFirstPartyData.position;
+        }
         /* eslint-enable camelcase */
+
         if (gdprConsent && privacyEnabled && typeof gdprConsent === 'object') {
             if (typeof gdprConsent.applies === 'boolean') {
                 queryObj.gdpr = Number(gdprConsent.applies);
@@ -744,7 +749,7 @@ function RubiconModule(configs) {
             partnerId: 'RubiconHtb',
             namespace: 'RubiconHtb',
             statsId: 'RUBI',
-            version: '2.1.4',
+            version: '2.1.5',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
