@@ -1,3 +1,8 @@
+# 2.1.5
+
+- Adapter changes:
+No longer defaulting the 'p_pos' param to 'btf'.  It will not be included in the bid request if it is not defined
+
 # 2.1.4
  
 - Testing file:
