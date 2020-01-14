@@ -1,3 +1,15 @@
+/**
+ * @author:    Partner
+ * @license:   UNLICENSED
+ *
+ * @copyright: Copyright (c) 2017 by Index Exchange. All rights reserved.
+ *
+ * The information contained within this document is confidential, copyrighted
+ * and or a trade secret. No part of this document may be reproduced or
+ * distributed in any form or by any means, in whole or in part, without the
+ * prior written permission of Index Exchange.
+ */
+
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,16 +24,19 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
+var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('locker-dome-htb-validator.js');
+var PartnerSpecificValidator = require('pub-matic-htb-validator.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
+
+var undef;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
@@ -32,16 +47,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function LockerDomeHtb(configs) {
-    // Endpoint w/ AJAX only
-    if (!Network.isXhrSupported()) {
-        // ? if (DEBUG) {
-        Scribe.warn('Partner lockerdome requires AJAX support. Aborting instantiation.');
-        // ? }
-
-        return null;
-    }
-
+function PubMaticHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -62,6 +68,7 @@ function LockerDomeHtb(configs) {
      * @private {object}
      */
     var __profile;
+    var __globalConfigs;
 
     /* =====================================
      * Functions
@@ -69,6 +76,139 @@ function LockerDomeHtb(configs) {
 
     /* Utilities
      * ---------------------------------- */
+
+    function _parseSlotParam(paramName, paramValue) {
+        if (Utilities.isString(paramValue)) {
+            switch (paramName) {
+                case 'pmzoneid':
+
+                    return paramValue.split(',')
+                        .slice(0, 50)
+                        .map(function (id) {
+                            return id.trim();
+                        })
+                        .join();
+                case 'kadfloor':
+                case 'lat':
+                case 'lon':
+
+                    return parseFloat(paramValue) || undef;
+                case 'yob':
+                    return parseInt(paramValue, 10) || undef;
+
+                default:
+
+                    return paramValue;
+            }
+        } else {
+            return undef;
+        }
+    }
+
+    function __populateImprObject(returnParcels) {
+        var retArr = [];
+        var impObj = {};
+        var sizes = [];
+        var sizeIndex = 0;
+
+        returnParcels.forEach(function (rp) {
+            sizeIndex = 0;
+            impObj = {
+                id: rp.htSlot.getId(),
+                tagId: rp.xSlotRef.adUnitName,
+                secure: 1,
+                bidFloor: _parseSlotParam('kadfloor', __globalConfigs.kadfloor),
+                ext: {
+                    pmZoneId: _parseSlotParam('pmzoneid', rp.pmzoneid)
+                }
+            };
+            sizes = rp.xSlotRef.sizes;
+            impObj.banner = {};
+            impObj.banner.format = [];
+            sizes.forEach(function (size) {
+                if (size.length === 2) {
+                    if (sizeIndex === 0) {
+                        impObj.banner.w = size[0];
+                        impObj.banner.h = size[1];
+                        sizeIndex++;
+                    } else {
+                        impObj.banner.format.push(
+                            {
+                                w: size[0],
+                                h: size[1]
+                            }
+                        );
+                    }
+                }
+            });
+            if (impObj.banner.format.length === 0) {
+                delete impObj.banner.format;
+            }
+            retArr.push(impObj);
+        });
+
+        return retArr;
+    }
+
+    function __populateSiteObject(publisherId) {
+        var retObj = {
+            page: Browser.topWindow.location.href,
+            ref: Browser.topWindow.document.referrer,
+            publisher: {
+                id: publisherId,
+                domain: Browser.topWindow.location.hostname
+            },
+            domain: Browser.topWindow.location.hostname
+        };
+
+        return retObj;
+    }
+
+    function __populateDeviceInfo() {
+        var dnt = Browser.topWindow.navigator.doNotTrack === 'yes'
+                    || Browser.topWindow.navigator.doNotTrack === '1'
+                    || Browser.topWindow.navigator.msDoNotTrack === '1' ? 1 : 0;
+
+        return {
+            ua: Browser.getUserAgent(),
+            js: 1,
+            dnt: dnt,
+            h: Browser.getScreenHeight(),
+            w: Browser.getScreenWidth(),
+            language: Browser.getLanguage(),
+            geo: {
+                lat: _parseSlotParam('lat', __globalConfigs.lat),
+                lon: _parseSlotParam('lon', __globalConfigs.lon)
+            }
+        };
+    }
+
+    function __populateUserInfo(rp, idData) {
+        var userObj = {
+            gender: __globalConfigs.gender ? __globalConfigs.gender.trim() : undef,
+            geo: {
+                lat: _parseSlotParam('lat', __globalConfigs.lat),
+                lon: _parseSlotParam('lon', __globalConfigs.lon)
+            },
+            yob: _parseSlotParam('yob', __globalConfigs.yob)
+        };
+
+        if (idData && idData.hasOwnProperty('AdserverOrgIp') && idData.AdserverOrgIp.hasOwnProperty('data')) {
+            userObj.eids = [idData.AdserverOrgIp.data];
+        }
+
+        return userObj;
+    }
+
+    function __populateExtObject() {
+        var ext = {};
+        ext.wrapper = {};
+        ext.wrapper.wiid = __globalConfigs.wiid || undef;
+        ext.wrapper.transactionId = __globalConfigs.transactionId;
+        ext.wrapper.wp = 'ixjs';
+
+        return ext;
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -78,6 +218,7 @@ function LockerDomeHtb(configs) {
      *
      * @return {object}
      */
+
     function __generateRequestObj(returnParcels) {
         /* =============================================================================
          * STEP 2  | Generate Request URL
@@ -136,11 +277,35 @@ function LockerDomeHtb(configs) {
          * }
          */
 
+        var idData = returnParcels[0] && returnParcels[0].identityData;
+
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var baseUrl = 'https://lockerdome.com/ladbid/indexexchange?cachebuster=' + System.generateUniqueId();
-        var payload = {
-            url: Browser.getPageUrl(),
-            referrer: Browser.getReferrer()
+        var payload = {};
+        var callbackId = System.generateUniqueId();
+        var baseUrl = 'https://hbopenbid.pubmatic.com/translator?source=index-client';
+        payload = {
+            // Str | mandatory
+            id: String(new Date()
+                .getTime()),
+
+            // Int | mandatory
+            at: 1,
+
+            // [str] | opt
+            cur: ['USD'],
+
+            // Obj | mandatory - pending
+            imp: __populateImprObject(returnParcels),
+
+            // Obj | opt
+            site: __populateSiteObject(__globalConfigs.pubId),
+
+            // Obj | mandatory
+            device: __populateDeviceInfo(),
+
+            // Obj | opt
+            user: __populateUserInfo(returnParcels[0], idData),
+            ext: __populateExtObject()
         };
 
         /* ------------------------ Get consent information -------------------------
@@ -156,54 +321,28 @@ function LockerDomeHtb(configs) {
          * The return object should look something like this:
          * {
          *      applies: true,
-         *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
+         *      consentString: 'BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA'
          * }
-         *
-         * You can also determine whether or not the publisher has enabled privacy
-         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
-         *
-         * This function will return a boolean, which indicates whether the wrapper's
-         * privacy features are on (true) or off (false). If they are off, the values
-         * returned from gdpr.getConsent() are safe defaults and no attempt has been
-         * made by the wrapper to contact a Consent Management Platform.
          */
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        if (privacyEnabled) {
+        var isPrivacyEnabled = ComplianceService.isPrivacyEnabled();
+        if (isPrivacyEnabled) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
-            payload.gdpr = {
-                applies: gdprStatus.applies,
+            payload.user.ext = {
                 consent: gdprStatus.consentString
             };
-            var uspStatus = ComplianceService.usp.getConsent();
-            // eslint-disable-next-line camelcase
-            payload.us_privacy = {
-                consent: uspStatus.uspString
+            payload.regs = {
+                ext: {
+                    gdpr: gdprStatus.applies ? 1 : 0
+                }
             };
         }
-
-        /* ---------------- Craft bid request using the above returnParcels --------- */
-
-        var bidRequests = [];
-        var requestIds = [];
-        for (var i = 0; i !== returnParcels.length; i++) {
-            var returnParcel = returnParcels[i];
-            var xSlotRef = returnParcel.xSlotRef;
-            var requestId = returnParcel.requestId;
-            bidRequests.push({
-                adUnitId: xSlotRef.adUnitId,
-                requestId: requestId
-            });
-            requestIds.push(requestId);
-        }
-
-        payload.bidRequests = bidRequests;
-        baseUrl += '&requestIds=' + requestIds.join(',');
 
         /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
             data: payload,
+            callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
                 contentType: 'text/plain'
@@ -287,9 +426,12 @@ function LockerDomeHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse && adResponse.bids;
-        if (!bids) {
-            bids = [];
+        var bids = [];
+        if (adResponse && adResponse.seatbid && Utilities.isArray(adResponse.seatbid)
+          && adResponse.seatbid.length > 0) {
+            for (var ii = 0; ii < adResponse.seatbid.length; ii++) {
+                bids = bids.concat(adResponse.seatbid[ii].bid);
+            }
         }
 
         /* --------------------------------------------------------------------------------- */
@@ -303,20 +445,46 @@ function LockerDomeHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
+            var sizes;
+            var curReturnParcelLen = curReturnParcel.xSlotRef.sizes.length;
+            var bidMatchFound = false;
+
+            if (!bids
+              || !Utilities.isArray(bids)
+              || bids.length === 0
+            ) {
+                if (__profile.enabledAnalytics.requestTime) {
+                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
+                }
+                curReturnParcel.pass = true;
+
+                continue;
+            }
 
             for (var i = 0; i < bids.length; i++) {
-                /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
+                bidMatchFound = false;
+                for (var index = 0; index < curReturnParcelLen; index++) {
+                    sizes = curReturnParcel.xSlotRef.sizes[index];
 
-                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.requestId === bids[i].requestId) {
-                    curBid = bids[i];
-                    bids.splice(i, 1);
+                    /**
+                     * This section maps internal returnParcels and demand returned from the bid request.
+                     * In order to match them correctly, they must be matched via some criteria. This
+                     * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                     * key to a key that represents the placement in the configuration and in the bid responses.
+                    */
+                    if (bids[i].impid === curReturnParcel.htSlot.getId()) {
+                        if (parseInt(bids[i].w, 10) === parseInt(sizes[0], 10)
+                            && parseInt(bids[i].h, 10) === parseInt(sizes[1], 10)) {
+                            curBid = bids[i];
+                            bids.splice(i, 1);
+                            bidMatchFound = true;
 
+                            break;
+                        }
+                    }
+                }
+
+                if (bidMatchFound) {
                     break;
                 }
             }
@@ -337,15 +505,15 @@ function LockerDomeHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.cpm;
+            var bidPrice = curBid.price;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.ad;
+            var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
             var bidDealId = curBid.dealid;
@@ -407,11 +575,7 @@ function LockerDomeHtb(configs) {
             //? if (FEATURES.RETURN_PRICE) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
-
-            var expiry = 0;
-            if (__profile.features.demandExpiry.enabled) {
-                expiry = __profile.features.demandExpiry.value + System.now();
-            }
+            var demandExpiry = __profile.features.demandExpiry;
 
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
@@ -420,8 +584,8 @@ function LockerDomeHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                dealId: bidDealId || null,
-                timeOfExpiry: expiry,
+                dealId: bidDealId || undef,
+                timeOfExpiry: demandExpiry.enabled ? demandExpiry.value + System.now() : 0,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -437,8 +601,8 @@ function LockerDomeHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-        ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
+        ComplianceService = SpaceCamp.services.ComplianceService;
 
         /* =============================================================================
          * STEP 1  | Partner Configuration
@@ -449,38 +613,50 @@ function LockerDomeHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'LockerDomeHtb',
-            namespace: 'LockerDomeHtb',
-            statsId: 'LKDM',
-            version: '2.1.0',
+
+            // PartnerName
+            partnerId: 'PubmaticHtb',
+
+            // Should be same as partnerName
+            namespace: 'PubmaticHtb',
+
+            // Unique partner identifier
+            statsId: 'PUBM',
+            version: '2.1.3',
             targetingType: 'slot',
             enabledAnalytics: {
-                requestTime: true
+                requestTime: !0
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
+                    enabled: !1,
                     value: 0
                 },
                 rateLimiting: {
-                    enabled: false,
+                    enabled: !1,
                     value: 0
                 }
             },
 
-            /* Targeting keys for demand, should follow format ix_{statsId}_id */
+            // Targeting keys for demand, should follow format ix_{statsId}_id
             targetingKeys: {
-                id: 'ix_lkdm_id',
-                om: 'ix_lkdm_cpm',
-                pm: 'ix_lkdm_cpm',
-                pmid: 'ix_lkdm_dealid'
+                id: 'ix_pubm_id',
+                om: 'ix_pubm_om',
+                pm: 'ix_pubm_om',
+                pmid: 'ix_pubm_dealid'
             },
 
-            /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
+            // The bid price unit (in cents) the endpoint returns, please refer to the readme for details
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
+
+            // Callback type, please refer to the readme for details
             callbackType: Partner.CallbackTypes.NONE,
-            architecture: Partner.Architectures.FSRA,
+
+            // Request architecture, please refer to the readme for details
+            architecture: Partner.Architectures.SRA,
+
+            // Request type, jsonp, ajax, or any.
             requestType: Partner.RequestTypes.AJAX
         };
 
@@ -493,7 +669,18 @@ function LockerDomeHtb(configs) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
+        __globalConfigs = {
+            pubId: configs.publisherId,
 
+            /* Pubmatic specific values. required in the api request */
+            lat: configs.lat || undef,
+            lon: configs.lon || undef,
+            yob: configs.yob || undef,
+            gender: configs.gender || undef,
+            kadfloor: configs.kadfloor || undef,
+            profile: configs.profile || undef,
+            version: configs.version || undef
+        };
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
@@ -510,7 +697,7 @@ function LockerDomeHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'LockerDomeHtb',
+        __type__: 'PubMaticHtb',
         //? }
 
         //? if (TEST) {
@@ -541,4 +728,4 @@ function LockerDomeHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = LockerDomeHtb;
+module.exports = PubMaticHtb;
