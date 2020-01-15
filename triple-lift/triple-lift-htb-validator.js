@@ -32,7 +32,7 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * https://atinux.fr/schema-inspector/.
  */
 
-var partnerValidator = function (configs) {
+function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
@@ -52,7 +52,7 @@ var partnerValidator = function (configs) {
                                     type: 'array',
                                     exactLength: 2,
                                     items: {
-                                        type: 'integer',
+                                        type: 'integer'
                                     }
                                 }
                             },
@@ -73,6 +73,6 @@ var partnerValidator = function (configs) {
     }
 
     return null;
-};
+}
 
 module.exports = partnerValidator;
