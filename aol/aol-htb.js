@@ -167,7 +167,8 @@ function AOLHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
+        var gdprConsent = ComplianceService.gdpr.getConsent();
+        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
@@ -193,10 +194,13 @@ function AOLHtb(configs) {
             requestParams.bidFloor = xSlot.bidFloor;
         }
 
-        if (privacyEnabled && gdprStatus.applies) {
-            requestParams.gdpr = 1;
-            if (gdprStatus.consentString) {
-                requestParams.euconsent = gdprStatus.consentString;
+        if (privacyEnabled) {
+            requestParams.gdpr = gdprConsent.applies ? '1' : '0';
+            if (gdprConsent.consentString) {
+                requestParams.euconsent = gdprConsent.consentString;
+            }
+            if (uspConsent) {
+                requestParams.us_privacy = uspConsent.uspString;
             }
         }
 
