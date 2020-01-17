@@ -46,10 +46,11 @@
 | wtimeout | No | number | Represents wrapper timeout value in milliseconds. Is obtained via wrapper API on page and wrapper load |
 | gdpr_consent | No | string | Shows whether GDPR regulations should apply to the user or not |
 | gdpr_applies | No | string | Shows whether the user has given its consent based on IAB consent policy |
+| us_privacy | No | string | The USP consent string, specifies whether US privacy laws (e.g. CCPA) apply or don't apply to the user in the bid request |
  
 ### Example
 ```javascript
- https://sofia.trustx.org/hb?auids=44%2C9045&u=http%3A%2F%2Flocalhost%3A5837%2Fpublic%2Fdebugger%2Fadapter-debugger.html&cb=window.headertag.TrustXHtb.adResponseCallbacks._0RXiEn86&gdpr_consent=TEST_GDPR_CONSENT_STRING&gdpr_applies=1&wtimeout=5000
+ https://sofia.trustx.org/hb?auids=44%2C9045&u=http%3A%2F%2Flocalhost%3A5837%2Fpublic%2Fdebugger%2Fadapter-debugger.html&cb=window.headertag.TrustXHtb.adResponseCallbacks._0RXiEn86&gdpr_consent=TEST_GDPR_CONSENT_STRING&gdpr_applies=1&us_privacy=1YYN&wtimeout=5000
 ```
  
 ## Bid Response Information
