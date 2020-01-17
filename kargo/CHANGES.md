@@ -1,3 +1,8 @@
+Version 2.3.0
+=============
+
+- Add CCPA support
+
 Version 2.0.0
 =============
 
