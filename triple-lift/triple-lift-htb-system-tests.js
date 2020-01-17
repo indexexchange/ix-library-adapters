@@ -43,7 +43,7 @@ function validateBidRequest(request) {
     expect(r.cmp_cs).toBe('');
     expect(r.gdpr).toBe('false');
     expect(r.referrer).toBe(document.URL);
-    expect(r.tmax).toBe('0');
+    expect(r.tmax).toBe('100000');
 }
 
 function validateBidRequestWithPrivacy(request) {
@@ -55,7 +55,7 @@ function validateBidRequestWithPrivacy(request) {
     expect(r.gdpr).toBe('true');
     expect(r.cmp_cs).toBe('TEST_GDPR_CONSENT_STRING');
     expect(r.referrer).toBe(document.URL);
-    expect(r.tmax).toBe('0');
+    expect(r.tmax).toBe('100000');
 }
 
 function getValidResponse(request, creative) {

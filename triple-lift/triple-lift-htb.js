@@ -171,7 +171,7 @@ function TripleLiftHtb(configs) {
             size: Size.arrayToString(xSlot.sizes),
             referrer: Browser.getPageUrl(),
             v: CURRENT_VERSION,
-            tmax: configs.timeout || 0
+            tmax: SpaceCamp.globalTimeout || 0
         };
 
         if (privacyEnabled) {
