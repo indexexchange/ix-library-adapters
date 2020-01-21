@@ -48,6 +48,7 @@
 |device|Yes|Object| object contains information of browser, w,h of device,DONOTTRACK flag,language and geo |
 |user|No|Object| object contains information of gender, yob, userIds |
 |ext|No|Object| object contains information of wrapper profile and version info |
+|regs|No|Object| object contains information about gdpr enabled or not and info about ccpa consent |
  
 ### Example
 ```javascript
@@ -139,7 +140,13 @@
  			"transactionId": "a7e544a8-db2b-48a4-bfd3-31f5eb1fcf45",
  			"wp": "ixjs"
  		}
- 	}
+	 },
+	 "regs":{
+		 "ext":{
+			 gdpr:1,
+			 us_privacy:"1NNFY"
+		 }
+	 }
  }
 ```
  
