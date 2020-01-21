@@ -191,7 +191,7 @@ function UndertoneHtb(configs) {
                 }
             }
 
-            var baseUrl = Browser.getProtocol() + '//hb.undertone.com/hb';
+            var baseUrl = 'https://hb.undertone.com/hb';
             requestUrl = baseUrl + '?pid=' + pubId + '&domain=' + domain;
 
             bidsArray.push({
