@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | ix_undr_cpm |
 | GAM Key (Private Market) | ix_undr_cpm |
-| Ad Server URLs | //hb.undertone.com/hb |
+| Ad Server URLs | https://hb.undertone.com/hb |
 | Slot Mapping Sytle (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | SRA |
 
@@ -52,7 +52,7 @@ USD
 
 ### Example
 ```javascript
-//hb.undertone.com/hb?pid=12345&domain=test.com
+https://hb.undertone.com/hb?pid=12345&domain=test.com
 {
 	"x-ut-hb-params": [{
 		"bidRequestId": "LLRNRqm9",
