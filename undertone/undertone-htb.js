@@ -251,10 +251,10 @@ function UndertoneHtb(configs) {
             consentString = gdprConsent.consentString;
         }
 
-        if (ComplianceService.isPrivacyEnabled() && ComplianceService.usp.getConsent()) {
+        if (ComplianceService.isPrivacyEnabled() && ComplianceService.usp && ComplianceService.usp.getConsent()) {
             uspString = ComplianceService.usp.getConsent();
         }
-        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString + '&ccpa=' + uspString;
+        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString + '&ccpa=' + uspString.uspString;
 
         /* -------------------------------------------------------------------------- */
 
