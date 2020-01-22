@@ -252,9 +252,9 @@ function UndertoneHtb(configs) {
         }
 
         if (ComplianceService.isPrivacyEnabled() && ComplianceService.usp && ComplianceService.usp.getConsent()) {
-            uspString = ComplianceService.usp.getConsent();
+            uspString = ComplianceService.usp.getConsent().uspString;
         }
-        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString + '&ccpa=' + uspString.uspString;
+        requestUrl += '&gdpr=' + gdprValue + '&gdprstr=' + consentString + '&ccpa=' + uspString;
 
         /* -------------------------------------------------------------------------- */
 
