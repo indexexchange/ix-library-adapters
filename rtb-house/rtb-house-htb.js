@@ -141,7 +141,7 @@ function RTBHouseHtb(configs) {
                 name: Browser.getHostname(),
             },
             cur: ['USD'],
-            'test': 0,
+            test: 1,
             source: {
             },
             regs: {
@@ -158,8 +158,8 @@ function RTBHouseHtb(configs) {
         var ENDPOINT_URL = 'todo.later.creativecdn.com/bidder/prebid/bids'; //TODO
         var baseUrl = Browser.getProtocol() + '//' + configs.region + '.' + ENDPOINT_URL; //TODO
         // uncomment to use designated endpoint (unfinished)
-        // var ENDPOINT_URL = 'ixwrapper-c2s-ams.creativecdn.com/bidder/ixwrapper/bids'; //TODO
-        // var baseUrl = Browser.getProtocol() + '//' /*+ configs.region + '.'*/ + ENDPOINT_URL; //TODO
+        var ENDPOINT_URL = 'ixwrapper-c2s-ams.creativecdn.com/bidder/ixwrapper/bids'; //TODO
+        var baseUrl = Browser.getProtocol() + '//' /*+ configs.region + '.'*/ + ENDPOINT_URL; //TODO
 
 
         /* ------------------------ Get consent information -------------------------
@@ -211,12 +211,11 @@ function RTBHouseHtb(configs) {
             /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
         if (privacyEnabled) {
             queryObj.user.ext.consent = gdprStatus.consentString;
-            queryObj.regs.ext.gdpr = gdprStatus.applies ? 1 : 0
+            queryObj.regs.ext.gdpr = gdprStatus.applies ? 1 : 1; //TODO: revert, "1" for testing
         }
 
 
         /* -------------------------------------------------------------------------- */
-
         return {
             url: baseUrl,
             data: queryObj,

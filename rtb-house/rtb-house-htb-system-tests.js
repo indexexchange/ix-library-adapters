@@ -38,7 +38,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /prebid-eu|asia|us\.creativecdn\.com\/bidder\/prebid\/bids/
+        urlRegex: /creativecdn/ //TODO: finalize
     };
 }
 
@@ -57,7 +57,7 @@ function validateBidRequest(request) {
             })
         }
             ),
-        test: 0,
+        test: 1,
         cur: ["USD"],
         imp: jasmine.any(Array),
         id: jasmine.any(String),
@@ -79,9 +79,10 @@ function validateBidRequest(request) {
 
 
 function validateTargeting(targetingMap) {
+    // debugger;
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_rtb_cpm: jasmine.arrayContaining('300x250_200'),
-        ix_rtb_id: jasmine.arrayContaining(jasmine.any(String))
+        ix_rtb_cpm: jasmine.arrayContaining(['300x250_200']),
+        ix_rtb_id: jasmine.arrayContaining([jasmine.any(String)])
     }));
 }
 
@@ -105,6 +106,7 @@ function getValidResponse(request, creative) {
                     h: 250
                 }
     ];
+
     return JSON.stringify(response);
 }
 
