@@ -15,6 +15,7 @@ var Network = require('network.js');
 var Utilities = require('utilities.js');
 
 var RenderService;
+var ComplianceService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
@@ -200,30 +201,37 @@ function ConsumableHtb(configs) {
          * made by the wrapper to contact a Consent Management Platform.
          */
 
+        var data = {
+            placements: returnParcels.map(function (parcel) {
+                return {
+                    networkId: parcel.xSlotRef.networkId,
+                    siteId: parcel.xSlotRef.siteId,
+                    zoneIds: parcel.xSlotRef.zoneIds,
+                    unitId: parcel.xSlotRef.unitId,
+                    unitName: parcel.xSlotRef.unitName,
+                    divName: parcel.xSlotName,
+                    adTypes: parcel.xSlotRef.sizes
+                        .map(sizeToAdType)
+                        .filter(Utilities.isNumber)
+                };
+            }),
+            time: System.now(),
+            user: {},
+            url: Browser.getPageUrl(),
+            referrer: Browser.getReferrer(),
+            enableBotFiltering: true,
+            includePricingData: true,
+            parallel: true
+        };
+
+        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
+        if (uspConsent) {
+            data.ccpa = uspConsent.uspString;
+        }
+
         return {
             url: Browser.getProtocol() + '//e.serverbid.com/api/v2',
-            data: {
-                placements: returnParcels.map(function (parcel) {
-                    return {
-                        networkId: parcel.xSlotRef.networkId,
-                        siteId: parcel.xSlotRef.siteId,
-                        zoneIds: parcel.xSlotRef.zoneIds,
-                        unitId: parcel.xSlotRef.unitId,
-                        unitName: parcel.xSlotRef.unitName,
-                        divName: parcel.xSlotName,
-                        adTypes: parcel.xSlotRef.sizes
-                            .map(sizeToAdType)
-                            .filter(Utilities.isNumber)
-                    };
-                }),
-                time: System.now(),
-                user: {},
-                url: Browser.getPageUrl(),
-                referrer: Browser.getReferrer(),
-                enableBotFiltering: true,
-                includePricingData: true,
-                parallel: true
-            },
+            data: data,
             callbackId: callbackId,
             networkParamOverrides: {
                 method: 'POST',
@@ -418,6 +426,7 @@ function ConsumableHtb(configs) {
 
     (function __constructor() {
         RenderService = SpaceCamp.services.RenderService;
+        ComplianceService = SpaceCamp.services.ComplianceService;
 
         /* =============================================================================
          * STEP 1  | Partner Configuration
