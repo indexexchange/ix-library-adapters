@@ -12,6 +12,7 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
+var Utilities = require('utilities.js');
 
 var RenderService;
 
@@ -210,9 +211,7 @@ function ConsumableHtb(configs) {
                         divName: parcel.xSlotName,
                         adTypes: parcel.xSlotRef.sizes
                             .map(sizeToAdType)
-                            .filter(function (adType) {
-                                return typeof adType === 'number';
-                            })
+                            .filter(Utilities.isNumber)
                     };
                 }),
                 time: System.now(),
