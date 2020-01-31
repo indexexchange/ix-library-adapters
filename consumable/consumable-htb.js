@@ -208,6 +208,8 @@ function ConsumableHtb(configs) {
                         networkId: parcel.xSlotRef.networkId,
                         siteId: parcel.xSlotRef.siteId,
                         zoneIds: parcel.xSlotRef.zoneIds,
+                        unitId: parcel.xSlotRef.unitId,
+                        unitName: parcel.xSlotRef.unitName,
                         divName: parcel.xSlotName,
                         adTypes: parcel.xSlotRef.sizes
                             .map(sizeToAdType)
