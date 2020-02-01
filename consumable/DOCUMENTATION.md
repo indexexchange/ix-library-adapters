@@ -132,12 +132,21 @@ USD $
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| networkId | Yes | String | Network ID |
-| siteId | Yes | String | Site ID |
-| zoneIds | Yes | Array\<Integer\> | Zone IDs |
-| unitId | Yes | String | Unit ID |
-| unitName | Yes | String | Unit Name |
-| sizes | Yes | Array\<\[Integer, Integer\]\> | Possible sizes of the ad in pixels (\[width, height\]) |
+| `networkId` | Yes | `String` | Network ID (supplied by Consumable) |
+| `siteId` | Yes | `String` | Site ID (supplied by Consumable) |
+| `zoneIds` | No | `Array\<Integer\>` | Zone IDs (supplied by Consumable) |
+| `unitId` | Yes | `String` | Unit ID (supplied by Consumable) |
+| `unitName` | Yes | `String` | Unit Name (supplied by Consumable) |
+| `sizes` | Yes | `Array\<\[Integer, Integer\]\>` | Possible sizes of the ad in pixels (`\[width, height\]`) |
 
 ### Example
-Not sure how this is different than the bid request parameters.
+```
+{
+    "networkId": "9969",
+    "siteId": "1029010",
+    "zoneIds": [187327],
+    "unitId": "4508",
+    "unitName": "cnsmbl-audio-320x50-slider",
+    "sizes": [[320, 50]]
+}
+```
