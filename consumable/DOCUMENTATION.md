@@ -2,7 +2,7 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent | No |
+| Consent | Yes |
 | Native Ad Support | Yes |
 | SafeFrame Support | Yes |
 | PMP Support | No |
