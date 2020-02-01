@@ -50,6 +50,11 @@ function validateBidRequest(request) {
     expect(request.host).toBe('e.serverbid.com');
     expect(request.pathname).toBe('/api/v2');
     expect(request.query).toEqual({});
+
+    var data = JSON.parse(request.body);
+    expect(data.gdpr).toBeDefined();
+    expect(data.gdpr.applies).toBeDefined();
+    expect(data.gdpr.consent).toBeDefined();
 }
 
 function getValidResponse(request, creative) {
