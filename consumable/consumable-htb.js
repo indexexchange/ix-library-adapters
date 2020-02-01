@@ -225,8 +225,16 @@ function ConsumableHtb(configs) {
         };
 
         var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
-        if (uspConsent) {
+        if (uspConsent && uspConsent.uspString) {
             data.ccpa = uspConsent.uspString;
+        }
+
+        var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
+        if (gdprConsent) {
+            data.gdpr = {
+                applies: gdprConsent.applies,
+                consent: gdprConsent.consentString
+            };
         }
 
         return {
