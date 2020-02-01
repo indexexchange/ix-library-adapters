@@ -42,33 +42,47 @@ USD $
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| unitId | Yes | Integer | |
-| unitName | Yes | Integer | |
-| siteId | Yes | Integer | |
-| networkId | Yes | Integer | |
-| zoneIds | Yes | Array   | |
+| `placements` | Yes | `Array\<Placement\>` | List of ad placements (slots) to bid on |
+| `time` | Yes | `Integer` | Time and date of the request as milliseconds elapsed since January 1, 1970 |
+| `user` | Yes | `Object` | Currently always an empty object |
+| `url` | Yes | `String` | URL of the current page |
+| `referrer` | No | `String` | URL of the referrer |
+| `enableBotFiltering` | Yes | `Boolean` | Always `true` |
+| `includePricingData` | Yes | `Boolean` | Always `true` |
+| `parallel` | Yes | `Boolean` | Always `true` |
+
+### Placement
+| Key | Required | Type | Description |
+| --- | --- | --- | --- |
+| `divName` | Yes | `String` | Name of the slot to bid on |
+| `adTypes` | Yes | `Array\<Integer\>` | List of IDs that determines possible ad sizes |
+| `siteId` | Yes | `String` | Fixed identifier supplied by Consumable |
+| `networkId` | Yes | `String` | Fixed identifier supplied by Consumable |
+| `zoneIds` | No | `Array\<Integer\>` | List of fixed identifiers supplied by Consumable
+| `unitId` | No | `String` | Fixed identifier supplied by Consumable |
+| `unitName` | No | `String` | Fixed identifier supplied by Consumable |
  
 ### Example
 ```json
 {  
    "placements":[  
       {  
-         "divName":"28cbf8f87b7d5",
-         "adTypes":[5],
-         "siteId":"1035514",
-         "networkId":"9969",
-         "zoneIds":[188825]
+         "divName": "28cbf8f87b7d5",
+         "adTypes": [5],
+         "siteId": "1035514",
+         "networkId": "9969",
+         "zoneIds": [188825],
+         "unitId": "4508",
+         "unitName": "cnsmbl-audio-320x50-slider"
       }
    ],
-   "time":1538599207715,
-   "user":{  
-
-   },
-   "url":"http://domain.com/",
-   "referrer":"http://domain.com/index.html",
-   "enableBotFiltering":true,
-   "includePricingData":true,
-   "parallel":true  
+   "time": 1538599207715,
+   "user": {},
+   "url": "http://example.com/page/path",
+   "referrer": "http://example.com/another/page",
+   "enableBotFiltering": true,
+   "includePricingData": true,
+   "parallel": true  
 }
 ```
 
