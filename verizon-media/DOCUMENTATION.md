@@ -42,7 +42,12 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| dcn | true | String | Distribution Channel Number - the unique site/publisher ID for VZM SSP |
+| pos | true | String | The position/placement ID that is required to be filled |
+| secure | true | Number | Numerical flag indicating if the request is secure. MUST be 1 |
+| gdpr | true | Number | 0 or 1 to signify if GDPR consent applies |
+| euconsent | true | String | Encoded consent string of the user (for GDPR) |
+| us_privacy | false | String | Encoded consent string of the user (for USP/CCPA) |
  
 ### Example
 ```javascript
