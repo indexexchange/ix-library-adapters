@@ -41,7 +41,13 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| v | true | Number | Version of the API call. Value MUST be 2 |
+| cmd | true | String | Command that the ad server should execute. Value MUST be 'bid' |
+| gdpr | true | Number | 0 or 1 to signify if GDPR consent applies |
+| euconsent | true | String | Encoded consent string of the user (for GDPR) |
+| us_privacy | false | String | Encoded consent string of the user (for USP/CCPA) |
+| cors | true | String | Parameter indicating that the request requires CORS headers. Value MUST be 'yes' |
+| misc | true | String | Cache-busting string or numerical value |
  
 ### Example
 ```javascript
