@@ -55,7 +55,7 @@ function getValidResponse(request, creative) {
                 inviews: []
             },
             prebid_id: prebid_id,
-            price: 200,
+            price: 2,
             currency: 'JPY',
             creative_id: '10410582'
         },
