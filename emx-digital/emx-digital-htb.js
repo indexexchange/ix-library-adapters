@@ -170,8 +170,8 @@ function BRealTimeHtb(configs) {
                 };
             }
 
-            if (ccpaStatus) {
-                __emxData.us_privacy = ccpaStatus;
+            if (ccpaStatus && ccpaStatus.hasOwnProperty('uspString')) {
+                __emxData.us_privacy = ccpaStatus.uspString;
             }
 
             /* eslint-enable camelcase */
