@@ -304,6 +304,40 @@ function RubiconModule(configs) {
     }
 
     /**
+     * Properly sorts schain object params
+     * @param {Array} nodes
+     * @returns {String}
+     */
+    function __serializeSupplyChainNodes(nodes) {
+        return nodes.map(function(node) {
+            return ['asi', 'sid', 'hp', 'rid', 'name', 'domain'].map(function(prop) {
+                return encodeURIComponent(node[prop] || '');
+            }).join(',');
+        }).join('!');
+    }
+
+    /**
+     * Serializes schain params according to OpenRTB requirements
+     * @param {Object} schain
+     * @returns {String}
+     */
+    function __serializeSupplyChain(schain) {
+        if (!__hasValidSupplyChainParams(schain)) return '';
+        return schain.ver + ',' + schain.complete + '!' + __serializeSupplyChainNodes(schain.nodes);
+    }
+
+    function __hasValidSupplyChainParams(schain) {
+        if (!schain.nodes) return false;
+        // if (!isValid) utils.logError('Rubicon: required schain params missing');
+        return schain.nodes.reduce(function(status, node) {
+            if (!status) return status;
+            return ['asi', 'sid', 'hp'].every(function(field) {
+                return node[field];
+            });
+        }, true);
+    }
+
+    /**
      * Generates the request URL to the endpoint for the xSlots in the given
      * returnParcels.
      *
@@ -402,9 +436,6 @@ function RubiconModule(configs) {
         var rubiSizeIds = __mapSizesToRubiconSizeIds(parcel.xSlotRef.sizes);
         var referrer = Browser.getPageUrl();
 
-        var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
-        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
         /* eslint-disable camelcase */
         var queryObj = {
             account_id: configs.accountId,
@@ -424,24 +455,29 @@ function RubiconModule(configs) {
         if (slotFirstPartyData.position) {
             queryObj.p_pos = slotFirstPartyData.position;
         }
-        /* eslint-enable camelcase */
 
-        if (privacyEnabled) {
+        if (ComplianceService.isPrivacyEnabled()) {
+            var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
+            var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
+
             if (gdprConsent && typeof gdprConsent === 'object') {
                 if (typeof gdprConsent.applies === 'boolean') {
                     queryObj.gdpr = Number(gdprConsent.applies);
                 }
-                /* eslint-disable camelcase */
                 queryObj.gdpr_consent = gdprConsent.consentString;
-                /* eslint-enable camelcase */
             }
 
-            if (uspConsent && typeof uspConsent === 'object' && uspConsent.hasOwnProperty('uspString')) {
-                /* eslint-disable camelcase */
+            if (uspConsent && typeof uspConsent === 'object') {
                 queryObj.us_privacy = encodeURIComponent(uspConsent.uspString);
-                /* eslint-enable camelcase */
             }
         }
+
+        // if SupplyChain is supplied and contains all required fields
+        if (parcel.schain && __hasValidSupplyChainParams(parcel.schain)) {
+            queryObj.rp_schain = __serializeSupplyChain(parcel.schain);
+        }
+
+        /* eslint-enable camelcase */
 
         for (var pageInv in pageFirstPartyData.inventory) {
             if (!pageFirstPartyData.inventory.hasOwnProperty(pageInv)) {
@@ -495,10 +531,9 @@ function RubiconModule(configs) {
         }
 
         if (rubiSizeIds.length > 1) {
-            /* eslint-disable camelcase */
+            // eslint-disable-next-line camelcase
             queryObj.alt_size_ids = rubiSizeIds.slice(1)
                 .join(',');
-            /* eslint-enable camelcase */
         }
 
         return {
@@ -758,7 +793,7 @@ function RubiconModule(configs) {
             partnerId: 'RubiconHtb',
             namespace: 'RubiconHtb',
             statsId: 'RUBI',
-            version: '2.1.5',
+            version: '2.1.6',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
