@@ -403,6 +403,7 @@ function RubiconModule(configs) {
         var referrer = Browser.getPageUrl();
 
         var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
+        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
         /* eslint-disable camelcase */
         var queryObj = {
@@ -425,13 +426,21 @@ function RubiconModule(configs) {
         }
         /* eslint-enable camelcase */
 
-        if (gdprConsent && privacyEnabled && typeof gdprConsent === 'object') {
-            if (typeof gdprConsent.applies === 'boolean') {
-                queryObj.gdpr = Number(gdprConsent.applies);
+        if (privacyEnabled) {
+            if (gdprConsent && typeof gdprConsent === 'object') {
+                if (typeof gdprConsent.applies === 'boolean') {
+                    queryObj.gdpr = Number(gdprConsent.applies);
+                }
+                /* eslint-disable camelcase */
+                queryObj.gdpr_consent = gdprConsent.consentString;
+                /* eslint-enable camelcase */
             }
-            /* eslint-disable camelcase */
-            queryObj.gdpr_consent = gdprConsent.consentString;
-            /* eslint-enable camelcase */
+
+            if (uspConsent && typeof uspConsent === 'object' && uspConsent.hasOwnProperty('uspString')) {
+                /* eslint-disable camelcase */
+                queryObj.us_privacy = encodeURIComponent(uspConsent.uspString);
+                /* eslint-enable camelcase */
+            }
         }
 
         for (var pageInv in pageFirstPartyData.inventory) {
