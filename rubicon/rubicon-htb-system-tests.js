@@ -47,6 +47,11 @@ function validateBidRequestWithPrivacy(request) {
     expect(r.gdpr_consent).toBe('TEST_GDPR_CONSENT_STRING');
 }
 
+function validateBidRequestWithCCPA(request) {
+    var request = request.query;
+
+}
+
 function getConfig() {
     return {
         accountId: '1234',
@@ -54,7 +59,23 @@ function getConfig() {
             1: {
                 siteId: '112233',
                 zoneId: '556677',
-                sizes: [[300, 250], [300, 600]]
+                sizes: [[300, 250], [300, 600]],
+                schain: {
+                    validation: 'strict',
+                    config: {
+                        ver: '1.0',
+                        complete: 1,
+                        nodes: [{
+                            asi: 'indirectseller.com',
+                            sid: '00001',
+                            hp: 1
+                        }, {
+                            asi: 'indirectseller-2.com',
+                            sid: '00002',
+                            hp: 1
+                        }]
+                    }
+                }
             }
         }
     };

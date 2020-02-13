@@ -372,7 +372,6 @@ function RubiconModule(configs) {
                                 strict: true,
                                 properties: {
                                     keywords: {
-                                        optional: true,
                                         type: 'array',
                                         items: {
                                             type: 'string'
@@ -403,6 +402,15 @@ function RubiconModule(configs) {
                                     position: {
                                         optional: true,
                                         type: 'string'
+                                    },
+                                    schain: {
+                                        optional: true,
+                                        type: 'object',
+                                        properties: {
+                                            nodes: {
+                                                type: 'object'
+                                            }
+                                        }
                                     }
                                 }
                             }
