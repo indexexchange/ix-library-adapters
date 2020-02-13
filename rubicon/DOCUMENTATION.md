@@ -41,27 +41,11 @@
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| gdpr | No | object | An object noting whether GDPR applies (`applies` field) and the consent string (`consent` field) |
-| us_privacy | No | object | An object noting the USP consent string (`consent` field) |
 | | | | |
  
 ### Example
-```json
-{ 
-  "url": "https://localhost:5838/public/debugger/adapter-debugger.html",
-  "referrer": "https://localhost:5838/public/debugger/adapter-debugger.html",
-  "gdpr": {
-    "applies": true,
-    "consent": "TEST_GDPR_CONSENT_STRING"
-  },
-  "us_privacy": {
-    "consent": "TEST_USP_CONSENT_STRING"
-  },
-  "bidRequests": [{
-      "adUnitId": "10809467961050726",
-      "requestId": "_hK5vIC5I"
-  }]
-}
+```javascript
+ 
 ```
  
 ## Bid Response Information
