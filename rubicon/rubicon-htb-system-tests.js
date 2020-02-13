@@ -38,7 +38,7 @@ function validateBidRequest(request) {
 
     expect(r.rf).toEqual(jasmine.anything());
 
-    expect(r.schain).toBeDefined();
+    expect(r.rp_schain).toBeDefined();
 }
 
 function validateBidRequestWithPrivacy(request) {
