@@ -37,6 +37,8 @@ function validateBidRequest(request) {
     expect(r.alt_size_ids).toBe('10');
 
     expect(r.rf).toEqual(jasmine.anything());
+
+    expect(r.schain).toBeDefined();
 }
 
 function validateBidRequestWithPrivacy(request) {
@@ -45,11 +47,8 @@ function validateBidRequestWithPrivacy(request) {
     expect(r.gdpr).toBe('1');
 
     expect(r.gdpr_consent).toBe('TEST_GDPR_CONSENT_STRING');
-}
 
-function validateBidRequestWithCCPA(request) {
-    var request = request.query;
-
+    expect(r.us_privacy).toBeDefined();
 }
 
 function getConfig() {
@@ -59,24 +58,21 @@ function getConfig() {
             1: {
                 siteId: '112233',
                 zoneId: '556677',
-                sizes: [[300, 250], [300, 600]],
-                schain: {
-                    validation: 'strict',
-                    config: {
-                        ver: '1.0',
-                        complete: 1,
-                        nodes: [{
-                            asi: 'indirectseller.com',
-                            sid: '00001',
-                            hp: 1
-                        }, {
-                            asi: 'indirectseller-2.com',
-                            sid: '00002',
-                            hp: 1
-                        }]
-                    }
-                }
+                sizes: [[300, 250], [300, 600]]
             }
+        },
+        schain: {
+            ver: '1.0',
+            complete: 1,
+            nodes: [{
+                asi: 'indirectseller.com',
+                sid: '00001',
+                hp: 1
+            }, {
+                asi: 'indirectseller-2.com',
+                sid: '00002',
+                hp: 1
+            }]
         }
     };
 }

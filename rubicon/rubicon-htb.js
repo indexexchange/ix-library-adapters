@@ -308,6 +308,7 @@ function RubiconModule(configs) {
      * @param {Array} nodes
      * @returns {String}
      */
+
     function __serializeSupplyChainNodes(nodes) {
         return nodes.map(function(node) {
             return ['asi', 'sid', 'hp', 'rid', 'name', 'domain'].map(function(prop) {
@@ -321,14 +322,20 @@ function RubiconModule(configs) {
      * @param {Object} schain
      * @returns {String}
      */
+
     function __serializeSupplyChain(schain) {
         if (!__hasValidSupplyChainParams(schain)) return '';
         return schain.ver + ',' + schain.complete + '!' + __serializeSupplyChainNodes(schain.nodes);
     }
 
+    /**
+     * Validate schain params
+     * @param {Object} schain
+     * @returns {boolean}
+     */
+
     function __hasValidSupplyChainParams(schain) {
         if (!schain.nodes) return false;
-        // if (!isValid) utils.logError('Rubicon: required schain params missing');
         return schain.nodes.reduce(function(status, node) {
             if (!status) return status;
             return ['asi', 'sid', 'hp'].every(function(field) {
@@ -402,15 +409,6 @@ function RubiconModule(configs) {
                                     position: {
                                         optional: true,
                                         type: 'string'
-                                    },
-                                    schain: {
-                                        optional: true,
-                                        type: 'object',
-                                        properties: {
-                                            nodes: {
-                                                type: 'object'
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -466,8 +464,6 @@ function RubiconModule(configs) {
 
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprConsent = ComplianceService.gdpr && ComplianceService.gdpr.getConsent();
-            var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
-
             if (gdprConsent && typeof gdprConsent === 'object') {
                 if (typeof gdprConsent.applies === 'boolean') {
                     queryObj.gdpr = Number(gdprConsent.applies);
@@ -475,14 +471,15 @@ function RubiconModule(configs) {
                 queryObj.gdpr_consent = gdprConsent.consentString;
             }
 
+            var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
             if (uspConsent && typeof uspConsent === 'object') {
                 queryObj.us_privacy = encodeURIComponent(uspConsent.uspString);
             }
         }
 
-        // if SupplyChain is supplied and contains all required fields
-        if (parcel.schain && __hasValidSupplyChainParams(parcel.schain)) {
-            queryObj.rp_schain = __serializeSupplyChain(parcel.schain);
+        // Add schain if it exists and contains all required fields
+        if (configs.schain && __hasValidSupplyChainParams(configs.schain)) {
+            queryObj.rp_schain = __serializeSupplyChain(configs.schain);
         }
 
         /* eslint-enable camelcase */
