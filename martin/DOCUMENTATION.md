@@ -13,15 +13,15 @@
 | Chrome | Yes |
 | Edge | Yes |
 | Firefox | Yes |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
+| Internet Explorer 9 | No |
+| Internet Explorer 10 | No |
+| Internet Explorer 11 | No |
 | Safari | Yes |
 | Mobile Chrome | Yes |
 | Mobile Safari | Yes |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| UC Browser | No |
+| Samsung Internet | No |
+| Opera | No |
  
 ## Adapter Information
 | Info | |
