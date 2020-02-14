@@ -161,6 +161,10 @@ function MartinHtb(configs) {
             || Browser.topWindow.navigator.doNotTrack === '1'
             || Browser.topWindow.navigator.msDoNotTrack === '1' ? 1 : 0;
 
+        var isMobile = (/(ios|ipod|ipad|iphone|android)/i).test(Browser.getUserAgent());
+        var mobileType = 1;
+        var desktopType = 2;
+
         return {
             ua: Browser.getUserAgent(),
             js: 1,
@@ -168,6 +172,7 @@ function MartinHtb(configs) {
             h: Browser.getScreenHeight(),
             w: Browser.getScreenWidth(),
             language: Browser.getLanguage(),
+            devicetype: isMobile ? mobileType : desktopType,
             geo: {
                 lat: _parseSlotParam('lat', __globalConfigs.lat),
                 lon: _parseSlotParam('lon', __globalConfigs.lon),
