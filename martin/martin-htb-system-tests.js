@@ -79,6 +79,8 @@ function validateBidRequest(request) {
     expect(body.device).toBeDefined();
     expect(body.device.h).toBeDefined();
     expect(body.device.w).toBeDefined();
+    expect(body.device.devicetype).toBeDefined();
+    expect(body.device.devicetype).toEqual(2);
     expect(body.device.geo).toBeDefined();
     expect(body.device.geo.lat).toEqual(parseFloat(config.lat));
     expect(body.device.geo.lon).toEqual(parseFloat(config.lon));
