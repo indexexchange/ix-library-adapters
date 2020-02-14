@@ -126,18 +126,25 @@
 |zip|No|string|Zip or postal code|
 ### Example
 ```javascript
- 
+  {
+	"publisherId": "156209",
+	"lat": "40.712775",
+	"lon": "-74.005973",
+	"country": "USA",
+	"region": "OH",
+	"zip": "45202"
+}
 ```
 
 ## Test Configuration
 (Test configuration or methodology that can be used to retrieve & render a test creative from Martin's platform)
 ```javascript
  {
-        "publisherId": "156209",
-        "lat": "40.712775",
-				"lon": "-74.005973",
-				"country": "USA",
-				"region": "OH",
-				"zip": "45202"
-      }
+	"publisherId": "156209",
+	"lat": "40.712775",
+	"lon": "-74.005973",
+	"country": "USA",
+	"region": "OH",
+	"zip": "45202"
+}
 ```
