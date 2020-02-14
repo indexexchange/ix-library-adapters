@@ -52,7 +52,6 @@ function validateBidRequest(request) {
     expect(request.query.cachebuster).toBeDefined();
 
     var body = JSON.parse(request.body);
-    console.log("Body:", request);
     var config = getConfig();
 
     expect(body.id).toBeDefined();
