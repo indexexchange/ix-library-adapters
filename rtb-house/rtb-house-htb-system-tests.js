@@ -104,7 +104,18 @@ function getValidResponse(request, creative) {
                     cid: "dH7Yk9plMI2QrA05L0TT",
                     w: 300,
                     h: 250
-                }
+                },
+                {
+                    id: body.imp[1].id,
+                    impid: "301a387bd0aac8",
+                    price: 2,
+                    adid: "3aZh9mMlUJkW57mUB4kN",
+                    adm: creative,
+                    adomain: ["rtbhouse.com"],
+                    cid: "dH7Yk9plMI2QrA05L0TT",
+                    w: 300,
+                    h: 250
+                },
     ];
 
     return JSON.stringify(response);
