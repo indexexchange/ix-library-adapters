@@ -23,20 +23,33 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
-            xSlots: {
-                type: 'object',
-                properties: {
-                    '*': {
-                        type: 'object',
-                        properties: {
-                            placementId: {
-                                type: 'string',
-                                minLength: 1
-                            }
-                        }
-                    }
-                }
-            }
+            publisherId: {
+                type: 'string'
+            },
+            lat: {
+                type: 'string',
+                optional: true
+            },
+            lon: {
+                type: 'string',
+                optional: true
+            },
+            country: {
+                type: 'string',
+                optional: true
+            },
+            region: {
+                type: 'string',
+                optional: true
+            },
+            metro: {
+                type: 'string',
+                optional: true
+            },
+            zip: {
+                type: 'string',
+                optional: true
+            },
         }
     }, configs);
 

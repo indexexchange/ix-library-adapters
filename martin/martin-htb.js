@@ -111,6 +111,8 @@ function MartinHtb(configs) {
                 id: rp.htSlot.getId(),
                 secure: 1
             };
+
+            // Add banner sizes
             sizes = rp.xSlotRef.sizes;
             impObj.banner = {};
             impObj.banner.format = [];
@@ -133,6 +135,7 @@ function MartinHtb(configs) {
             if (impObj.banner.format.length === 0) {
                 delete impObj.banner.format;
             }
+
             retArr.push(impObj);
         });
 
@@ -170,6 +173,7 @@ function MartinHtb(configs) {
                 lon: _parseSlotParam('lon', __globalConfigs.lon),
                 country: _parseSlotParam('country', __globalConfigs.country),
                 region: _parseSlotParam('region', __globalConfigs.region),
+                metro: _parseSlotParam('metro', __globalConfigs.metro),
                 zip: _parseSlotParam('zip', __globalConfigs.zip)
             }
         };
@@ -575,6 +579,7 @@ function MartinHtb(configs) {
             lon: configs.lon || undef,
             country: configs.country || undef,
             region: configs.region || undef,
+            metro: configs.metro || undef,
             zip: configs.zip || undef,
             profile: configs.profile || undef,
             version: configs.version || undef

@@ -123,6 +123,7 @@
 |lon|No|string|longitude|
 |country|No|string|3 letter country code using ISO-3166-1-alpha-3|
 |region|No|string|2 letter region code using ISO-3166-2|
+|metro|No|string|Google metro code|
 |zip|No|string|Zip or postal code|
 ### Example
 ```javascript
@@ -132,6 +133,7 @@
 	"lon": "-74.005973",
 	"country": "USA",
 	"region": "OH",
+	"metro": "515",
 	"zip": "45202"
 }
 ```
@@ -145,6 +147,7 @@
 	"lon": "-74.005973",
 	"country": "USA",
 	"region": "OH",
+	"metro": "515",
 	"zip": "45202"
 }
 ```

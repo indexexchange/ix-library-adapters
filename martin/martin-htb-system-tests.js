@@ -20,6 +20,7 @@ function getConfig() {
         lon: "-74.005973",
         country: "USA",
         region: "OH",
+        metro: "515",
         zip: "45231",
         xSlots: {
             1: {
@@ -51,6 +52,7 @@ function validateBidRequest(request) {
     expect(request.query.cachebuster).toBeDefined();
 
     var body = JSON.parse(request.body);
+    console.log("Body:", request);
     var config = getConfig();
 
     expect(body.id).toBeDefined();
