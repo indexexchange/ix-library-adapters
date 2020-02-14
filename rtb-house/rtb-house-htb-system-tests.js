@@ -79,7 +79,6 @@ function validateBidRequest(request) {
 
 
 function validateTargeting(targetingMap) {
-    // debugger;
     expect(targetingMap).toEqual(jasmine.objectContaining({
         ix_rtb_cpm: jasmine.arrayContaining(['300x250_200']),
         ix_rtb_id: jasmine.arrayContaining([jasmine.any(String)])
@@ -126,12 +125,12 @@ function getValidResponse(request, creative) {
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
-    getBidRequestRegex: getBidRequestRegex,
     getCallbackType: getCallbackType,
     getArchitecture: getArchitecture,
     getConfig: getConfig,
-    getPassResponse: getPassResponse,
+    getBidRequestRegex: getBidRequestRegex,
     validateBidRequest: validateBidRequest,
     getValidResponse: getValidResponse,
-    validateTargeting: validateTargeting
+    validateTargeting: validateTargeting,
+    getPassResponse: getPassResponse
 };
