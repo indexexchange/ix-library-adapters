@@ -124,7 +124,7 @@ user|false|object|Contains GDPR consent if applicable.|
 ```
 
 ## Test Configuration
-(Test configuration or methodology that can be used to retrieve & render a test creative from RTB House's platform)
+Set "test": 1 in bid request parameters to receive bid response with sample 300x250 creative.
 ```javascript
- 
+{"test": 1} 
 ```
