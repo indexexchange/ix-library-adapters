@@ -138,7 +138,7 @@ function RTBHouseHtb(configs) {
                     id: configs.publisherId
                 },
                 page: Browser.getPathname(),
-                name: Browser.getHostname(),
+                name: Browser.getHostname()
             },
             cur: ['USD'],
             test: 1,
@@ -151,18 +151,21 @@ function RTBHouseHtb(configs) {
             user: {
                 ext: {
                 }
-            },
+            }
         };
 
         /* Change this to your bidder endpoint. */
         var REGION_PREFIX_TRANSLATION = {
             'prebid-eu': 'eu',
             'prebid-us': 'us',
-            'prebid-asia': 'us', //TODO: 'asia' doesn't exist ATM
-        };
-        var ENDPOINT_URL = 'ixwrapper-c2s-' + REGION_PREFIX_TRANSLATION[configs.region] + '.creativecdn.com/bidder/ixwrapper/bids';
-        var baseUrl = Browser.getProtocol() + '//' + ENDPOINT_URL;
 
+            // TODO: 'asia' doesn't exist ATM
+            'prebid-asia': 'us'
+        };
+        var ENDPOINT_URL = 'ixwrapper-c2s-'
+            + REGION_PREFIX_TRANSLATION[configs.region]
+            + '.creativecdn.com/bidder/ixwrapper/bids';
+        var baseUrl = Browser.getProtocol() + '//' + ENDPOINT_URL;
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -190,8 +193,9 @@ function RTBHouseHtb(configs) {
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
+
         /* ---------------- Craft bid request using the above returnParcels --------- */
-        for (var i = 0; i < returnParcels.length; i++){
+        for (var i = 0; i < returnParcels.length; i++) {
             var xSlotRef = returnParcels[i].xSlotRef;
             var placementId = String(xSlotRef.placementId);
             var slotWidth = xSlotRef.size[0];
@@ -201,21 +205,22 @@ function RTBHouseHtb(configs) {
                 banner: {
                     w: slotWidth,
                     h: slotHeight,
-                    format: [{
-                        w: slotWidth,
-                        h: slotHeight
-                    }]
+                    format: [
+                        {
+                            w: slotWidth,
+                            h: slotHeight
+                        }
+                    ]
                 }
             };
             queryObj.imp.push(slotData);
         }
 
-            /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
+        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
         if (privacyEnabled) {
             queryObj.user.ext.consent = gdprStatus.consentString;
             queryObj.regs.ext.gdpr = gdprStatus.applies ? 0 : 1;
         }
-
 
         /* -------------------------------------------------------------------------- */
         return {

@@ -16,7 +16,6 @@ function getStatsId() {
     return 'RTB';
 }
 
-
 function getConfig() {
     return {
         xSlots: {
@@ -31,7 +30,7 @@ function getConfig() {
         },
         region: 'prebid-eu',
         publisherId: '_TEST_ID',
-        bidfloor: 0.01,
+        bidfloor: 0.01
     };
 }
 
@@ -55,28 +54,25 @@ function validateBidRequest(request) {
             publisher: jasmine.objectContaining({
                 id: jasmine.any(String)
             })
-        }
-            ),
+        }),
         test: 1,
         cur: ['USD'],
         imp: jasmine.any(Array),
-        id: jasmine.any(String),
-        })
-        );
+        id: jasmine.any(String)
+    }));
     var imp = body.imp;
-    for (var i = 0; i < imp.length; i++){
+    for (var i = 0; i < imp.length; i++) {
         var imp_part = imp[i];
         expect(imp_part).toEqual(jasmine.objectContaining({
             id: jasmine.any(String),
             banner: jasmine.objectContaining({
                 w: jasmine.any(Number),
                 h: jasmine.any(Number),
-                format: jasmine.any(Array),
+                format: jasmine.any(Array)
             })
-        }))
+        }));
     }
 }
-
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
@@ -91,36 +87,34 @@ function getPassResponse() {
 
 function getValidResponse(request, creative) {
     var body = JSON.parse(request.body);
-    var response =
-        [
-                {
-                    id: body.imp[0].id,
-                    impid: "301a387bd0aac8",
-                    price: 2,
-                    adid: "3aZh9mMlUJkW57mUB4kN",
-                    adm: creative,
-                    adomain: ["rtbhouse.com"],
-                    cid: "dH7Yk9plMI2QrA05L0TT",
-                    w: 300,
-                    h: 250
-                },
-                {
-                    id: body.imp[1].id,
-                    impid: "301a387bd0aac8",
-                    price: 2,
-                    adid: "3aZh9mMlUJkW57mUB4kN",
-                    adm: creative,
-                    adomain: ["rtbhouse.com"],
-                    cid: "dH7Yk9plMI2QrA05L0TT",
-                    w: 300,
-                    h: 250
-                },
-    ];
+    var response
+        = [
+            {
+                id: body.imp[0].id,
+                impid: '301a387bd0aac8',
+                price: 2,
+                adid: '3aZh9mMlUJkW57mUB4kN',
+                adm: creative,
+                adomain: ['rtbhouse.com'],
+                cid: 'dH7Yk9plMI2QrA05L0TT',
+                w: 300,
+                h: 250
+            },
+            {
+                id: body.imp[1].id,
+                impid: '301a387bd0aac8',
+                price: 2,
+                adid: '3aZh9mMlUJkW57mUB4kN',
+                adm: creative,
+                adomain: ['rtbhouse.com'],
+                cid: 'dH7Yk9plMI2QrA05L0TT',
+                w: 300,
+                h: 250
+            }
+        ];
 
     return JSON.stringify(response);
 }
-
-
 
 module.exports = {
     getPartnerId: getPartnerId,
