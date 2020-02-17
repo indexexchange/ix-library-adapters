@@ -155,11 +155,13 @@ function RTBHouseHtb(configs) {
         };
 
         /* Change this to your bidder endpoint. */
-        var ENDPOINT_URL = 'todo.later.creativecdn.com/bidder/prebid/bids'; //TODO
-        var baseUrl = Browser.getProtocol() + '//' + configs.region + '.' + ENDPOINT_URL; //TODO
-        // uncomment to use designated endpoint (unfinished)
-        var ENDPOINT_URL = 'ixwrapper-c2s-ams.creativecdn.com/bidder/ixwrapper/bids'; //TODO
-        var baseUrl = Browser.getProtocol() + '//' /*+ configs.region + '.'*/ + ENDPOINT_URL; //TODO
+        var REGION_PREFIX_TRANSLATION = {
+            'prebid-eu': 'eu',
+            'prebid-us': 'us',
+            'prebid-asia': 'us', //TODO: 'asia' doesn't exist ATM
+        };
+        var ENDPOINT_URL = 'ixwrapper-c2s-' + REGION_PREFIX_TRANSLATION[configs.region] + '.creativecdn.com/bidder/ixwrapper/bids';
+        var baseUrl = Browser.getProtocol() + '//' + ENDPOINT_URL;
 
 
         /* ------------------------ Get consent information -------------------------
@@ -211,7 +213,7 @@ function RTBHouseHtb(configs) {
             /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
         if (privacyEnabled) {
             queryObj.user.ext.consent = gdprStatus.consentString;
-            queryObj.regs.ext.gdpr = gdprStatus.applies ? 1 : 1; //TODO: revert, "1" for testing
+            queryObj.regs.ext.gdpr = gdprStatus.applies ? 0 : 1;
         }
 
 
@@ -361,7 +363,7 @@ function RTBHouseHtb(configs) {
             var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid; //TODO? what here?
+            var bidDealId = curBid.dealid;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;

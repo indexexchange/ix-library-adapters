@@ -38,13 +38,13 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /creativecdn/ //TODO: finalize
+        urlRegex: /ixwrapper-c2s-(eu|us|asia).creativecdn\.com\/bidder\/ixwrapper\/bids/
     };
 }
 
 function validateBidRequest(request) {
     expect(request).toEqual(jasmine.objectContaining({
-        host: jasmine.stringMatching('creativecdn'), //TODO finalize
+        host: jasmine.any(String),
         body: jasmine.any(String)
     }));
     var body = JSON.parse(request.body);
@@ -58,7 +58,7 @@ function validateBidRequest(request) {
         }
             ),
         test: 1,
-        cur: ["USD"],
+        cur: ['USD'],
         imp: jasmine.any(Array),
         id: jasmine.any(String),
         })
