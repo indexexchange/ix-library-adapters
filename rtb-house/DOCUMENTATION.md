@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | n/a |
 | GAM Key (Private Market) | n/a |
-| Ad Server URLs | https://prebid-[eu/asia/us].creativecdn.com/bidder/prebid/bids? #TODO: finalize |
+| Ad Server URLs | https://ixwrapper-c2s-[eu/asia/us].creativecdn.com/bidder/ixwrapper/bids|
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | SRA |
 
