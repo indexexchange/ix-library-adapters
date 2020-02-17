@@ -55,7 +55,7 @@ function validateBidRequest(request) {
                 id: jasmine.any(String)
             })
         }),
-        test: 1,
+        test: 0,
         cur: ['USD'],
         imp: jasmine.any(Array),
         id: jasmine.any(String)

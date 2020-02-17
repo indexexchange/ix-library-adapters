@@ -141,7 +141,7 @@ function RTBHouseHtb(configs) {
                 name: Browser.getHostname()
             },
             cur: ['USD'],
-            test: 1,
+            test: 0,
             source: {
             },
             regs: {
