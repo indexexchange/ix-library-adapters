@@ -478,8 +478,8 @@ function RTBHouseHtb(configs) {
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+                    value: 55
                 },
                 rateLimiting: {
                     enabled: false,
