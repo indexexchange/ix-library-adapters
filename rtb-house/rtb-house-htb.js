@@ -158,9 +158,7 @@ function RTBHouseHtb(configs) {
         var REGION_PREFIX_TRANSLATION = {
             'prebid-eu': 'eu',
             'prebid-us': 'us',
-
-            // TODO: 'asia' doesn't exist ATM
-            'prebid-asia': 'us'
+            'prebid-asia': 'sin'
         };
         var ENDPOINT_URL = 'ixwrapper-c2s-'
             + REGION_PREFIX_TRANSLATION[configs.region]
