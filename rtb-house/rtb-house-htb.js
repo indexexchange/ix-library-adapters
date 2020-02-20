@@ -142,8 +142,6 @@ function RTBHouseHtb(configs) {
             },
             cur: ['USD'],
             test: 0,
-            source: {
-            },
             regs: {
                 ext: {
                 }
@@ -156,14 +154,14 @@ function RTBHouseHtb(configs) {
 
         /* Change this to your bidder endpoint. */
         var REGION_PREFIX_TRANSLATION = {
-            'prebid-eu': 'eu',
-            'prebid-us': 'us',
-            'prebid-asia': 'sin'
+            'ix-wrapper-eu': 'eu',
+            'ix-wrapper-us': 'us',
+            'ix-wrapper-sin': 'sin'
         };
         var ENDPOINT_URL = 'ixwrapper-c2s-'
             + REGION_PREFIX_TRANSLATION[configs.region]
             + '.creativecdn.com/bidder/ixwrapper/bids';
-        var baseUrl = Browser.getProtocol() + '//' + ENDPOINT_URL;
+        var baseUrl = 'https://' + ENDPOINT_URL;
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -476,8 +474,8 @@ function RTBHouseHtb(configs) {
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+                    value: 55000
                 },
                 rateLimiting: {
                     enabled: false,

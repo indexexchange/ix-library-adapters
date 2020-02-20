@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | n/a |
 | GAM Key (Private Market) | n/a |
-| Ad Server URLs | https://ixwrapper-c2s-[eu/asia/us].creativecdn.com/bidder/ixwrapper/bids|
+| Ad Server URLs | https://ixwrapper-c2s-[eu/sin/us].creativecdn.com/bidder/ixwrapper/bids|
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | SRA |
 
@@ -47,7 +47,7 @@ USD
 |site|true|object|Details via a Site object about the publisher’s website.|
 |cur|false|string array|Array of allowed currencies for bids on this bid request using ISO-4217 alpha codes.|
 |test|false|boolean|Indicator of test mode in which auctions are not billable, where 0 = live mode, 1 = test mode|
-|source|false|object|A Sorce object that provides data about the inventory source and which entity makes the final decision.|
+|source|false|object|A Source object that provides data about the inventory source and which entity makes the final decision.|
 |regs|false|object|A Regs object that specifies any industry, legal, or governmental regulations in force for this request.|
 user|false|object|Contains GDPR consent if applicable.|
 ### Example
@@ -111,13 +111,13 @@ user|false|object|Contains GDPR consent if applicable.|
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-|region|true|string|region specific for a bidding to happen, values: prebid-[eu/us/asia]|
+|region|true|string|region specific for a bidding to happen, values: ix-wrapper-[eu/us/sin] (Europe/USA/Singapore)|
 |publisherId|true|string|publisher-specific key|
 |bidfloor|false|number|minimal bid value, Dollars|
 ### Example
 ```javascript
 {
-    region: "prebid-eu",
+    region: "ix-wrapper-eu",
     publisherId: "_TEST_ID", 
     bidfloor: 0.01
 }
