@@ -28,7 +28,7 @@ function getConfig() {
                 placementId: 124
             }
         },
-        region: 'ix-wrapper-eu',
+        region: 'ixwrapper-eu',
         publisherId: '_TEST_ID',
         bidfloor: 0.01
     };
@@ -37,7 +37,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /ixwrapper-c2s-(eu|us|sin).creativecdn\.com\/bidder\/ixwrapper\/bids/
+        urlRegex: /ixwrapper-(c2s-sin|eu|us|).creativecdn\.com\/bidder\/ixwrapper\/bids/
     };
 }
 

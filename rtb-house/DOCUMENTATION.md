@@ -111,13 +111,13 @@ user|false|object|Contains GDPR consent if applicable.|
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-|region|true|string|region specific for a bidding to happen, values: ix-wrapper-[eu/us/sin] (Europe/USA/Singapore)|
+|region|true|string|region specific for a bidding to happen, values: ixwrapper-[eu/us/sin] (Europe/USA/Singapore)|
 |publisherId|true|string|publisher-specific key|
 |bidfloor|false|number|minimal bid value, Dollars|
 ### Example
 ```javascript
 {
-    region: "ix-wrapper-eu",
+    region: "ixwrapper-eu",
     publisherId: "_TEST_ID", 
     bidfloor: 0.01
 }

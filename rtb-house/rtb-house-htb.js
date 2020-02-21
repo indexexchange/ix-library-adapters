@@ -154,11 +154,11 @@ function RTBHouseHtb(configs) {
 
         /* Change this to your bidder endpoint. */
         var REGION_PREFIX_TRANSLATION = {
-            'ix-wrapper-eu': 'eu',
-            'ix-wrapper-us': 'us',
-            'ix-wrapper-sin': 'sin'
+            'ixwrapper-eu': 'eu',
+            'ixwrapper-us': 'us',
+            'ixwrapper-sin': 'c2s-sin'
         };
-        var ENDPOINT_URL = 'ixwrapper-c2s-'
+        var ENDPOINT_URL = 'ixwrapper-'
             + REGION_PREFIX_TRANSLATION[configs.region]
             + '.creativecdn.com/bidder/ixwrapper/bids';
         var baseUrl = 'https://' + ENDPOINT_URL;
