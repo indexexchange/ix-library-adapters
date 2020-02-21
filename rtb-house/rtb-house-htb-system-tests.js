@@ -37,7 +37,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'POST',
-        urlRegex: /ixwrapper-(c2s-sin|eu|us|).creativecdn\.com\/bidder\/ixwrapper\/bids/
+        urlRegex: /ixwrapper-(c2s-sin|eu|us).creativecdn\.com\/bidder\/ixwrapper\/bids/
     };
 }
 
