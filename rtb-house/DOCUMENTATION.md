@@ -31,7 +31,7 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | n/a |
 | GAM Key (Private Market) | n/a |
-| Ad Server URLs | https://ixwrapper-c2s-[eu/sin/us].creativecdn.com/bidder/ixwrapper/bids|
+| Ad Server URLs | https://ixwrapper-[c2s-sin/eu/us].creativecdn.com/bidder/ixwrapper/bids|
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
 | Request Architecture (MRA / SRA) | SRA |
 
