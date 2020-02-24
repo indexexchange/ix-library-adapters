@@ -310,22 +310,20 @@ function RubiconModule(configs) {
      */
 
     function __serializeSupplyChainNodes(nodes) {
-        return nodes.map(function(node) {
-            return ['asi', 'sid', 'hp', 'rid', 'name', 'domain'].map(function(prop) {
+        return nodes.map(function (node) {
+            return [
+                'asi',
+                'sid',
+                'hp',
+                'rid',
+                'name',
+                'domain'
+            ].map(function (prop) {
                 return encodeURIComponent(node[prop] || '');
-            }).join(',');
-        }).join('!');
-    }
-
-    /**
-     * Serializes schain params according to OpenRTB requirements
-     * @param {Object} schain
-     * @returns {String}
-     */
-
-    function __serializeSupplyChain(schain) {
-        if (!__hasValidSupplyChainParams(schain)) return '';
-        return schain.ver + ',' + schain.complete + '!' + __serializeSupplyChainNodes(schain.nodes);
+            })
+                .join(',');
+        })
+            .join('!');
     }
 
     /**
@@ -335,13 +333,37 @@ function RubiconModule(configs) {
      */
 
     function __hasValidSupplyChainParams(schain) {
-        if (!schain.nodes) return false;
-        return schain.nodes.reduce(function(status, node) {
-            if (!status) return status;
-            return ['asi', 'sid', 'hp'].every(function(field) {
+        if (!schain.nodes) {
+            return false;
+        }
+
+        return schain.nodes.reduce(function (nodeStatus, node) {
+            if (!nodeStatus) {
+                return nodeStatus;
+            }
+
+            return [
+                'asi',
+                'sid',
+                'hp'
+            ].every(function (field) {
                 return node[field];
             });
         }, true);
+    }
+
+    /**
+     * Serializes schain params according to OpenRTB requirements
+     * @param {Object} schain
+     * @returns {String}
+     */
+
+    function __serializeSupplyChain(schain) {
+        if (!__hasValidSupplyChainParams(schain)) {
+            return '';
+        }
+
+        return schain.ver + ',' + schain.complete + '!' + __serializeSupplyChainNodes(schain.nodes);
     }
 
     /**
