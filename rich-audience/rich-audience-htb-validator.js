@@ -74,24 +74,3 @@ function partnerValidator(configs) {
 }
 
 module.exports = partnerValidator;
-
-/*
-* {
-"currencyCode": ["USD"],
-        "xSlots": {
-            "A": {
-                "adUnitName": "AdUnitMPUDibujos",
-                "placementId": "SIEUTMpbxj",
-                "supplyType": "site",
-                "sizes": [[300, 250]]
-            },
-            "B": {
-                "adUnitName": "AdUnitLeaderBoardDibujos",
-                "placementId": "0wILSPtTKI",
-                "supplyType": "site",
-                "sizes": [[728, 90]]
-            }
-        }
-}
-*
-* */

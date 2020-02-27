@@ -63,35 +63,34 @@ function RichAudienceHtb(configs) {
             returnParcels.forEach(function (parcel) {
                 queryObj.pid = parcel.xSlotRef.placementId;
                 queryObj.sizes = parcel.xSlotRef.sizes.map(function (size) {
-                        return {
-                            w: size[0],
-                            h: size[1]
-                        };
-                    });
+                    return {
+                        w: size[0],
+                        h: size[1]
+                    };
+                });
                 queryObj.supplyType = parcel.xSlotRef.supplyType;
                 queryObj.tagId = parcel.xSlotRef.adUnitName;
                 queryObj.bidder = parcel.partnerId;
                 queryObj.bidId = parcel.partnerStatsId;
                 queryObj.bidderRequestId = parcel.requestId;
                 queryObj.xSlotName = parcel.xSlotName;
-                console.log(parcel)
             });
         }
     }
 
     function raiGetGDPR(queryObj) {
-        let privacyEnabled = ComplianceService.isPrivacyEnabled();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         if (privacyEnabled) {
-            let gdprStatus = ComplianceService.gdpr.getConsent();
-            if(queryObj != null){
-                queryObj.gdpr_consent = Utilities.isEmpty(gdprStatus.consentString) ? 'undefined' : gdprStatus.consentString;
-                queryObj.gdpr = gdprStatus.applies ? true : false;
-            }else{
-                return Utilities.isEmpty(gdprStatus.consentString) ? 'undefined' : gdprStatus.consentString;
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+            if (Utilities.isEmpty(gdprStatus.consentString) !== 'undefined') {
+                queryObj.gdprConsent = gdprStatus.consentString;
+                queryObj.gdpr = gdprStatus.applies;
+            } else {
+                queryObj.gdprConsent = 'undefined';
+                queryObj.gdpr = false;
             }
         }
-
     }
 
     /* Utilities
@@ -106,7 +105,6 @@ function RichAudienceHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-
         var queryObj = {};
         var callbackId = System.generateUniqueId();
         var baseUrl = 'https://shb.richaudience.com/hb/';
@@ -114,7 +112,7 @@ function RichAudienceHtb(configs) {
         queryObj = {
             currencyCode: configs.currencyCode,
             referer: encodeURIComponent(Browser.getPageUrl()),
-            adapter: "IX"
+            adapter: 'IX'
         };
 
         queryObj.raiParcels = raiGetParcels(returnParcels, queryObj);
@@ -135,13 +133,6 @@ function RichAudienceHtb(configs) {
     /* =============================================================================
      * STEP 3  | Response callback
      * -----------------------------------------------------------------------------
-     *
-     * This generator is only necessary if the partner's endpoint has the ability
-     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
-     * the response and save the response to adResponseStore keyed by that ID.
-     *
-     * If the endpoint does not have an appropriate field for this, set the profile's
-     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
         /* Get callbackId from adResponse here */
@@ -190,65 +181,22 @@ function RichAudienceHtb(configs) {
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
-         *
-         * Fill the below variables with information about the bid from the partner, using
-         * the adResponse variable that contains your module adResponse.
-         */
-
-        /* This an array of all the bids in your response that will be iterated over below. Each of
-         * these will be mapped back to a returnParcel object using some criteria explained below.
-         * The following variables will also be parsed and attached to that returnParcel object as
-         * returned demand.
-         *
-         * Use the adResponse variable to extract your bid information and insert it into the
-         * bids array. Each element in the bids array should represent a single bid and should
-         * match up to a single element from the returnParcel array.
-         *
          */
 
         /*
         *
         *
 
-
          ---------- Process adResponse and extract the bids into the bids array ------------ */
         var bids = adResponse;
 
-        //console.log(returnParcels);
-
         for (var j = 0; j < returnParcels.length; j++) {
-
-            //console.log(bids);
-
             var curReturnParcel = returnParcels[j];
 
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
-
-            var curBid = true;
-
-            //console.log(headerStatsInfo);
-            //console.log(curBid);
-
-            /* No matching bid found so its a pass */
-            /*if (!bids || !Utilities.isArray(bids) || bids.length === 0) {
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                    curReturnParcel.pass = true;
-                }
-
-
-                continue;
-            }*/
-
-            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
-
-            /* Using the above variable, curBid, extract various information about the bid and assign it to
-             * these local variables */
-
-            /* The bid price for the given slot */
 
             var bidPrice = bids.cpm;
 
@@ -271,17 +219,16 @@ function RichAudienceHtb(configs) {
             * leave empty;
             */
 
-            var pixelUrl = '';
-            let consentString = raiGetGDPR();
-            if(consentString != "undefined"){
-                pixelUrl = `https://sync.richaudience.com/bf7c142f4339da0278e83698a02b0854/?euconsent=${consentString}&referrer=${encodeURIComponent(Browser.getPageUrl())}`
-            }else{
-                pixelUrl = `https://sync.richaudience.com/bf7c142f4339da0278e83698a02b0854/?referrer=${encodeURIComponent(Browser.getPageUrl())}`;
+            var pixelUrl = 'https://sync.richaudience.com/bf7c142f4339da0278e83698a02b0854/';
+            pixelUrl += '?referrer=' + encodeURIComponent(Browser.getPageUrl());
+
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+            if (Utilities.isEmpty(gdprStatus.consentString) !== 'undefined') {
+                pixelUrl += '&euconsent=' + gdprStatus.consentString;
             }
 
             /* --------------------------------------------------------------------------------------- */
 
-            curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
                 Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
@@ -308,7 +255,7 @@ function RichAudienceHtb(configs) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
 
-             if (bidDealId) {
+            if (bidDealId) {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
             } else {
@@ -346,8 +293,6 @@ function RichAudienceHtb(configs) {
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
-
-            //console.log(pubKitAdId);
 
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;

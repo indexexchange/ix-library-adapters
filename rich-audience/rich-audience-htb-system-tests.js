@@ -61,14 +61,15 @@ function validateBidRequest(request) {
     expect(data.bidder).toEqual(getPartnerId());
     expect(data.bidId).toBeDefined();
     expect(data.bidId).toEqual(getStatsId());
-    expect(data.gdpr_consent).toEqual('undefined');
+    expect(data.gdprConsent).toEqual('');
     expect(data.gdpr).toEqual(false);
 }
 
 function getValidResponse(request, creative) {
     var data = JSON.parse(request.body);
-    //var adm = creative || '<h1>Creative Test!</h2>';
-    var adm = '<a target="_blank" href="http://richaudience.com"><img src="https://cdn3.richaudience.com/demo/728x90.jpeg" width="728" height="90"></a>'
+    var adm = creative || '<h1>Creative Test!</h2>';
+
+    // Creative RA adm = '<a target="_blank" href="http://richaudience.com"><img src="https://cdn3.richaudience.com/demo/728x90.jpeg" width="728" height="90"></a>'
     var response = {
         requestId: data.bidderRequestId,
         cpm: 2,
@@ -83,14 +84,11 @@ function getValidResponse(request, creative) {
         type: 'display',
         currency: data.currencyCode[0]
     };
-    console.log(response)
-    console.log("error");
 
     return JSON.stringify(response);
 }
 
 function validateTargeting(targetingMap) {
-    console.log(targetingMap)
     expect(targetingMap).toEqual({
         ix_ric_om: ['728x90_200'],
         ix_ric_id: [jasmine.any(String)]
@@ -100,7 +98,7 @@ function validateTargeting(targetingMap) {
 function validateBidRequestWithPrivacy(request) {
     var data = JSON.parse(request.body);
 
-    expect(data.gdpr_consent).toEqual('TEST_GDPR_CONSENT_STRING');
+    expect(data.gdprConsent).toEqual('TEST_GDPR_CONSENT_STRING');
     expect(data.gdpr).toEqual(true);
 }
 
@@ -125,7 +123,6 @@ function getValidResponseWithDeal(request, creative) {
 }
 
 function validateTargetingWithDeal(targetingMap) {
-    console.log(targetingMap)
     expect(targetingMap).toEqual({
         ix_ric_dealid: ['1x1_ramkt'],
         ix_ric_om: ['1x1_5000'],
