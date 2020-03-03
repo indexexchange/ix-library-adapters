@@ -31,8 +31,7 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * https://atinux.fr/schema-inspector/.
  */
 
-// eslint-disable-next-line func-style
-var partnerValidator = function (configs) {
+function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
@@ -42,18 +41,23 @@ var partnerValidator = function (configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementIds: {
-                                type: 'array'
+                            placementId: {
+                                type: 'string'
                             },
-                            allow: {
+                            sizes: {
                                 type: 'array',
                                 optional: true,
-                                items: { type: 'string' }
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
                             },
-                            exclude: {
-                                type: 'array',
-                                optional: true,
-                                items: { type: 'string' }
+                            customEndpoint: {
+                                type: 'string',
+                                optional: true
                             }
                         }
                     }
@@ -67,6 +71,6 @@ var partnerValidator = function (configs) {
     }
 
     return null;
-};
+}
 
 module.exports = partnerValidator;

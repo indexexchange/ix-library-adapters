@@ -5,7 +5,7 @@ function getPartnerId() {
 }
 
 function getStatsId() {
-    return 'IVBS';
+    return 'INV';
 }
 
 function getCallbackType() {
@@ -20,7 +20,7 @@ function getConfig() {
     return {
         xSlots: {
             1: {
-                placementIds: ['div-gpt-ad-1438287399331-0']
+                placementId: 'div-gpt-ad-1438287399331-0'
             }
         }
     };
@@ -29,7 +29,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /bid\.videostep\.com\/bid\/videoadcontent/
+        urlRegex: /bid\/videoadcontent/
     };
 }
 
@@ -44,18 +44,15 @@ function getValidResponse(request, creative) {
                 Ads: [
                     {
                         BidPrice: 2,
-                        HtmlString: ''
+                        HtmlString: creative || '<div>ad</div>'
                     }
                 ],
                 BidModel: {
                     BidVersion: 3,
                     Height: 999,
                     Width: 999
-                },
-                invibes: {}
-            },
-            adm: creative
-
+                }
+            }
         };
 
     return JSON.stringify(response);
@@ -72,23 +69,16 @@ function validateTargeting(targetingMap) {
 }
 
 function getPassResponse() {
-    var response
-     = {
-         videoAdContentResult: {
-             Ads: [
-                 {
-                     BidPrice: 0,
-                     HtmlString: ''
-                 }
-             ],
-             BidModel: {
-                 BidVersion: 3,
-                 Height: 999,
-                 Width: 999
-             },
-             invibes: {}
-         }
-     };
+    var response = {
+        videoAdContentResult: {
+            Ads: [],
+            BidModel: {
+                BidVersion: 3,
+                Height: 999,
+                Width: 999
+            }
+        }
+    };
 
     return JSON.stringify(response);
 }
