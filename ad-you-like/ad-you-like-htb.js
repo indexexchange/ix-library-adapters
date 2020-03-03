@@ -133,8 +133,20 @@ function AdYouLikeHtb(configs) {
         var queryObj = {};
         var callbackId = System.generateUniqueId();
 
+        var bids = returnParcels.reduce(function(accumulator, bid) {
+            var sizesArray = getSizeArray(bid);
+            var size = getSize(sizesArray);
+            accumulator[bid.bidId] = {};
+            accumulator[bid.bidId].PlacementID = bid.params.placement;
+            accumulator[bid.bidId].TransactionID = bid.transactionId;
+            accumulator[bid.bidId].Width = size.width;
+            accumulator[bid.bidId].Height = size.height;
+            accumulator[bid.bidId].AvailableSizes = sizesArray.join(',');
+            return accumulator;
+          }, {})
+
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var baseUrl = Browser.getProtocol() + '//hb-api.omnitagjs.com/hb-api/prebid/v1';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -161,7 +173,17 @@ function AdYouLikeHtb(configs) {
          * made by the wrapper to contact a Consent Management Platform.
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
+
+        var gdprConsent = {
+            consentString: gdprStatus.consentString,
+            consentRequired: gdprStatus.applies
+        };
+
+        queryObj = {
+            Bids: bids
+            gdprConsent: gdprConsent,
+            PageRefreshed: getPageRefreshed()
+        };
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
