@@ -131,17 +131,23 @@ function AdYouLikeHtb(configs) {
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         var queryObj = {};
-        var callbackId = System.generateUniqueId();
+        var callbackId;
 
         var bids = returnParcels.reduce(function(accumulator, bid) {
+            var bidId = System.generateUniqueId();
+
+            if(!callbackId) {
+                callbackId = bidId;
+            }
+            
             var sizesArray = getSizeArray(bid);
             var size = getSize(sizesArray);
-            accumulator[bid.bidId] = {};
-            accumulator[bid.bidId].PlacementID = bid.params.placement;
-            accumulator[bid.bidId].TransactionID = bid.transactionId;
-            accumulator[bid.bidId].Width = size.width;
-            accumulator[bid.bidId].Height = size.height;
-            accumulator[bid.bidId].AvailableSizes = sizesArray.join(',');
+            accumulator[bidId] = {};
+            accumulator[bidId].PlacementID = bid.params.placement;
+            accumulator[bidId].TransactionID = bid.transactionId;
+            accumulator[bidId].Width = size.width;
+            accumulator[bidId].Height = size.height;
+            accumulator[bidId].AvailableSizes = sizesArray.join(',');
             return accumulator;
           }, {})
 
@@ -211,7 +217,7 @@ function AdYouLikeHtb(configs) {
      */
     function adResponseCallback(adResponse) {
         /* Get callbackId from adResponse here */
-        var callbackId = 0;
+        var callbackId = adResponse[0].BidID;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
 
