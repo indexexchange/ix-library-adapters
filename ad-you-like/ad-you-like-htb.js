@@ -134,7 +134,7 @@ function AdYouLikeHtb(configs) {
         var callbackId;
 
         var bids = returnParcels.reduce(function(accumulator, bid) {
-            var bidId = System.generateUniqueId();
+            var bidId = bid.htSlot.getId();
 
             if(!callbackId) {
                 callbackId = bidId;
@@ -295,15 +295,9 @@ function AdYouLikeHtb(configs) {
             var curBid;
 
             for (var i = 0; i < bids.length; i++) {
-                /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
 
-                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                /* ----------- Find a matching bid for the current parcel ------------- */
+                if (htSlotId === bids[i].BidID) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
@@ -327,18 +321,18 @@ function AdYouLikeHtb(configs) {
              * these local variables */
 
             /* The bid price for the given slot */
-            var bidPrice = curBid.price;
+            var bidPrice = curBid.Price;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [Number(curBid.Width), Number(curBid.Height)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
+            var bidCreative = curBid.Ad;
 
             /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidDealId;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
@@ -469,7 +463,7 @@ function AdYouLikeHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.NONE,
+            callbackType: Partner.CallbackTypes.ID,
             architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
