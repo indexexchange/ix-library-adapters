@@ -129,7 +129,7 @@ function NoBidHtb(configs) {
         /* ---------------------- PUT CODE HERE ------------------------------------ */
 
         function resolveEndpoint() {
-            var ret = '//localhost:8282/';
+            var ret = '//ads.servenobid.com:8282/';
 
             return ret;
         }
@@ -464,8 +464,8 @@ function NoBidHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_nob_id',
-                om: 'ix_nob_cpm',
-                pm: 'ix_nob_cpm',
+                om: 'ix_nob_om',
+                pm: 'ix_nob_pm',
                 pmid: 'ix_nob_dealid'
             },
 
