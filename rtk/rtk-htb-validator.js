@@ -49,11 +49,6 @@ function partnerValidator(configs) {
                                 type: 'string',
                                 minLength: 4
                             },
-                            host: {
-                                type: 'string',
-                                optional: true,
-                                minLength: 5
-                            },
                             categories: {
                                 type: 'array',
                                 optional: true

@@ -164,7 +164,6 @@ function RtkHtb(configs) {
         var callbackId = System.generateUniqueId();
         var auctionCode = false;
         var shortCodesAry = [];
-        var host = false;
         var paramCategories = [];
         var pubCategories = [];
 
@@ -174,9 +173,6 @@ function RtkHtb(configs) {
 
         returnParcels.forEach(function (rp) {
             var params = rp.xSlotRef;
-            if (params.host) {
-                host = params.host;
-            }
 
             if (params.categories) {
                 paramCategories = paramCategories.concat(params.categories);
@@ -193,12 +189,8 @@ function RtkHtb(configs) {
             }
         });
 
-        if (!host) {
-            host = 'bidder.rtk.io';
-        }
-
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//' + host + '/' + auctionCode
+        var baseUrl = Browser.getProtocol() + '//bidder.rtk.io/' + auctionCode
                 + '/' + shortCodesAry.join('_') + '/aardvark';
 
         /* ------------------------ Get consent information -------------------------
@@ -244,7 +236,7 @@ function RtkHtb(configs) {
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
         if (privacyEnabled) {
-            if (gdprStatus.applies) {
+            if (gdprStatus) {
                 queryObj.gdpr = gdprStatus.applies;
                 queryObj.consent = encodeURIComponent(gdprStatus.consentString);
             }

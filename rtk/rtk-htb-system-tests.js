@@ -21,13 +21,11 @@ function getConfig() {
         host: 'bidder.rtk.io',
         xSlots: {
             1: {
-                sizes: [[300, 250]],
                 ai: '0000',
                 sc: '1234',
                 categories: ['cat1', 'cat2']
             },
             2: {
-                sizes: [[300, 250]],
                 ai: '0000',
                 sc: '1235',
                 categories: ['cat3', 'cat4']
@@ -85,7 +83,7 @@ function getPassResponse() {
     var response = [
         {
             id: '1234',
-            cpm: '0.00',
+            cpm: 0,
             adm: '',
             ex: 'demo_exchange',
             cid: '1234',
@@ -95,7 +93,7 @@ function getPassResponse() {
         },
         {
             id: '1235',
-            cpm: '0.00',
+            cpm: 0,
             adm: '',
             ex: 'demo_exchange',
             cid: '1235',
