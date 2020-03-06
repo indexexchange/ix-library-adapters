@@ -23,7 +23,8 @@ function getConfig() {
             1: {
                 ai: '0000',
                 sc: '1234',
-                categories: ['cat1', 'cat2']
+                categories: ['cat1', 'cat2'],
+                host: 'somealias.com'
             },
             2: {
                 ai: '0000',
@@ -37,7 +38,7 @@ function getConfig() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /.*bidder\.rtk\.io\/0000\/1234_1235\/aardvark.*/
+        urlRegex: /.*[bidder.rtk.io|somealias.com]\/0000\/1234_1235\/aardvark.*/
     };
 }
 

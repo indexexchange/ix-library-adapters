@@ -164,6 +164,7 @@ function RtkHtb(configs) {
         var callbackId = System.generateUniqueId();
         var auctionCode = false;
         var shortCodesAry = [];
+        var host = false;
         var paramCategories = [];
         var pubCategories = [];
 
@@ -173,6 +174,9 @@ function RtkHtb(configs) {
 
         returnParcels.forEach(function (rp) {
             var params = rp.xSlotRef;
+            if (params.host) {
+                host = params.host;
+            }
 
             if (params.categories) {
                 paramCategories = paramCategories.concat(params.categories);
@@ -189,8 +193,12 @@ function RtkHtb(configs) {
             }
         });
 
+        if (!host) {
+            host = 'bidder.rtk.io';
+        }
+
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//bidder.rtk.io/' + auctionCode
+        var baseUrl = Browser.getProtocol() + '//' + host + '/' + auctionCode
                 + '/' + shortCodesAry.join('_') + '/aardvark';
 
         /* ------------------------ Get consent information -------------------------

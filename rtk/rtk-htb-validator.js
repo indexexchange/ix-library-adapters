@@ -52,6 +52,10 @@ function partnerValidator(configs) {
                             categories: {
                                 type: 'array',
                                 optional: true
+                            },
+                            host: {
+                                type: 'string',
+                                optional: true
                             }
                         }
                     }

@@ -80,12 +80,14 @@ https://bidder.rtk.io/0000/1234/aardvark?1234=1234&jsonp=false&rtkreferer=http%3
 | `ai` | yes | string | The rtk auction ID |
 | `sc` | yes | string | The rtk shortcode | 
 | `categories` | no |  array | Deal ID Categories |
+| `host` | no | string | custom ALIAS for the bidder hostname | 
 
 ### Example
 ```javascript
 {
     "ai": "0000",
     "sc": "1234",
-    "categories": ["sport"]
+    "categories": ["sport"],
+    "host": "somealias.com"
 }
 ```
