@@ -29,6 +29,18 @@ var Whoopsie = require('whoopsie.js');
 // Main ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+/* Get information on page refresh */
+function getPageRefreshed() {
+    try {
+        if (performance && performance.navigation) {
+            return performance.navigation.type === performance.navigation.TYPE_RELOAD;
+        }
+    } catch (e) {
+    }
+
+    return false;
+}
+
 /**
  * Partner module template
  *
@@ -133,23 +145,25 @@ function AdYouLikeHtb(configs) {
         var queryObj = {};
         var callbackId;
 
-        var bids = returnParcels.reduce(function(accumulator, bid) {
+        var bids = returnParcels.reduce(function (accumulator, bid) {
             var bidId = bid.htSlot.getId();
 
-            if(!callbackId) {
+            if (!callbackId) {
                 callbackId = bidId;
             }
-            
-            var sizesArray = getSizeArray(bid);
-            var size = getSize(sizesArray);
+
+            // GetSizeArray(bid);  &  getSize(sizesArray);
+            var sizesArray = [[250, 300]];
+            var size = [250, 300];
             accumulator[bidId] = {};
             accumulator[bidId].PlacementID = bid.params.placement;
             accumulator[bidId].TransactionID = bid.transactionId;
             accumulator[bidId].Width = size.width;
             accumulator[bidId].Height = size.height;
             accumulator[bidId].AvailableSizes = sizesArray.join(',');
+
             return accumulator;
-          }, {})
+        }, {});
 
         /* Change this to your bidder endpoint. */
         var baseUrl = Browser.getProtocol() + '//hb-api.omnitagjs.com/hb-api/prebid/v1';
@@ -186,7 +200,7 @@ function AdYouLikeHtb(configs) {
         };
 
         queryObj = {
-            Bids: bids
+            Bids: bids,
             gdprConsent: gdprConsent,
             PageRefreshed: getPageRefreshed()
         };
@@ -295,7 +309,6 @@ function AdYouLikeHtb(configs) {
             var curBid;
 
             for (var i = 0; i < bids.length; i++) {
-
                 /* ----------- Find a matching bid for the current parcel ------------- */
                 if (htSlotId === bids[i].BidID) {
                     curBid = bids[i];
