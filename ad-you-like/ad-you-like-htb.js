@@ -41,6 +41,15 @@ function getPageRefreshed() {
     return false;
 }
 
+function formatAvailableSize(sizesArray) {
+    var result = [];
+    for (var i = 0; i < sizesArray.length; i++) {
+        result.push(sizesArray[i].join('x'));
+    }
+
+    return result.join(',');
+}
+
 /**
  * Partner module template
  *
@@ -84,6 +93,7 @@ function AdYouLikeHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
+        debugger;
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -152,15 +162,13 @@ function AdYouLikeHtb(configs) {
                 callbackId = bidId;
             }
 
-            // GetSizeArray(bid);  &  getSize(sizesArray);
-            var sizesArray = [[250, 300]];
-            var size = [250, 300];
+            var sizesArray = bid.xSlotRef.sizes;
+            var size = sizesArray[0];
             accumulator[bidId] = {};
-            accumulator[bidId].PlacementID = bid.params.placement;
-            accumulator[bidId].TransactionID = bid.transactionId;
+            accumulator[bidId].PlacementID = bid.xSlotRef.placementId;
             accumulator[bidId].Width = size.width;
             accumulator[bidId].Height = size.height;
-            accumulator[bidId].AvailableSizes = sizesArray.join(',');
+            accumulator[bidId].AvailableSizes = formatAvailableSize(sizesArray);
 
             return accumulator;
         }, {});
@@ -200,8 +208,8 @@ function AdYouLikeHtb(configs) {
         };
 
         queryObj = {
-            Bids: bids,
-            gdprConsent: gdprConsent,
+            Bids: JSON.stringify(bids),
+            gdprConsent: JSON.stringify(gdprConsent),
             PageRefreshed: getPageRefreshed()
         };
 
@@ -230,6 +238,7 @@ function AdYouLikeHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
+        debugger;
         /* Get callbackId from adResponse here */
         var callbackId = adResponse[0].BidID;
         __baseClass._adResponseStore[callbackId] = adResponse;
@@ -251,6 +260,7 @@ function AdYouLikeHtb(configs) {
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
+        debugger;
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
@@ -273,6 +283,7 @@ function AdYouLikeHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
+        debugger;
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
