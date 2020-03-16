@@ -93,7 +93,6 @@ function AdYouLikeHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        debugger;
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -238,10 +237,6 @@ function AdYouLikeHtb(configs) {
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
     function adResponseCallback(adResponse) {
-        debugger;
-        /* Get callbackId from adResponse here */
-        var callbackId = adResponse[0].BidID;
-        __baseClass._adResponseStore[callbackId] = adResponse;
     }
 
     /* -------------------------------------------------------------------------- */
@@ -260,7 +255,6 @@ function AdYouLikeHtb(configs) {
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
-        debugger;
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
@@ -283,7 +277,6 @@ function AdYouLikeHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-        debugger;
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -368,7 +361,6 @@ function AdYouLikeHtb(configs) {
             var pixelUrl = '';
 
             /* --------------------------------------------------------------------------------------- */
-
             curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
@@ -487,7 +479,7 @@ function AdYouLikeHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID,
+            callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
