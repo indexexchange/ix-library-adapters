@@ -42,6 +42,7 @@
 | auids | Yes | string | Comma separated adslot IDs  |
 | u | No | string | Site page adslots are on |
 | cb | No | string | JavaScript function to wrap response with, if empty or absent pure JSON will be returned |
+| tdid | No | string | User ID that the Unified ID solution endpoint returned |
 | gdpr_consent | No | string | Shows whether GDPR regulations should apply to the user or not |
 | gdpr_applies | No | string | Shows whether the user has given its consent based on IAB consent policy |
 | wrapperType | No | string | Type of wrapper, for example "IX" |
