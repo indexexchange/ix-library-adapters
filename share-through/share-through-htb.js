@@ -90,7 +90,7 @@ function ShareThroughHtb(configs) {
             bidId: returnParcels[0].requestId,
             instant_play_capable: __canAutoPlayHTML5Video(),
             hbSource: "indexExchange",
-            hbVersion: "2.2.0",
+            hbVersion: "2.3.0",
             cbust: System.now()
         };
 
@@ -112,7 +112,7 @@ function ShareThroughHtb(configs) {
         // US Privacy consent string, i.e. CCPA
         var uspString = ComplianceService.usp.getConsent().uspString;
         if (privacyEnabled && uspString) {
-            query.us_privacy = uspString;
+            queryObj.us_privacy = uspString;
         }
 
         return {
@@ -358,7 +358,7 @@ function ShareThroughHtb(configs) {
             partnerId: 'ShareThroughHtb', // PartnerName
             namespace: 'ShareThroughHtb', // Should be same as partnerName
             statsId: 'SHTH', // Unique partner identifier
-            version: '2.2.0',
+            version: '2.3.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

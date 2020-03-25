@@ -39,12 +39,11 @@ function getConfig() {
 
 function validateBidRequest(request) {
   var queryObj = request.query;
-
   expect(queryObj.bidId).toBeDefined();
   expect(queryObj.placement_key).toEqual("abc123");
   expect(queryObj.instant_play_capable).toBeDefined();
   expect(queryObj.hbSource).toEqual("indexExchange");
-  expect(queryObj.hbVersion).toEqual("2.2.0");
+  expect(queryObj.hbVersion).toEqual("2.3.0");
   expect(queryObj.cbust).toBeDefined();
   expect(queryObj.consent_required).toEqual("false");
   expect(queryObj.secure).toBeDefined();
@@ -52,21 +51,17 @@ function validateBidRequest(request) {
 
 function validateBidRequestWithPrivacy(request) {
   var queryObj = request.query;
-
   expect(queryObj.consent_required).toEqual("true");
   expect(queryObj.consent_string).toEqual("TEST_GDPR_CONSENT_STRING");
 }
 
 function validateBidRequestWithUspapi(request) {
   var queryObj = request.query;
-
-  expect(queryObj.consent_required).toEqual("true");
   expect(queryObj.us_privacy).toEqual("TEST_USPAPI_CONSENT_STRING");
 }
 
 function validateBidRequestWithAdSrvrOrg(request) {
   var queryObj = request.query;
-
   expect(queryObj.ttduid).toEqual("TEST_ADSRVR_ORG_STRING");
 }
 
