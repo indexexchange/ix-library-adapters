@@ -108,6 +108,12 @@ function ShareThroughHtb(configs) {
             queryObj.consent_required = gdprStatus.applies;
             queryObj.consent_string = gdprStatus.consentString;
         }
+        
+        // US Privacy consent string, i.e. CCPA
+        var uspString = ComplianceService.usp.getConsent().uspString;
+        if (privacyEnabled && uspString) {
+            query.us_privacy = uspString;
+        }
 
         return {
             url: baseUrl,

@@ -57,6 +57,13 @@ function validateBidRequestWithPrivacy(request) {
   expect(queryObj.consent_string).toEqual("TEST_GDPR_CONSENT_STRING");
 }
 
+function validateBidRequestWithUspapi(request) {
+  var queryObj = request.query;
+
+  expect(queryObj.consent_required).toEqual("true");
+  expect(queryObj.us_privacy).toEqual("TEST_USPAPI_CONSENT_STRING");
+}
+
 function validateBidRequestWithAdSrvrOrg(request) {
   var queryObj = request.query;
 
@@ -100,6 +107,7 @@ module.exports = {
   getConfig: getConfig,
   validateBidRequest: validateBidRequest,
   validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+  validateBidRequestWithUspapi: validateBidRequestWithUspapi,
   validateBidRequestWithAdSrvrOrg: validateBidRequestWithAdSrvrOrg,
   getValidResponse: getValidResponse,
   validateTargeting: validateTargeting,
