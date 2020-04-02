@@ -20,12 +20,12 @@ var RenderService;
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
 var PartnerSpecificValidator = require('deep-intent-htb-validator.js');
-var Inspector = require('schema-inspector.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
 var undef;
+var DI_M_V = '1.0.0';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
@@ -38,292 +38,293 @@ var undef;
  */
 function DeepIntentHtb(configs) {
     /* =====================================
-   * Data
-   * ---------------------------------- */
+     * Data
+     * ---------------------------------- */
 
     /* Private
-   * ---------------------------------- */
+     * ---------------------------------- */
 
     /**
-   * Reference to the partner base class.
-   *
-   * @private {object}
-   */
+     * Reference to the partner base class.
+     *
+     * @private {object}
+     */
     var __baseClass;
 
     /**
-   * Profile for this partner.
-   *
-   * @private {object}
-   */
+     * Profile for this partner.
+     *
+     * @private {object}
+     */
     var __profile;
     var __globalConfigs;
 
     /* =====================================
-   * Functions
-   * ---------------------------------- */
+     * Functions
+     * ---------------------------------- */
 
     /* Utilities
-   * ---------------------------------- */
+     * ---------------------------------- */
 
-    function __getSiteObject(publisherId) {
+    function __getSiteObject() {
         var retObj = {
             page: Browser.topWindow.location.href,
-            ref: Browser.topWindow.document.referrer,
-            publisher: {
-                id: publisherId,
-                domain: Browser.topWindow.location.hostname
-            },
             domain: Browser.topWindow.location.hostname
         };
 
         return retObj;
     }
 
-    function _getSlotParam(paramName, paramValue) {
-        if (Utilities.isString(paramValue)) {
-            switch (paramName) {
-                case 'zoneid':
-                    return paramValue
-                        .split(',')
-                        .slice(0, 50)
-                        .map(function (id) {
-                            return id.trim();
-                        })
-                        .join();
-                case 'bidfloor':
-                case 'lat':
-                case 'lon':
-                    return parseFloat(paramValue) || undef;
-                case 'yob':
-                    return parseInt(paramValue, 10) || undef;
+    function __getDeviceObject() {
+        var dnt = Browser.topWindow.navigator.doNotTrack === 'yes' || Browser.topWindow.navigator.doNotTrack === '1'
+            || Browser.topWindow.navigator.msDoNotTrack === '1' ? 1 : 0;
 
-                default:
-                    return paramValue;
+        return {
+            ua: Browser.getUserAgent(),
+            js: 1,
+            dnt: dnt,
+            h: Browser.getScreenHeight(),
+            w: Browser.getScreenWidth(),
+            language: Browser.getLanguage()
+        };
+    }
+
+    function __getUserObject(userInputObj) {
+        var user = {};
+        if (!Utilities.isEmpty(userInputObj)) {
+            var id = userInputObj.id && typeof userInputObj.id === 'string' ? userInputObj.id : undef;
+            // eslint-disable-next-line max-len
+            var buyeruid = userInputObj.buyeruid && typeof userInputObj.buyeruid === 'string' ? userInputObj.buyeruid : undef;
+            var yob = userInputObj.yob && typeof userInputObj.yob === 'number' ? userInputObj.yob : null;
+            var gender = userInputObj.gender && typeof userInputObj.gender === 'string' ? userInputObj.gender : undef;
+            // eslint-disable-next-line max-len
+            var keywords = userInputObj.keywords && typeof userInputObj.keywords === 'string' ? userInputObj.keywords : undef;
+            // eslint-disable-next-line max-len
+            var customdata = userInputObj.customdata && typeof userInputObj.customdata === 'string' ? userInputObj.customdata : undef;
+            if (id) {
+                user.id = id;
             }
-        } else {
-            return undef;
+
+            if (buyeruid) {
+                user.buyeruid = buyeruid;
+            }
+
+            if (yob) {
+                user.yob = yob;
+            }
+
+            if (gender) {
+                user.gender = gender;
+            }
+
+            if (keywords) {
+                user.keywords = keywords;
+            }
+
+            if (customdata) {
+                user.customdata = customdata;
+            }
+        }
+
+        return user;
+    }
+
+    function __getBannerObj(bid) {
+        // Get Sizes from MediaTypes Object, Will always take first size, will be overrided by params for exact w,h
+        if (bid.xSlotRef.sizes) {
+            var sizes = bid.xSlotRef.sizes;
+            if (Utilities.isArray(sizes) && sizes.length > 0) {
+                return {
+                    h: sizes[0][1],
+                    w: sizes[0][0],
+                    pos: bid && bid.params && bid.params.pos ? bid.params.pos : 0
+                };
+            }
         }
     }
 
-    function __getImprObject(returnParcels) {
-        var retArr = [];
-        var impObj = {};
-        var sizes = [];
-        var sizeIndex = 0;
-
-        returnParcels.forEach(function (rp) {
-            sizeIndex = 0;
-            impObj = {
-                id: rp.htSlot.getId(),
-                tagId: rp.xSlotRef.adUnitName,
-                secure: 1,
-                bidFloor: _getSlotParam('bidfloor', __globalConfigs.bidFloor),
-                site: __getSiteObject(__globalConfigs.pubId),
-                ext: {
-                    zoneid: _getSlotParam('zoneid', rp.pmzoneid)
-                }
+    function __getCustomParams(bid) {
+        if (bid.params && bid.params.custom) {
+            return {
+                deepintent: bid.params.custom
             };
-            sizes = rp.xSlotRef.sizes;
-            impObj.banner = {};
-            impObj.banner.format = [];
-            sizes.forEach(function (size) {
-                if (size.length === 2) {
-                    if (sizeIndex === 0) {
-                        impObj.banner.w = size[0];
-                        impObj.banner.h = size[1];
-                        sizeIndex++;
-                    } else {
-                        impObj.banner.format.push({
-                            w: size[0],
-                            h: size[1]
-                        });
-                    }
-                }
-            });
-            if (impObj.banner.format.length === 0) {
-                delete impObj.banner.format;
-            }
-            retArr.push(impObj);
-        });
+        }
 
-        return retArr;
+        return {};
+    }
+
+    function __getImprObject(bid) {
+        if (!bid) {
+            return null;
+        }
+
+        return {
+            id: bid.htSlot.getId(),
+            tagid: bid.xSlotRef.adUnitName || '',
+            secure: Browser.getProtocol(0, 1),
+            banner: __getBannerObj(bid),
+            displaymanager: 'di_indexexchange',
+            displaymanagerver: DI_M_V,
+            ext: __getCustomParams(bid)
+        };
     }
 
     /**
-   * Generates the request URL and query data to the endpoint for the xSlots
-   * in the given returnParcels.
-   *
-   * @param  {object[]} returnParcels
-   *
-   * @return {object}
-   */
-    function __generateRequestObj(returnParcels) {
-    //? if (DEBUG){
-        var results = Inspector.validate(
-            {
-                type: 'array',
-                exactLength: 1,
-                items: {
-                    type: 'object',
-                    properties: {
-                        htSlot: {
-                            type: 'object'
-                        },
-                        xSlotRef: {
-                            type: 'object'
-                        },
-                        xSlotName: {
-                            type: 'string',
-                            minLength: 1
-                        }
-                    }
-                }
-            },
-            returnParcels
-        );
-        if (!results.valid) {
-            throw Whoopsie('INVALID_ARGUMENT', results.format());
-        }
-        //? }
-        /* =============================================================================
-     * STEP 2  | Generate Request URL
-     * -----------------------------------------------------------------------------
+     * Generates the request URL and query data to the endpoint for the xSlots
+     * in the given returnParcels.
      *
-     * Generate the URL to request demand from the partner endpoint using the provided
-     * returnParcels. The returnParcels is an array of objects each object containing
-     * an .xSlotRef which is a reference to the xSlot object from the partner configuration.
-     * Use this to retrieve the placements/xSlots you need to request for.
+     * @param  {object[]} returnParcels
      *
-     * If your partner is MRA, returnParcels will be an array of length one. If your
-     * partner is SRA, it will contain any number of entities. In any event, the full
-     * contents of the array should be able to fit into a single request and the
-     * return value of this function should similarly represent a single request to the
-     * endpoint.
-     *
-     * Return an object containing:
-     * queryUrl: the url for the request
-     * data: the query object containing a map of the query string paramaters
-     *
-     * callbackId:
-     *
-     * arbitrary id to match the request with the response in the callback function. If
-     * your endpoint supports passing in an arbitrary ID and returning it as part of the response
-     * please use the callbackType: Partner.CallbackTypes.ID and fill out the adResponseCallback.
-     * Also please provide this adResponseCallback to your bid request here so that the JSONP
-     * response calls it once it has completed.
-     *
-     * If your endpoint does not support passing in an ID, simply use
-     * Partner.CallbackTypes.CALLBACK_NAME and the wrapper will take care of handling request
-     * matching by generating unique callbacks for each request using the callbackId.
-     *
-     * If your endpoint is ajax only, please set the appropriate values in your profile for this,
-     * i.e. Partner.CallbackTypes.NONE and Partner.Requesttypes.AJAX. You also do not need to provide
-     * a callbackId in this case because there is no callback.
-     *
-     * The return object should look something like this:
-     * {
-     *     url: 'http://bidserver.com/api/bids' // base request url for a GET/POST request
-     *     data: { // query string object that will be attached to the base url
-     *        slots: [
-     *             {
-     *                 placementId: 54321,
-     *                 sizes: [[300, 250]]
-     *             },{
-     *                 placementId: 12345,
-     *                 sizes: [[300, 600]]
-     *             },{
-     *                 placementId: 654321,
-     *                 sizes: [[728, 90]]
-     *             }
-     *         ],
-     *         site: 'http://google.com'
-     *     },
-     *     callbackId: '_23sd2ij4i1' //unique id used for pairing requests and responses
-     * }
+     * @return {object}
      */
+    function __generateRequestObj(returnParcels) {
+        /* =============================================================================
+         * STEP 2  | Generate Request URL
+         * -----------------------------------------------------------------------------
+         *
+         * Generate the URL to request demand from the partner endpoint using the provided
+         * returnParcels. The returnParcels is an array of objects each object containing
+         * an .xSlotRef which is a reference to the xSlot object from the partner configuration.
+         * Use this to retrieve the placements/xSlots you need to request for.
+         *
+         * If your partner is MRA, returnParcels will be an array of length one. If your
+         * partner is SRA, it will contain any number of entities. In any event, the full
+         * contents of the array should be able to fit into a single request and the
+         * return value of this function should similarly represent a single request to the
+         * endpoint.
+         *
+         * Return an object containing:
+         * queryUrl: the url for the request
+         * data: the query object containing a map of the query string paramaters
+         *
+         * callbackId:
+         *
+         * arbitrary id to match the request with the response in the callback function. If
+         * your endpoint supports passing in an arbitrary ID and returning it as part of the response
+         * please use the callbackType: Partner.CallbackTypes.ID and fill out the adResponseCallback.
+         * Also please provide this adResponseCallback to your bid request here so that the JSONP
+         * response calls it once it has completed.
+         *
+         * If your endpoint does not support passing in an ID, simply use
+         * Partner.CallbackTypes.CALLBACK_NAME and the wrapper will take care of handling request
+         * matching by generating unique callbacks for each request using the callbackId.
+         *
+         * If your endpoint is ajax only, please set the appropriate values in your profile for this,
+         * i.e. Partner.CallbackTypes.NONE and Partner.Requesttypes.AJAX. You also do not need to provide
+         * a callbackId in this case because there is no callback.
+         *
+         * The return object should look something like this:
+         * {
+         *     url: 'http://bidserver.com/api/bids' // base request url for a GET/POST request
+         *     data: { // query string object that will be attached to the base url
+         *        slots: [
+         *             {
+         *                 placementId: 54321,
+         *                 sizes: [[300, 250]]
+         *             },{
+         *                 placementId: 12345,
+         *                 sizes: [[300, 600]]
+         *             },{
+         *                 placementId: 654321,
+         *                 sizes: [[728, 90]]
+         *             }
+         *         ],
+         *         site: 'http://google.com'
+         *     },
+         *     callbackId: '_23sd2ij4i1' //unique id used for pairing requests and responses
+         * }
+         */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         var callbackId = System.generateUniqueId();
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var baseUrl = 'https://prebid.deepintent.com/prebid';
 
         /* ------------------------ Get consent information -------------------------
-     * If you want to implement GDPR consent in your adapter, use the function
-     * ComplianceService.gdpr.getConsent() which will return an object.
-     *
-     * Here is what the values in that object mean:
-     *      - applies: the boolean value indicating if the request is subject to
-     *      GDPR regulations
-     *      - consentString: the consent string developed by GDPR Consent Working
-     *      Group under the auspices of IAB Europe
-     *
-     * The return object should look something like this:
-     * {
-     *      applies: true,
-     *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
-     * }
-     *
-     * You can also determine whether or not the publisher has enabled privacy
-     * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
-     *
-     * This function will return a boolean, which indicates whether the wrapper's
-     * privacy features are on (true) or off (false). If they are off, the values
-     * returned from gdpr.getConsent() are safe defaults and no attempt has been
-     * made by the wrapper to contact a Consent Management Platform.
-     */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-
+         * If you want to implement GDPR consent in your adapter, use the function
+         * ComplianceService.gdpr.getConsent() which will return an object.
+         *
+         * Here is what the values in that object mean:
+         *      - applies: the boolean value indicating if the request is subject to
+         *      GDPR regulations
+         *      - consentString: the consent string developed by GDPR Consent Working
+         *      Group under the auspices of IAB Europe
+         *
+         * The return object should look something like this:
+         * {
+         *      applies: true,
+         *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
+         * }
+         *
+         * You can also determine whether or not the publisher has enabled privacy
+         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
+         *
+         * This function will return a boolean, which indicates whether the wrapper's
+         * privacy features are on (true) or off (false). If they are off, the values
+         * returned from gdpr.getConsent() are safe defaults and no attempt has been
+         * made by the wrapper to contact a Consent Management Platform.
+         */
         /* ---------------- Craft bid request using the above returnParcels --------- */
-
+        var impressions = [];
+        if (Utilities.isArray(returnParcels)) {
+            for (var kk = 0; kk < returnParcels.length; kk++) {
+                var impObj = __getImprObject(returnParcels[kk]);
+                if (impObj) {
+                    impressions.push(impObj);
+                }
+            }
+        }
         var queryObj = {
             id: System.generateUniqueId(),
-            imp: __getImprObject(returnParcels),
+
+            at: 1,
+
+            imp: impressions,
+
+            site: __getSiteObject(),
+
+            device: __getDeviceObject(),
+
             // eslint-disable-next-line camelcase
             callback_uid: callbackId
         };
 
-        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-
-        if (gdprStatus && privacyEnabled) {
-            if (typeof gdprStatus.applies === 'boolean') {
-                queryObj.regs = {
-                    ext: {
-                        gdpr: gdprStatus.applies ? 1 : 0
-                    }
-                };
-            }
-            queryObj.user = {
-                ext: {
-                    consent: gdprStatus.consentString
-                }
-            };
+        var user = __getUserObject(__globalConfigs.user);
+        if (user && !Utilities.isEmpty(user)) {
+            queryObj.user = user;
         }
+
+        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
         /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            callbackId: callbackId,
+
+            /* Signals a POST request and the content type */
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
     /* =============================================================================
-   * STEP 3  | Response callback
-   * -----------------------------------------------------------------------------
-   *
-   * This generator is only necessary if the partner's endpoint has the ability
-   * to return an arbitrary ID that is sent to it. It should retrieve that ID from
-   * the response and save the response to adResponseStore keyed by that ID.
-   *
-   * If the endpoint does not have an appropriate field for this, set the profile's
-   * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
-   */
+     * STEP 3  | Response callback
+     * -----------------------------------------------------------------------------
+     *
+     * This generator is only necessary if the partner's endpoint has the ability
+     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
+     * the response and save the response to adResponseStore keyed by that ID.
+     *
+     * If the endpoint does not have an appropriate field for this, set the profile's
+     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
+     */
     function adResponseCallback(adResponse) {
-    /* Get callbackId from adResponse here */
+        /* Get callbackId from adResponse here */
         var callbackId = 0;
         __baseClass._adResponseStore[callbackId] = adResponse;
     }
@@ -331,18 +332,18 @@ function DeepIntentHtb(configs) {
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
-   * ---------------------------------- */
+     * ---------------------------------- */
 
     /* =============================================================================
-   * STEP 5  | Rendering Pixel
-   * -----------------------------------------------------------------------------
-   *
-   */
+     * STEP 5  | Rendering Pixel
+     * -----------------------------------------------------------------------------
+     *
+     */
 
     /**
-   * This function will render the pixel given.
-   * @param  {string} pixelUrl Tracking pixel img url.
-   */
+     * This function will render the pixel given.
+     * @param  {string} pixelUrl Tracking pixel img url.
+     */
     function __renderPixel(pixelUrl) {
         if (pixelUrl) {
             Network.img({
@@ -353,46 +354,46 @@ function DeepIntentHtb(configs) {
     }
 
     /**
-   * Parses and extracts demand from adResponse according to the adapter and then attaches it
-   * to the corresponding bid's returnParcel in the correct format using targeting keys.
-   *
-   * @param {string} sessionId The sessionId, used for stats and other events.
-   *
-   * @param {any} adResponse This is the bid response as returned from the bid request, that was either
-   * passed to a JSONP callback or simply sent back via AJAX.
-   *
-   * @param {object[]} returnParcels The array of original parcels, SAME array that was passed to
-   * generateRequestObj to signal which slots need demand. In this funciton, the demand needs to be
-   * attached to each one of the objects for which the demand was originally requested for.
-   */
+     * Parses and extracts demand from adResponse according to the adapter and then attaches it
+     * to the corresponding bid's returnParcel in the correct format using targeting keys.
+     *
+     * @param {string} sessionId The sessionId, used for stats and other events.
+     *
+     * @param {any} adResponse This is the bid response as returned from the bid request, that was either
+     * passed to a JSONP callback or simply sent back via AJAX.
+     *
+     * @param {object[]} returnParcels The array of original parcels, SAME array that was passed to
+     * generateRequestObj to signal which slots need demand. In this funciton, the demand needs to be
+     * attached to each one of the objects for which the demand was originally requested for.
+     */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-    /* =============================================================================
-     * STEP 4  | Parse & store demand response
-     * -----------------------------------------------------------------------------
-     *
-     * Fill the below variables with information about the bid from the partner, using
-     * the adResponse variable that contains your module adResponse.
-     */
+        /* =============================================================================
+         * STEP 4  | Parse & store demand response
+         * -----------------------------------------------------------------------------
+         *
+         * Fill the below variables with information about the bid from the partner, using
+         * the adResponse variable that contains your module adResponse.
+         */
 
-    /* This an array of all the bids in your response that will be iterated over below. Each of
-     * these will be mapped back to a returnParcel object using some criteria explained below.
-     * The following variables will also be parsed and attached to that returnParcel object as
-     * returned demand.
-     *
-     * Use the adResponse variable to extract your bid information and insert it into the
-     * bids array. Each element in the bids array should represent a single bid and should
-     * match up to a single element from the returnParcel array.
-     *
-     */
+        /* This an array of all the bids in your response that will be iterated over below. Each of
+         * these will be mapped back to a returnParcel object using some criteria explained below.
+         * The following variables will also be parsed and attached to that returnParcel object as
+         * returned demand.
+         *
+         * Use the adResponse variable to extract your bid information and insert it into the
+         * bids array. Each element in the bids array should represent a single bid and should
+         * match up to a single element from the returnParcel array.
+         *
+         */
 
-    /* ---------- Process adResponse and extract the bids into the bids array ------------ */
+        /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
         var bids = [];
         if (
             adResponse
-      && adResponse.seatbid
-      && Utilities.isArray(adResponse.seatbid)
-      && adResponse.seatbid.length > 0
+            && adResponse.seatbid
+            && Utilities.isArray(adResponse.seatbid)
+            && adResponse.seatbid.length > 0
         ) {
             for (var ii = 0; ii < adResponse.seatbid.length; ii++) {
                 bids = bids.concat(adResponse.seatbid[ii].bid);
@@ -433,14 +434,16 @@ function DeepIntentHtb(configs) {
                     sizes = curReturnParcel.xSlotRef.sizes[index];
 
                     /**
-           * This section maps internal returnParcels and demand returned from the bid request.
-           * In order to match them correctly, they must be matched via some criteria. This
-           * is usually some sort of placements or inventory codes. Please replace the someCriteria
-           * key to a key that represents the placement in the configuration and in the bid responses.
-           */
+                     * This section maps internal returnParcels and demand returned from the bid request.
+                     * In order to match them correctly, they must be matched via some criteria. This
+                     * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                     * key to a key that represents the placement in the configuration and in the bid responses.
+                     */
                     if (bids[i].impid === curReturnParcel.htSlot.getId()) {
-                        if (parseInt(bids[i].w, 10) === parseInt(sizes[0], 10)
-                   && parseInt(bids[i].h, 10) === parseInt(sizes[1], 10)) {
+                        if (
+                            parseInt(bids[i].w, 10) === parseInt(sizes[0], 10)
+                            && parseInt(bids[i].h, 10) === parseInt(sizes[1], 10)
+                        ) {
                             curBid = bids[i];
                             bids.splice(i, 1);
                             bidMatchFound = true;
@@ -472,7 +475,7 @@ function DeepIntentHtb(configs) {
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
-       * these local variables */
+             * these local variables */
 
             /* The bid price for the given slot */
             var bidPrice = curBid.price;
@@ -481,8 +484,8 @@ function DeepIntentHtb(configs) {
             var bidSize = [Number(curBid.width), Number(curBid.height)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
-       * Please make sure the URL is decoded and ready to be document.written.
-       */
+             * Please make sure the URL is decoded and ready to be document.written.
+             */
             var bidCreative = curBid.adm;
 
             /* The dealId if applicable for this slot. */
@@ -492,9 +495,9 @@ function DeepIntentHtb(configs) {
             var bidIsPass = bidPrice <= 0;
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-       * If firing a tracking pixel is not required or the pixel url is part of the adm,
-       * leave empty;
-       */
+             * If firing a tracking pixel is not required or the pixel url is part of the adm,
+             * leave empty;
+             */
             var pixelUrl = '';
 
             /* --------------------------------------------------------------------------------------- */
@@ -504,9 +507,9 @@ function DeepIntentHtb(configs) {
                 //? if (DEBUG) {
                 Scribe.info(
                     __profile.partnerId
-            + ' returned pass for { id: '
-            + adResponse.id
-            + ' }.'
+                        + ' returned pass for { id: '
+                        + adResponse.id
+                        + ' }.'
                 );
                 //? }
                 if (__profile.enabledAnalytics.requestTime) {
@@ -582,19 +585,19 @@ function DeepIntentHtb(configs) {
     }
 
     /* =====================================
-   * Constructors
-   * ---------------------------------- */
+     * Constructors
+     * ---------------------------------- */
 
     (function __constructor() {
         ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
 
         /* =============================================================================
-     * STEP 1  | Partner Configuration
-     * -----------------------------------------------------------------------------
-     *
-     * Please fill out the below partner profile according to the steps in the README doc.
-     */
+         * STEP 1  | Partner Configuration
+         * -----------------------------------------------------------------------------
+         *
+         * Please fill out the below partner profile according to the steps in the README doc.
+         */
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
@@ -637,14 +640,21 @@ function DeepIntentHtb(configs) {
 
         //? if (DEBUG) {
         var results
-      = ConfigValidators.partnerBaseConfig(configs)
-      || PartnerSpecificValidator(configs);
+            = ConfigValidators.partnerBaseConfig(configs)
+            || PartnerSpecificValidator(configs);
 
         if (results) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
+        __globalConfigs = {
+            pubId: configs.publisherId,
 
+            yob: configs.yob || undef,
+            gender: configs.gender || undef,
+            version: configs.version || undef,
+            user: configs.user || undef
+        };
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
@@ -653,14 +663,14 @@ function DeepIntentHtb(configs) {
     })();
 
     /* =====================================
-   * Public Interface
-   * ---------------------------------- */
-
-    var derivedClass = {
-    /* Class Information
+     * Public Interface
      * ---------------------------------- */
 
-    //? if (DEBUG) {
+    var derivedClass = {
+        /* Class Information
+         * ---------------------------------- */
+
+        //? if (DEBUG) {
         __type__: 'DeepIntentHtb',
         //? }
 
@@ -669,20 +679,20 @@ function DeepIntentHtb(configs) {
         //? }
 
         /* Data
-     * ---------------------------------- */
+         * ---------------------------------- */
 
         //? if (TEST) {
         profile: __profile,
         //? }
 
         /* Functions
-     * ---------------------------------- */
+         * ---------------------------------- */
 
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
         adResponseCallback: adResponseCallback
-    //? }
+        //? }
     };
 
     return Classify.derive(__baseClass, derivedClass);
