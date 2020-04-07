@@ -167,7 +167,7 @@ function validateBidRequestWithPrivacy(request) {
 
     expect(r.user).toEqual(jasmine.objectContaining({
         ext: {
-            consent: 'TEST_GDPR_CONSENT_STRING'
+            gdpr_consent: 'TEST_GDPR_CONSENT_STRING'
         }
     }));
 }
