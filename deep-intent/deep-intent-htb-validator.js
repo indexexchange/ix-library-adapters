@@ -24,49 +24,12 @@ function partnerValidator(configs) {
         {
             type: 'object',
             properties: {
-                timeout: {
-                    type: 'number'
-                },
-                publisherId: {
-                    type: 'string'
-                },
-                lat: {
-                    type: 'string',
-                    optional: true
-                },
-                lon: {
-                    type: 'string',
-                    optional: true
-                },
-                yob: {
-                    type: 'string',
-                    optional: true
-                },
-                gender: {
-                    type: 'string',
-                    optional: true
-                },
-                bidfloor: {
-                    type: 'string',
-                    optional: true
-                },
-                profile: {
-                    type: 'number',
-                    optional: true
-                },
-                version: {
-                    type: 'number',
-                    optional: true
-                },
                 xSlots: {
                     type: 'object',
                     properties: {
                         '*': {
                             type: 'object',
                             properties: {
-                                adUnitName: {
-                                    type: 'string'
-                                },
                                 sizes: {
                                     type: 'array',
                                     minLength: 1
