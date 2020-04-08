@@ -102,8 +102,8 @@ function validateBidRequest(request) {
 function getValidResponse(request, creative) {
     var body = JSON.parse(request.body);
     var response = {
-        cur: 'USD',
         id: '4E733404-CC2E-48A2-BC83-4DD5F38FE9BB',
+        bidId: '0b08b09f-aaa1-4c14-b1c8-7debb1a7c1cd',
         seatbid: [
             {
                 seat: '12345',
@@ -112,27 +112,25 @@ function getValidResponse(request, creative) {
                         id: '4E733404-CC2E-48A2-BC83-4DD5F38FE9BB',
                         impid: body.imp[0].id,
                         price: 2,
+                        adid: '10001',
                         adm: creative,
                         adomain: ['test.com'],
                         cid: '16981',
+                        crid: '13665',
                         h: 600,
-                        w: 160,
-                        ext: {
-                            dspid: 6
-                        }
+                        w: 160
                     },
                     {
                         id: '4E733404-CC2E-48A2-BC83-4DD5F38FE9BC',
                         impid: body.imp[1].id,
                         price: 2,
+                        adid: '10001',
                         adm: creative,
                         adomain: ['test.com'],
                         cid: '16981',
+                        crid: '13665',
                         h: 250,
-                        w: 300,
-                        ext: {
-                            dspid: 6
-                        }
+                        w: 300
                     }
                 ]
             }

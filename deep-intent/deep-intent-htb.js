@@ -89,7 +89,7 @@ function DeepIntentHtb(configs) {
         };
     }
 
-    function __getUserObject(userInputObj) {
+    function __getUserObject(userInputObj, idData) {
         var user = {};
         if (!Utilities.isEmpty(userInputObj)) {
             var id = userInputObj.id && typeof userInputObj.id === 'string' ? userInputObj.id : undef;
@@ -124,6 +124,10 @@ function DeepIntentHtb(configs) {
             if (customdata) {
                 user.customdata = customdata;
             }
+
+            if (idData && idData.hasOwnProperty('AdserverOrgIp') && idData.AdserverOrgIp.hasOwnProperty('data')) {
+                user.eids = [idData.AdserverOrgIp.data];
+            }
         }
 
         return user;
@@ -141,6 +145,8 @@ function DeepIntentHtb(configs) {
                 };
             }
         }
+
+        return null;
     }
 
     function __getCustomParams(bid) {
@@ -241,6 +247,7 @@ function DeepIntentHtb(configs) {
         /* Change this to your bidder endpoint. */
         var baseUrl = 'https://prebid.deepintent.com/prebid';
         var impressions = [];
+        var idData = returnParcels[0] && returnParcels[0].identityData;
         if (Utilities.isArray(returnParcels)) {
             for (var kk = 0; kk < returnParcels.length; kk++) {
                 var impObj = __getImprObject(returnParcels[kk]);
@@ -249,6 +256,7 @@ function DeepIntentHtb(configs) {
                 }
             }
         }
+
         var queryObj = {
             id: System.generateUniqueId(),
 
@@ -264,7 +272,7 @@ function DeepIntentHtb(configs) {
             callback_uid: callbackId
         };
 
-        var user = __getUserObject(__globalConfigs.user);
+        var user = __getUserObject(__globalConfigs.user, idData);
         if (user && !Utilities.isEmpty(user)) {
             queryObj.user = user;
         }
@@ -309,12 +317,6 @@ function DeepIntentHtb(configs) {
 
             };
         }
-
-        /* ---------------- Craft bid request using the above returnParcels --------- */
-
-        /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-
-        /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
@@ -498,7 +500,7 @@ function DeepIntentHtb(configs) {
             var bidPrice = curBid.price;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
@@ -640,17 +642,17 @@ function DeepIntentHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_dee_id',
-                om: 'ix_dee_cpm',
-                pm: 'ix_dee_cpm',
+                om: 'ix_dee_om',
+                pm: 'ix_dee_om',
                 pmid: 'ix_dee_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
-            bidUnitInCents: 1,
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID,
+            callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.SRA,
-            requestType: Partner.RequestTypes.ANY
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
