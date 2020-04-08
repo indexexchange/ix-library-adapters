@@ -115,7 +115,8 @@ function TeadsHtb(configs) {
             // eslint-disable-next-line camelcase
             payload.gdpr_iab = {
                 consent: gdprStatus.consentString,
-                status: isCmp ? __findGdprStatus(gdprStatus) : __gdprStatus.CMP_NOT_FOUND_OR_ERROR
+                status: isCmp ? __findGdprStatus(gdprStatus) : __gdprStatus.CMP_NOT_FOUND_OR_ERROR,
+                apiVersion: ComplianceService.gdpr.version
             };
             if (ComplianceService.usp) {
                 var uspStatus = ComplianceService.usp.getConsent();
