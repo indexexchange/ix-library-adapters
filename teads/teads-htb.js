@@ -278,7 +278,7 @@ function TeadsHtb(configs) {
             partnerId: 'TeadsHtb',
             namespace: 'TeadsHtb',
             statsId: 'TEADS',
-            version: '2.0.0',
+            version: '2.0.1',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

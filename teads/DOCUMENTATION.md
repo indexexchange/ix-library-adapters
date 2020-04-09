@@ -51,6 +51,7 @@
 |---|---|---|
 | status | true | Number |
 | consent | true | String |
+| apiVersion | true | Number |
 
 #### data object
 
