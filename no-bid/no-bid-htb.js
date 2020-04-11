@@ -54,6 +54,41 @@ function NoBidHtb(configs) {
      */
     var __profile;
 
+    window.nobid = {};
+    window.nobid.bidResponses = window.nobid.bidResponses || {};
+    window.nobid.renderTag = function (doc, id) {
+        var bid = window.nobid.bidResponses[String(id)];
+        if (bid && bid.adm2) {
+            var markup = bid.adm2;
+            doc.write(markup);
+            doc.close();
+        }
+    };
+
+    window.nobid.setCookie = function (cname, cvalue, hours) {
+        var d = new Date();
+        d.setTime(d.getTime() + (hours * 60 * 60 * 1000));
+        var expires = 'expires=' + d.toUTCString();
+        document.cookie = cname + '=' + cvalue + '; ' + expires + '; path=/;';
+    };
+
+    window.nobid.getCookie = function (cname) {
+        var nme = cname + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+
+            if (c.indexOf(nme) === 0) {
+                return c.substring(nme.length, c.length);
+            }
+        }
+
+        return false;
+    };
+
     /* =====================================
      * Functions
      * ---------------------------------- */
@@ -70,7 +105,6 @@ function NoBidHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-    	
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -129,15 +163,15 @@ function NoBidHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-
-        function resolveEndpoint() {
-            var ret = Browser.getProtocol() + '//ads.servenobid.com/'
-            return ret
-        }
-
         function buildEndpoint() {
-        	var ret = resolveEndpoint() + 'adreq?cb=' + Math.floor(Math.random() * 11000)
-            return ret
+            var dev = Browser.getPageUrl()
+                .indexOf('nobid-env=dev');
+            var host = 'ads.servenobid.com';
+            if (dev > 0) {
+                host = 'localhost:8282';
+            }
+
+            return Browser.getProtocol() + '//' + host + '/adreq?cb=' + Math.floor(Math.random() * 11000);
         }
 
         function gdprConsent() {
@@ -154,13 +188,7 @@ function NoBidHtb(configs) {
             return ret;
         }
 
-        var queryObj = {
-            a: returnParcels,
-            gdpr: gdprConsent()
-        };
         var callbackId = System.generateUniqueId();
-
-        /* Change this to your bidder endpoint. */
         var baseUrl = buildEndpoint();
 
         /* ------------------------ Get consent information -------------------------
@@ -196,89 +224,121 @@ function NoBidHtb(configs) {
         /* ---------------- Craft bid request using the above returnParcels --------- */
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
         /* -------------------------------------------------------------------------- */
-        
-        var timestamp = function() {
+        function timestamp() {
             var date = new Date();
-            var zp = function (val) { return (val <= 9 ? '0' + val : '' + val); }
+            function zp(val) {
+                return val <= 9 ? '0' + val : String(val);
+            }
             var d = date.getDate();
             var y = date.getFullYear();
             var m = date.getMonth() + 1;
             var h = date.getHours();
             var min = date.getMinutes();
             var s = date.getSeconds();
-            return '' + y + '-' + zp(m) + '-' + zp(d) + ' ' + zp(h) + ':' + zp(min) + ':' + zp(s);
+
+            return String(y) + '-' + zp(m) + '-' + zp(d) + ' ' + zp(h) + ':' + zp(min) + ':' + zp(s);
         }
-        var clientDim = function() {
-	        try {
-	          var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	          var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-	          return `${width}x${height}`;
-	        } catch (e) {
-	          utils.logWarn('Could not parse screen dimensions, error details:', e);
-	        }
-	    }
-        var areSizesSupported = function(sizes) {
-        	var supportedSizes = ['300x1050', '160x600', '320x50', '120x600', '970x250', 
-        						  '320x100', '728x90', '300x50', '300x250', '300x600', 
-        						  '970x66', '970x90']
-        	if (sizes && Array.isArray(sizes) && sizes.length>0) {
-        		for (var i in sizes) {
-        			var size = sizes[i]
-        			if (Array.isArray(size) && size.length>1) {
-        				var sz = size[0]+'x'+size[1]
-        				if (supportedSizes.includes(sz)) return true
-        			}
-        		}
-        	}
-        	return false
+
+        function clientDim() {
+            var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+            return width + 'x' + height;
         }
-        var getAdUnits = function(ixparcels) {
-        	if (ixparcels && ixparcels.length>0) {
-        		var ret = []
-        		for (var i in ixparcels) {
-        			var ixparcel = ixparcels[i]
-        			var unit = {}
-        			if (ixparcel.xSlotRef) {
-        				if (ixparcel.xSlotRef.siteId) {
-        					unit.sid = ixparcel.xSlotRef.siteId
-        				}
-        				// make sure that sizes are supported
-        				if (ixparcel.xSlotRef.sizes) {
-        					unit.z = ixparcel.xSlotRef.sizes
-        					if (!areSizesSupported(unit.z)) continue
-        				}
-        				if (ixparcel.xSlotName) {
-        					unit.d = ixparcel.xSlotName
-        				}
-        				ret.push(unit)
-        			}
-        		}
-        		return ret
-        	}
-        	return null
-        }
-        var state = {}
-        var adunits = getAdUnits(returnParcels)
-        if (!adunits || adunits.length<=0 || !adunits[0].sid) return
-        state['sid']  = adunits[0].sid
-        state['l']    = encodeURIComponent(Browser.getPageUrl())
-        state['tt']   = encodeURIComponent(document.title)
-        state['tt']   = state['tt'].replace(/'|;|quot;|39;|&amp;|&|#|\r\n|\r|\n|\t|\f|\%0A|\"|\%22|\%5C|\%23|\%26|\%26|\%09/gm, '')
-        state['t']    = timestamp()
-        state['tz']   = Math.round(new Date().getTimezoneOffset())
-        state['r']    = clientDim()
-        state['lang'] = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage
-        state['ref']  = Browser.getReferrer()
-        state['gdpr'] = gdprConsent()
-        state['a']    = adunits
-        
-        var ixQueryObj = {
-                url: baseUrl,
-                data: state,
-                callbackId: callbackId,
-                networkParamOverrides: { method: 'POST' }
+
+        function areSizesSupported(sizes) {
+            var supportedSizes = [
+                '300x1050',
+                '160x600',
+                '320x50',
+                '120x600',
+                '970x250',
+                '320x100',
+                '728x90',
+                '300x50',
+                '300x250',
+                '300x600',
+                '970x66',
+                '970x90'
+            ];
+            if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+                for (var i in sizes) {
+                    if (Object.prototype.hasOwnProperty.call(sizes, i)) {
+                        var size = sizes[i];
+                        if (Array.isArray(size) && size.length > 1) {
+                            var sz = size[0] + 'x' + size[1];
+                            if (supportedSizes.includes(sz)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
-        
+
+            return false;
+        }
+
+        function getAdUnits(ixparcels) {
+            if (ixparcels && ixparcels.length > 0) {
+                var ret = [];
+                for (var i in ixparcels) {
+                    if (Object.prototype.hasOwnProperty.call(ixparcels, i)) {
+                        var ixparcel = ixparcels[i];
+                        var unit = {};
+                        if (ixparcel.xSlotRef) {
+                            if (configs.siteId) {
+                                unit.sid = configs.siteId;
+                            }
+
+                            // Make sure that sizes are supported
+                            if (ixparcel.xSlotRef.sizes && !areSizesSupported(ixparcel.xSlotRef.sizes)) {
+                                continue;
+                            }
+
+                            if (ixparcel.xSlotName) {
+                                unit.d = ixparcel.xSlotName;
+                                unit.z = ixparcel.xSlotRef.sizes;
+                            }
+                            ret.push(unit);
+                        }
+                    }
+                }
+
+                return ret;
+            }
+
+            return null;
+        }
+
+        var ublock = window.nobid.getCookie('_ublock');
+        if (ublock) {
+            console.log('Request blocked for user. hours: ', ublock); // eslint-disable-line
+
+            return false;
+        }
+
+        var state = {};
+        var adunits = getAdUnits(returnParcels);
+        if (!adunits || adunits.length <= 0 || !adunits[0].sid) {
+            return {};
+        }
+        state.sid = adunits[0].sid;
+        state.l = encodeURIComponent(Browser.getPageUrl());
+        state.t = timestamp();
+        state.tz = Math.round(new Date()
+            .getTimezoneOffset());
+        state.r = clientDim();
+        state.lang = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage;
+        state.ref = Browser.getReferrer();
+        state.gdpr = gdprConsent();
+        state.a = adunits;
+        var ixQueryObj = {
+            url: baseUrl,
+            data: state,
+            callbackId: callbackId,
+            networkParamOverrides: { method: 'POST' }
+        };
+
         return ixQueryObj;
     }
 
@@ -315,11 +375,13 @@ function NoBidHtb(configs) {
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
-        if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
+        if (pixelUrl && pixelUrl.length > 0) {
+            for (var i = 0; i < pixelUrl.length; i++) {
+                Network.img({
+                    url: decodeURIComponent(pixelUrl[i]),
+                    method: 'GET'
+                });
+            }
         }
     }
 
@@ -337,31 +399,40 @@ function NoBidHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-    	
         /* =============================================================================
-         * STEP 4  | Parse & store demand response
-         * -----------------------------------------------------------------------------
-         *
-         * Fill the below variables with information about the bid from the partner, using
-         * the adResponse variable that contains your module adResponse.
-         */
+        * STEP 4  | Parse & store demand response
+        * -----------------------------------------------------------------------------
+        *
+        * Fill the below variables with information about the bid from the partner, using
+        * the adResponse variable that contains your module adResponse.
+        */
 
         /* This an array of all the bids in your response that will be iterated over below. Each of
-         * these will be mapped back to a returnParcel object using some criteria explained below.
-         * The following variables will also be parsed and attached to that returnParcel object as
-         * returned demand.
-         *
-         * Use the adResponse variable to extract your bid information and insert it into the
-         * bids array. Each element in the bids array should represent a single bid and should
-         * match up to a single element from the returnParcel array.
-         *
-         */
+        * these will be mapped back to a returnParcel object using some criteria explained below.
+        * The following variables will also be parsed and attached to that returnParcel object as
+        * returned demand.
+        *
+        * Use the adResponse variable to extract your bid information and insert it into the
+        * bids array. Each element in the bids array should represent a single bid and should
+        * match up to a single element from the returnParcel array.
+        *
+        */
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-    	if (!adResponse || !adResponse.bids) return
-    	
-        var bids = adResponse.bids
+        function setUserBlock(response) {
+            if (response && typeof response.ublock !== 'undefined') {
+                window.nobid.setCookie('_ublock', '1', response.ublock);
+            }
+        }
+
+        var bids;
+        var pixels = [];
+        if (adResponse && adResponse.bids) {
+            bids = adResponse.bids;
+            pixels = adResponse.syncs;
+            setUserBlock(adResponse);
+        }
 
         /* --------------------------------------------------------------------------------- */
 
@@ -374,24 +445,22 @@ function NoBidHtb(configs) {
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
             var curBid;
-
             for (var i = 0; i < bids.length; i++) {
                 /**
-                 * This section maps internal returnParcels and demand returned from the bid request.
-                 * In order to match them correctly, they must be matched via some criteria. This
-                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
-                 * key to a key that represents the placement in the configuration and in the bid responses.
-                 */
+                * This section maps internal returnParcels and demand returned from the bid request.
+                * In order to match them correctly, they must be matched via some criteria. This
+                * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                * key to a key that represents the placement in the configuration and in the bid responses.
+                */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
                 if (curReturnParcel.xSlotName === bids[i].divid) {
                     curBid = bids[i];
-                    bids.splice(i, 1);
 
                     break;
                 }
             }
-            
+
             /* No matching bid found so its a pass */
             if (!curBid) {
                 if (__profile.enabledAnalytics.requestTime) {
@@ -401,7 +470,7 @@ function NoBidHtb(configs) {
 
                 continue;
             }
-            
+
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
@@ -409,10 +478,10 @@ function NoBidHtb(configs) {
 
             /* The bid price for the given slot */
             var bidPrice = Number(curBid.price);
-            
+
             /* The size of the given slot */
             var bidSize = [Number(curBid.size.w), Number(curBid.size.h)];
-            
+
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
@@ -423,16 +492,15 @@ function NoBidHtb(configs) {
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
-            
+
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = '';
+            var pixelUrl = pixels;
 
             /* --------------------------------------------------------------------------------------- */
 
-            curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
                 Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
@@ -452,7 +520,7 @@ function NoBidHtb(configs) {
             curReturnParcel.size = bidSize;
             curReturnParcel.targetingType = 'slot';
             curReturnParcel.targeting = {};
-            
+
             var targetingCpm = '';
 
             //? if (FEATURES.GPT_LINE_ITEMS) {
@@ -484,23 +552,22 @@ function NoBidHtb(configs) {
                 expiry = __profile.features.demandExpiry.value + System.now();
             }
 
+            window.nobid.bidResponses[String(curBid.id)] = curBid;
             var obj = {
-                    sessionId: sessionId,
-                    partnerId: __profile.partnerId,
-                    adm: bidCreative,
-                    requestId: curReturnParcel.requestId,
-                    size: curReturnParcel.size,
-                    price: targetingCpm,
-                    dealId: bidDealId || '',
-                    timeOfExpiry: expiry,
-//                    auxFn: __renderPixel,
-//                    auxArgs: [pixelUrl]
-                }
-            
-            console.log('> return obj:', obj)
-            
+                sessionId: sessionId,
+                partnerId: __profile.partnerId,
+                adm: bidCreative,
+                requestId: curReturnParcel.requestId,
+                size: curReturnParcel.size,
+                price: targetingCpm,
+                dealId: bidDealId || '',
+                timeOfExpiry: expiry,
+                auxFn: __renderPixel,
+                auxArgs: [pixelUrl]
+            };
+
             var pubKitAdId = RenderService.registerAd(obj);
-            
+
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
             //? }
@@ -512,9 +579,8 @@ function NoBidHtb(configs) {
      * ---------------------------------- */
 
     (function __constructor() {
-    	
-        ComplianceService = SpaceCamp.services.ComplianceService;
         RenderService = SpaceCamp.services.RenderService;
+        ComplianceService = SpaceCamp.services.ComplianceService;
 
         /* =============================================================================
          * STEP 1  | Partner Configuration
@@ -522,7 +588,7 @@ function NoBidHtb(configs) {
          *
          * Please fill out the below partner profile according to the steps in the README doc.
          */
-        
+
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
             partnerId: 'NoBidHtb',
@@ -559,7 +625,7 @@ function NoBidHtb(configs) {
             architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
-        
+
         /* --------------------------------------------------------------------------------------- */
 
         //? if (DEBUG) {
@@ -569,7 +635,7 @@ function NoBidHtb(configs) {
             throw Whoopsie('INVALID_CONFIG', results);
         }
         //? }
-        
+
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
@@ -583,10 +649,10 @@ function NoBidHtb(configs) {
 
     var derivedClass = {
         /* Class Information
-         * ---------------------------------- */
+        * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'NoBidHtb',
+        __type__: 'OpenXHtb',
         //? }
 
         //? if (TEST) {
@@ -594,19 +660,17 @@ function NoBidHtb(configs) {
         //? }
 
         /* Data
-         * ---------------------------------- */
+        * ---------------------------------- */
 
         //? if (TEST) {
-        profile: __profile,
+        __profile: __profile,
         //? }
 
         /* Functions
-         * ---------------------------------- */
+        * ---------------------------------- */
 
         //? if (TEST) {
-        parseResponse: __parseResponse,
-        /* generateRequestObj: __generateRequestObj, */
-        adResponseCallback: adResponseCallback
+        __parseResponse: __parseResponse
         //? }
     };
 

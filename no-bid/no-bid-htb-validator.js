@@ -23,14 +23,26 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            siteId: {
+                type: 'number'
+            },
             xSlots: {
                 type: 'object',
                 properties: {
                     '*': {
                         type: 'object',
                         properties: {
-                            siteId: {
-                                type: 'number'
+                            sizes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer',
+                                        gte: 0
+                                    }
+                                }
                             }
                         }
                     }
