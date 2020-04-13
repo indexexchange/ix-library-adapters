@@ -157,11 +157,7 @@ function getPassResponse() {
 function validateBidRequestWithPrivacy(request) {
     var r = JSON.parse(request.body);
 
-    expect(r.regs).toEqual(jasmine.objectContaining({
-        ext: {
-            gdpr: 1
-        }
-    }));
+    expect(r.regs.ext.gdpr).toEqual(1);
 
     expect(r.user).toEqual(jasmine.objectContaining({
         ext: {
@@ -183,6 +179,12 @@ function validateBidRequestWithAdSrvrOrg(request) {
     ]));
 }
 
+function validateBidRequestWithUspapi(request) {
+    var r = JSON.parse(request.body);
+
+    expect(r.regs.ext.us_privacy).toEqual('TEST_USPAPI_CONSENT_STRING');
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -195,5 +197,6 @@ module.exports = {
     validateTargeting: validateTargeting,
     getPassResponse: getPassResponse,
     validateBidRequestWithAdSrvrOrg: validateBidRequestWithAdSrvrOrg,
-    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+    validateBidRequestWithUspapi: validateBidRequestWithUspapi
 };

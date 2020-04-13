@@ -318,6 +318,14 @@ function DeepIntentHtb(configs) {
             };
         }
 
+        /*
+         * Add CCPA information
+         */
+        var uspConsent = ComplianceService.usp.getConsent();
+        var extCopy = queryObj.regs && queryObj.regs.ext ? queryObj.regs.ext : {};
+        // eslint-disable-next-line camelcase
+        queryObj.regs.ext = Utilities.mergeObjects(extCopy, { us_privacy: uspConsent.uspString });
+
         return {
             url: baseUrl,
             data: queryObj,
