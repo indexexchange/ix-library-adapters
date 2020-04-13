@@ -266,10 +266,8 @@ function DeepIntentHtb(configs) {
 
             site: __getSiteObject(),
 
-            device: __getDeviceObject(),
+            device: __getDeviceObject()
 
-            // eslint-disable-next-line camelcase
-            callback_uid: callbackId
         };
 
         var user = __getUserObject(__globalConfigs.user, idData);
