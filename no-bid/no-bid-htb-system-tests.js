@@ -33,7 +33,6 @@ function getConfig() {
 }
 
 function validateBidRequest(request) {
-    expect(request.protocol).toBe('http:');
     expect(request.pathname).toBe('/adreq');
 }
 
