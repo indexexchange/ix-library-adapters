@@ -423,7 +423,7 @@ function AppNexusHtb(configs) {
             targetingKeys: {
                 id: 'ix_apnx_id',
                 om: 'ix_apnx_om',
-                pm: 'ix_apnx_dealid'
+                pm: 'ix_apnx_pm'
             },
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,

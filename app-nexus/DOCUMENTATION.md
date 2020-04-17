@@ -30,7 +30,7 @@
 | Ad Server Responds in (Cents, Dollars, etc) | Dollars |
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | ix_apnx_om |
-| GAM Key (Private Market) | ix_apnx_dealid |
+| GAM Key (Private Market) | ix_apnx_pm |
 | Ad Server URLs | ib.adnxs.com/ut/v3/prebid |
 | Slot Mapping Style (Size / Multiple Sizes / Slot) | slot |
 | Request Architecture (MRA / SRA) | SRA |
