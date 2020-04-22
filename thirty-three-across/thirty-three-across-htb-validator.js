@@ -23,15 +23,39 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            test: {
+                type: 'boolean',
+                optional: true
+            },
             xSlots: {
                 type: 'object',
                 properties: {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
+                            siteId: {
                                 type: 'string',
                                 minLength: 1
+                            },
+                            productId: {
+                                type: 'string',
+                                minLength: 1
+                            },
+                            sizes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
+                            },
+                            bidfloor: {
+                                type: 'number',
+                                optional: true,
+                                gt: 0
                             }
                         }
                     }
