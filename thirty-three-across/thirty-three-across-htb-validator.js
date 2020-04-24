@@ -23,6 +23,10 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            siteId: {
+                type: 'string',
+                minLength: 1
+            },
             test: {
                 type: 'boolean',
                 optional: true
@@ -33,10 +37,6 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            siteId: {
-                                type: 'string',
-                                minLength: 1
-                            },
                             productId: {
                                 type: 'string',
                                 minLength: 1
