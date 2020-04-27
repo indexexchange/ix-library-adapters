@@ -28,8 +28,9 @@ function partnerValidator(configs) {
                 pattern: /^[a-zA-Z0-9-]{22}$/
             },
             test: {
-                type: 'boolean',
-                optional: true
+                type: 'number',
+                optional: true,
+                eq: [0, 1]
             },
             xSlots: {
                 type: 'object',
