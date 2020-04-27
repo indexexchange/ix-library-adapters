@@ -25,7 +25,7 @@ function partnerValidator(configs) {
         properties: {
             siteId: {
                 type: 'string',
-                minLength: 1
+                pattern: /^[a-zA-Z0-9-]{22}$/
             },
             test: {
                 type: 'boolean',
@@ -39,7 +39,7 @@ function partnerValidator(configs) {
                         properties: {
                             productId: {
                                 type: 'string',
-                                minLength: 1
+                                eq: ['siab', 'inview']
                             },
                             sizes: {
                                 type: 'array',
@@ -55,7 +55,7 @@ function partnerValidator(configs) {
                             bidfloor: {
                                 type: 'number',
                                 optional: true,
-                                gt: 0
+                                gte: 0
                             }
                         }
                     }
