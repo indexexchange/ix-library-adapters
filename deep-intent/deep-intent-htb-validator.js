@@ -25,20 +25,20 @@ function partnerValidator(configs) {
             type: 'object',
             properties: {
                 pubId: {
-                  type: 'string' 
+                    type: 'string'
                 },
-              {
-                yob: 'string',
-                optional: true
-              },
-              {
-                gender: 'string',
-                optional: true
-              },
-              {
-                version: 'number',
-                optional: true
-              },
+                yob: {
+                    type: 'string',
+                    optional: true
+                },
+                gender: {
+                    type: 'string',
+                    optional: true
+                },
+                version: {
+                    type: 'number',
+                    optional: true
+                },
                 xSlots: {
                     type: 'object',
                     properties: {
