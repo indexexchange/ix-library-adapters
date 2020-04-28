@@ -47,8 +47,7 @@ USD
 |imp|Yes|Object|ortb request containing slot and impressions information|
 |site|Yes|Object|Contains site page and domain information|
 |device|Yes|Object|Contains device data: browser, width & height of device, DONOTTRACK flag and language|
-|user|No|Object|Contains user information: userid, buyeruid, yob, gender, keywords
-, customdata, eids (Unified Id data), gdpr consent string|
+|user|No|Object|Contains user information: userid, buyeruid, yob, gender, keywords, customdata, eids (Unified Id data), gdpr consent string|
 |regs|No|Object|Contains information if GDPR status is applicable and ccpa consent|
  
 ### Example
