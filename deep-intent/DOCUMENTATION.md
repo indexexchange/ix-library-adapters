@@ -2,10 +2,10 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
+| Consent | Y |
 | Native Ad Support | N |
 | SafeFrame Support | Y |
-| PMP Support | |
+| PMP Support | N |
  
 ## Browser Compatibility
 | Browser |  |
