@@ -211,11 +211,7 @@ function ThirtyThreeAcrossHtb(configs) {
         return {
             id: _getImpId(parcel),
             banner: {
-                format: formatedSizes.map(function (formatedSize) {
-                    return Utilities.mergeObjects(formatedSize, {
-                        ext: { }
-                    });
-                }),
+                format: formatedSizes,
                 ext: {
                     ttx: {
                         viewability: {
@@ -648,8 +644,10 @@ function ThirtyThreeAcrossHtb(configs) {
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+
+                    // 1min
+                    value: 60000
                 },
                 rateLimiting: {
                     enabled: false,

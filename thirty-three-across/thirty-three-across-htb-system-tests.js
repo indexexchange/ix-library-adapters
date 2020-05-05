@@ -50,13 +50,11 @@ function validateBidRequest(request) {
     expect(queryObj.imp[0].id).toBeDefined();
     expect(queryObj.imp[0].banner.format[0]).toEqual({
         w: sizes[0][0],
-        h: sizes[0][1],
-        ext: { }
+        h: sizes[0][1]
     });
     expect(queryObj.imp[0].banner.format[1]).toEqual({
         w: sizes[1][0],
-        h: sizes[1][1],
-        ext: { }
+        h: sizes[1][1]
     });
     expect(queryObj.imp[0].banner.ext).toBeDefined();
     expect(queryObj.imp[0].banner.ext.ttx).toBeDefined();
