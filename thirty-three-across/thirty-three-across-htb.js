@@ -69,8 +69,7 @@ function ThirtyThreeAcrossHtb(configs) {
     function _generateFormat(size) {
         return {
             w: parseInt(size[0], 10),
-            h: parseInt(size[1], 10),
-            ext: { }
+            h: parseInt(size[1], 10)
         };
     }
 
@@ -508,8 +507,10 @@ function ThirtyThreeAcrossHtb(configs) {
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+
+                    // 1min
+                    value: 60000
                 },
                 rateLimiting: {
                     enabled: false,
