@@ -58,6 +58,10 @@ function validateBidRequest(request) {
         h: sizes[1][1],
         ext: { }
     });
+    expect(queryObj.imp[0].banner.ext).toBeDefined();
+    expect(queryObj.imp[0].banner.ext.ttx).toBeDefined();
+    expect(queryObj.imp[0].banner.ext.ttx.viewability).toBeDefined();
+    expect(queryObj.imp[0].banner.ext.ttx.viewability.amount).toBeDefined();
     expect(queryObj.imp[0].bidfloor).toEqual(xSlot.bidfloor);
     expect(queryObj.imp[0].ext.ttx.prod).toEqual(xSlot.productId);
 
