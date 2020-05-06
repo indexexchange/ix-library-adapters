@@ -12,7 +12,6 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -55,12 +54,43 @@ function ThirtyThreeAcrossHtb(configs) {
      */
     var __profile;
 
+    var _adapterVersion = '2.0.0';
+
     /* =====================================
      * Functions
      * ---------------------------------- */
 
     /* Utilities
      * ---------------------------------- */
+    function _getImpId(returnParcel) {
+        return returnParcel.requestId + '-' + returnParcel.xSlotName;
+    }
+
+    function _generateFormat(size) {
+        return {
+            w: parseInt(size[0], 10),
+            h: parseInt(size[1], 10)
+        };
+    }
+
+    function _generateImp(returnParcels) {
+        return returnParcels.map(function (parcel) {
+            var xSlotRef = parcel.xSlotRef;
+
+            return {
+                id: _getImpId(parcel),
+                banner: {
+                    format: xSlotRef.sizes.map(_generateFormat)
+                },
+                ext: {
+                    ttx: {
+                        prod: xSlotRef.productId
+                    }
+                },
+                bidfloor: xSlotRef.bidfloor
+            };
+        });
+    }
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -129,11 +159,8 @@ function ThirtyThreeAcrossHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var queryObj = {};
-        var callbackId = System.generateUniqueId();
-
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var baseUrl = 'https://ssc.33across.com/api/v1/hb';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -159,19 +186,74 @@ function ThirtyThreeAcrossHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-
-        /* ---------------- Craft bid request using the above returnParcels --------- */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
+        var gdprConsent = {
+            gdpr: 0
+
+            // NOTE: eslint does not allow to set undefined, removing "consentString: undefined"
+        };
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+
+            gdprConsent = Object.assign(gdprConsent, {
+                gdpr: gdprStatus.applies === true ? 1 : 0,
+                consentString: gdprStatus.consentString
+            });
+        }
+
+        /* ---------------- Craft bid request using the above returnParcels --------- */
+        // TTX only supports MRA now, so returnParcels always contains one item
+        var parcel = returnParcels[0];
+
+        var queryObj = {
+            id: parcel.requestId,
+            imp: _generateImp(returnParcels),
+            site: {
+                id: configs.siteId,
+
+                // NOTE: change to Browser.topWindow.location.href if needed
+                page: Browser.getPageUrl(),
+
+                // NOTE: change to Browser.topWindow.document.referrer if needed
+                ref: Browser.getReferrer()
+            },
+            user: {
+                ext: {
+                    consent: gdprConsent.consentString
+                }
+            },
+            regs: {
+                ext: {
+                    gdpr: gdprConsent.gdpr
+                }
+            },
+            ext: {
+                ttx: {
+                    prebidStartedAt: System.now(),
+                    caller: [
+                        {
+                            name: 'index',
+
+                            // NOTE: this is the adapter version, not the IX Lib version
+                            version: _adapterVersion
+                        }
+                    ]
+                }
+            },
+            test: configs.test
+        };
 
         /* -------------------------------------------------------------------------- */
 
         return {
             url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
@@ -251,7 +333,12 @@ function ThirtyThreeAcrossHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse;
+        var bids = [];
+        if (adResponse && adResponse.seatbid) {
+            bids = adResponse.seatbid.reduce(function (bidArr, seatbid) {
+                return bidArr.concat(seatbid.bid);
+            }, []);
+        }
 
         /* --------------------------------------------------------------------------------- */
 
@@ -274,7 +361,7 @@ function ThirtyThreeAcrossHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                if (_getImpId(curReturnParcel) === bids[i].impid) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
@@ -301,7 +388,7 @@ function ThirtyThreeAcrossHtb(configs) {
             var bidPrice = curBid.price;
 
             /* The size of the given slot */
-            var bidSize = [Number(curBid.width), Number(curBid.height)];
+            var bidSize = [Number(curBid.w), Number(curBid.h)];
 
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
@@ -413,15 +500,17 @@ function ThirtyThreeAcrossHtb(configs) {
             partnerId: 'ThirtyThreeAcrossHtb',
             namespace: 'ThirtyThreeAcrossHtb',
             statsId: 'THI',
-            version: '2.0.0',
+            version: _adapterVersion,
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+
+                    // 1min
+                    value: 60000
                 },
                 rateLimiting: {
                     enabled: false,
@@ -438,11 +527,11 @@ function ThirtyThreeAcrossHtb(configs) {
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
-            bidUnitInCents: 1,
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID,
-            architecture: Partner.Architectures.SRA,
-            requestType: Partner.RequestTypes.ANY
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.MRA,
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
