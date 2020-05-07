@@ -11,7 +11,6 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
-var Network = require('network.js');
 var Utilities = require('utilities.js');
 
 var ComplianceService;
@@ -55,8 +54,11 @@ function ThirtyThreeAcrossHtb(configs) {
      */
     var __profile;
 
+    var _indexWrapperVersion = SpaceCamp.version;
     var _adapterVersion = '2.0.0';
 
+    var SYNC_ENDPOINT = 'https://ssc-cms.33across.com/ps/?m=xch&rt=html&ru=deb';
+    var DEFAULT_SYNC_ID = 'zzz000000000003zzz';
     var NON_MEASURABLE = 'nm';
 
     /* =====================================
@@ -230,6 +232,34 @@ function ThirtyThreeAcrossHtb(configs) {
     }
 
     /**
+     * Obtain the normalized GDPR stats.
+     *
+     * @example
+     * {
+     *   gdpr: 1|0,
+     *   consentString: undefined|string
+     * }
+     */
+    function getGDPRStats() {
+        var gdprConsent = {
+            gdpr: 0
+
+            // NOTE: eslint does not allow to set undefined, removing "consentString: undefined"
+        };
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+
+            gdprConsent = Utilities.mergeObjects(gdprConsent, {
+                gdpr: gdprStatus.applies === true ? 1 : 0,
+                consentString: gdprStatus.consentString
+            });
+        }
+
+        return gdprConsent;
+    }
+
+    /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
      *
@@ -325,20 +355,7 @@ function ThirtyThreeAcrossHtb(configs) {
          */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-        var gdprConsent = {
-            gdpr: 0
-
-            // NOTE: eslint does not allow to set undefined, removing "consentString: undefined"
-        };
-
-        if (ComplianceService.isPrivacyEnabled()) {
-            var gdprStatus = ComplianceService.gdpr.getConsent();
-
-            gdprConsent = Utilities.mergeObjects(gdprConsent, {
-                gdpr: gdprStatus.applies === true ? 1 : 0,
-                consentString: gdprStatus.consentString
-            });
-        }
+        var gdprConsent = getGDPRStats();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
         // TTX only supports MRA now, so returnParcels always contains one item
@@ -372,9 +389,7 @@ function ThirtyThreeAcrossHtb(configs) {
                     caller: [
                         {
                             name: 'index',
-
-                            // NOTE: this is the adapter version, not the IX Lib version
-                            version: _adapterVersion
+                            version: _indexWrapperVersion
                         }
                     ]
                 }
@@ -428,10 +443,7 @@ function ThirtyThreeAcrossHtb(configs) {
      */
     function __renderPixel(pixelUrl) {
         if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
+            Browser.createHiddenIFrame(pixelUrl);
         }
     }
 
@@ -516,6 +528,8 @@ function ThirtyThreeAcrossHtb(configs) {
                 continue;
             }
 
+            var gdprConsent = getGDPRStats();
+
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
@@ -542,7 +556,12 @@ function ThirtyThreeAcrossHtb(configs) {
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
             */
-            var pixelUrl = '';
+            var pixelUrl = [
+                SYNC_ENDPOINT,
+                'id=' + (configs.siteId || DEFAULT_SYNC_ID),
+                'gdpr=' + gdprConsent.gdpr,
+                'gdpr_consent=' + encodeURIComponent(gdprConsent.consentString)
+            ].join('&');
 
             /* --------------------------------------------------------------------------------------- */
 
