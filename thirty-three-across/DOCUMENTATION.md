@@ -46,7 +46,7 @@
 |site|Yes|Object| ORTB site object describes the information of publisher id, page, and ref |
 |user|No|Object| ORTB user object describes the information of user consent |
 |regs|No|Object| ORTB regs object describes the information about GDPR eligibility |
-|ext|No|Object| Prebid wrapper name and version info |
+|ext|No|Object| HB wrapper name and version info |
 
 ### Example
 ```javascript
@@ -144,7 +144,7 @@
 |siteId|Yes|string| Publisher/site identifier |
 |productId|Yes|string| 33Across Product type, 'siab' or 'inview'  |
 |sizes|Yes| Array[] | An array of array representation of the size of the ad unit, like [[width1, height1],[width2, height2]] |
-|bidfloor|No|number| Minimum bid for this impression expressed in CPM |
+|bidfloor|No|number| Minimum bid for this impression expressed in dollars |
 |test|No|number| Indicator of test mode in which auctions are not billable, where 0 = live mode, 1 = test mode  |
 
 ### Example

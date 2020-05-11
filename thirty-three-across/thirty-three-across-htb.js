@@ -130,6 +130,8 @@ function ThirtyThreeAcrossHtb(configs) {
         return bbox;
     }
 
+    // In case to obtain the percentage of the viewability,
+    // We calculate the overlapped area between the viewport of top window and the creative
     function _getPercentInView(element, topWin, minSize) {
         var elementBoundingBox = _getBoundingBox(element, minSize);
 
