@@ -54,7 +54,7 @@ function ThirtyThreeAcrossHtb(configs) {
      */
     var __profile;
 
-    var _indexWrapperVersion = SpaceCamp.version;
+    var _indexLibVersion = SpaceCamp.version;
     var _adapterVersion = '2.0.0';
 
     var SYNC_ENDPOINT = 'https://ssc-cms.33across.com/ps/?m=xch&rt=html&ru=deb';
@@ -389,7 +389,7 @@ function ThirtyThreeAcrossHtb(configs) {
                     caller: [
                         {
                             name: 'index',
-                            version: _indexWrapperVersion
+                            version: _indexLibVersion
                         }
                     ]
                 }
