@@ -78,10 +78,8 @@ function validateBidRequest(request) {
     expect(queryObj.ext.ttx).toBeDefined();
     expect(queryObj.ext.ttx.prebidStartedAt).toBeDefined();
     expect(queryObj.ext.ttx.caller.length).toEqual(1);
-    expect(queryObj.ext.ttx.caller[0]).toEqual({
-        name: 'index',
-        version: '2.0.0'
-    });
+    expect(queryObj.ext.ttx.caller[0].name).toEqual('index');
+    expect(queryObj.ext.ttx.caller[0].version).toBeDefined();
 
     expect(queryObj.test).toEqual(config.test);
 }
