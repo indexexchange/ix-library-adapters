@@ -12,6 +12,7 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
+var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -56,9 +57,142 @@ function ThirtyThreeAcrossHtb(configs) {
 
     var _adapterVersion = '2.0.0';
 
+    var NON_MEASURABLE = 'nm';
+
     /* =====================================
      * Functions
      * ---------------------------------- */
+
+    /* Viewability Utilities
+     * ---------------------------------- */
+    function _formatSize(size) {
+        return {
+            w: parseInt(size[0], 10),
+            h: parseInt(size[1], 10)
+        };
+    }
+
+    function _getMinSize(sizes) {
+        return sizes.reduce(function (min, size) {
+            return size.h * size.w < min.h * min.w ? size : min;
+        });
+    }
+
+    function _getBoundingBox(element, minSize) {
+        var w = minSize.w;
+        var h = minSize.h;
+        var rect = Utilities.mergeObjects({
+            width: 0,
+            height: 0,
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0
+        }, element.getBoundingClientRect());
+
+        if ((rect.width === 0 || rect.height === 0) && w && h) {
+            rect.width = w;
+            rect.height = h;
+            rect.right = rect.left + w;
+            rect.bottom = rect.top + h;
+        }
+
+        return rect;
+    }
+
+    function _getIntersectionOfRects(rects) {
+        var bbox = {
+            left: rects[0].left,
+            right: rects[0].right,
+            top: rects[0].top,
+            bottom: rects[0].bottom
+        };
+
+        for (var i = 1; i < rects.length; ++i) {
+            bbox.left = Math.max(bbox.left, rects[i].left);
+            bbox.right = Math.min(bbox.right, rects[i].right);
+
+            if (bbox.left >= bbox.right) {
+                return null;
+            }
+
+            bbox.top = Math.max(bbox.top, rects[i].top);
+            bbox.bottom = Math.min(bbox.bottom, rects[i].bottom);
+
+            if (bbox.top >= bbox.bottom) {
+                return null;
+            }
+        }
+
+        bbox.width = bbox.right - bbox.left;
+        bbox.height = bbox.bottom - bbox.top;
+
+        return bbox;
+    }
+
+    // In order to obtain the percentage of the viewability,
+    // We take the positions (top, left, bottom, right) for both the viewport and the creative
+    // And use that to calculate the coordinates of intersection between the viewport and the creative
+    // Lastly divide the area of intersection by the area of creative (width*height) for the viewability percentage
+    function _getPercentInView(element, topWin, minSize) {
+        var elementBoundingBox = _getBoundingBox(element, minSize);
+
+        // Obtain the intersection of the element and the viewport
+        var elementInViewBoundingBox = _getIntersectionOfRects([
+            {
+                left: 0,
+                top: 0,
+                right: topWin.innerWidth,
+                bottom: topWin.innerHeight
+            },
+            elementBoundingBox
+        ]);
+
+        var elementInViewArea;
+        var elementTotalArea;
+
+        if (elementInViewBoundingBox !== null) {
+            // Some or all of the element is in view
+            elementInViewArea = elementInViewBoundingBox.width * elementInViewBoundingBox.height;
+            elementTotalArea = elementBoundingBox.width * elementBoundingBox.height;
+
+            return (elementInViewArea / elementTotalArea) * 100;
+        }
+
+        // No overlap between element and the viewport; therefore, the element lies completely out of view
+        return 0;
+    }
+
+    function _isIframe() {
+        /*
+         * NOTE: this function should doing the following, otherwise revisit this code
+         *  try {
+         *      return window.top !== window.self;
+         *  } catch (e) {
+         *      return true;
+         *  }
+         */
+        return !Browser.isTopFrame();
+    }
+
+    function _getAdSlotHTMLElement(parcel) {
+        var slotElementId = null;
+
+        // NOTE: viewability feature supports the DFP tag only for now
+        if (parcel.ref && parcel.ref.getSlotElementId && parcel.ref.getSlotElementId()) {
+            slotElementId = parcel.ref.getSlotElementId();
+        }
+
+        return document.getElementById(slotElementId);
+    }
+
+    function _isViewabilityMeasurable(element) {
+        return element !== null && !_isIframe();
+    }
+
+    function _getViewability(element, topWin, minSize) {
+        return topWin.document.visibilityState === 'visible' ? _getPercentInView(element, topWin, minSize) : 0;
+    }
 
     /* Utilities
      * ---------------------------------- */
@@ -66,30 +200,37 @@ function ThirtyThreeAcrossHtb(configs) {
         return returnParcel.requestId + '-' + returnParcel.xSlotName;
     }
 
-    function _generateFormat(size) {
+    function _generateImp(parcel) {
+        var xSlotRef = parcel.xSlotRef;
+        var formatedSizes = xSlotRef.sizes.map(_formatSize);
+
+        var element = _getAdSlotHTMLElement(parcel);
+        var minSize = _getMinSize(formatedSizes);
+
+        var viewabilityAmount = NON_MEASURABLE;
+        if (_isViewabilityMeasurable(element)) {
+            viewabilityAmount = Math.round(_getViewability(element, Browser.topWindow, minSize));
+        }
+
         return {
-            w: parseInt(size[0], 10),
-            h: parseInt(size[1], 10)
-        };
-    }
-
-    function _generateImp(returnParcels) {
-        return returnParcels.map(function (parcel) {
-            var xSlotRef = parcel.xSlotRef;
-
-            return {
-                id: _getImpId(parcel),
-                banner: {
-                    format: xSlotRef.sizes.map(_generateFormat)
-                },
+            id: _getImpId(parcel),
+            banner: {
+                format: formatedSizes,
                 ext: {
                     ttx: {
-                        prod: xSlotRef.productId
+                        viewability: {
+                            amount: viewabilityAmount
+                        }
                     }
-                },
-                bidfloor: xSlotRef.bidfloor
-            };
-        });
+                }
+            },
+            ext: {
+                ttx: {
+                    prod: xSlotRef.productId
+                }
+            },
+            bidfloor: xSlotRef.bidfloor
+        };
     }
 
     /**
@@ -197,7 +338,7 @@ function ThirtyThreeAcrossHtb(configs) {
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
 
-            gdprConsent = Object.assign(gdprConsent, {
+            gdprConsent = Utilities.mergeObjects(gdprConsent, {
                 gdpr: gdprStatus.applies === true ? 1 : 0,
                 consentString: gdprStatus.consentString
             });
@@ -209,7 +350,7 @@ function ThirtyThreeAcrossHtb(configs) {
 
         var queryObj = {
             id: parcel.requestId,
-            imp: _generateImp(returnParcels),
+            imp: returnParcels.map(_generateImp),
             site: {
                 id: configs.siteId,
 
