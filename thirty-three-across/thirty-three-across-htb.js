@@ -401,10 +401,16 @@ function ThirtyThreeAcrossHtb(configs) {
             },
             regs: {
                 ext: {
-                    // NOTE: using CCPA version for now, or move to ttx.tcf.version/ttx.ccpa.version in the future
-                    version: privacyStats.ccpa.version,
                     gdpr: privacyStats.tcf.gdpr,
-                    us_privacy: privacyStats.ccpa.consentString // eslint-disable-line camelcase
+                    us_privacy: privacyStats.ccpa.consentString, // eslint-disable-line camelcase
+                    ttx: {
+                        ccpa: {
+                            version: privacyStats.ccpa.version
+                        },
+                        tcf: {
+                            version: privacyStats.tcf.version
+                        }
+                    }
                 }
             },
             ext: {
