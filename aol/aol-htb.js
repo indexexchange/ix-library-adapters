@@ -379,11 +379,9 @@ function AOLHtb(configs) {
         var sizeKey = Size.arrayToString(curReturnParcel.size);
 
         if (bidDealId) {
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-        } else {
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
         }
+        curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
         curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
         //? }
 
@@ -441,7 +439,7 @@ function AOLHtb(configs) {
             partnerId: 'AOLHtb',
             namespace: 'AOLHtb',
             statsId: 'AOL',
-            version: '2.0.0',
+            version: '3.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
@@ -459,10 +457,9 @@ function AOLHtb(configs) {
 
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_aol_id',
-                om: 'ix_aol_cpm',
-                pm: 'ix_aol_cpm',
-                pmid: 'ix_aol_dealid'
+                om: 'ix_aol_om',
+                pm: 'ix_aol_pm',
+                id: 'ix_aol_id'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
