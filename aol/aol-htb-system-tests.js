@@ -88,7 +88,7 @@ function getPassResponse(request) {
 function validateTargeting(targetingMap) {
   expect(targetingMap).toEqual(
     jasmine.objectContaining({
-      ix_aol_cpm: jasmine.arrayWithExactContents(['300x250_200']),
+      ix_aol_om: jasmine.arrayWithExactContents(['300x250_200']),
       ix_aol_id: jasmine.arrayWithExactContents([jasmine.any(String)])
     })
   );
