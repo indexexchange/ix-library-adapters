@@ -236,31 +236,48 @@ function ThirtyThreeAcrossHtb(configs) {
     }
 
     /**
-     * Obtain the normalized GDPR stats.
+     * Obtain the normalized CCPA and TCF stats.
      *
      * @example
      * {
-     *   gdpr: 1|0,
-     *   consentString: undefined|string
+     *   tcf: {
+     *      gdpr: 1|0,
+     *      version: number,
+     *      consentString: undefined|string
+     *   },
+     *   ccpa: {
+     *      version: number,
+     *      consentString: string
+     *   }
      * }
      */
-    function getGDPRStats() {
-        var gdprConsent = {
+    function getPrivacyStats() {
+        // Default value
+        var tcf = {
             gdpr: 0
-
-            // NOTE: eslint does not allow to set undefined, removing "consentString: undefined"
         };
+        var ccpa = { };
 
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
 
-            gdprConsent = Utilities.mergeObjects(gdprConsent, {
+            tcf = Utilities.mergeObjects(tcf, {
                 gdpr: gdprStatus.applies === true ? 1 : 0,
+                version: gdprStatus.version,
                 consentString: gdprStatus.consentString
             });
+
+            var uspStatus = ComplianceService.usp.getConsent();
+            ccpa = {
+                version: uspStatus.version,
+                consentString: uspStatus.uspString
+            };
         }
 
-        return gdprConsent;
+        return {
+            tcf: tcf,
+            ccpa: ccpa
+        };
     }
 
     /**
@@ -359,7 +376,7 @@ function ThirtyThreeAcrossHtb(configs) {
          */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
-        var gdprConsent = getGDPRStats();
+        var privacyStats = getPrivacyStats();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
         // TTX only supports MRA now, so returnParcels always contains one item
@@ -379,12 +396,21 @@ function ThirtyThreeAcrossHtb(configs) {
             },
             user: {
                 ext: {
-                    consent: gdprConsent.consentString
+                    consent: privacyStats.tcf.consentString
                 }
             },
             regs: {
                 ext: {
-                    gdpr: gdprConsent.gdpr
+                    gdpr: privacyStats.tcf.gdpr,
+                    us_privacy: privacyStats.ccpa.consentString, // eslint-disable-line camelcase
+                    ttx: {
+                        ccpa: {
+                            version: privacyStats.ccpa.version
+                        },
+                        tcf: {
+                            version: privacyStats.tcf.version
+                        }
+                    }
                 }
             },
             ext: {
@@ -532,7 +558,7 @@ function ThirtyThreeAcrossHtb(configs) {
                 continue;
             }
 
-            var gdprConsent = getGDPRStats();
+            var privacyStats = getPrivacyStats();
 
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
@@ -563,8 +589,9 @@ function ThirtyThreeAcrossHtb(configs) {
             var pixelUrl = [
                 SYNC_ENDPOINT,
                 'id=' + (configs.siteId || DEFAULT_SYNC_ID),
-                'gdpr=' + gdprConsent.gdpr,
-                'gdpr_consent=' + encodeURIComponent(gdprConsent.consentString)
+                'gdpr=' + privacyStats.tcf.gdpr,
+                'gdpr_consent=' + encodeURIComponent(privacyStats.tcf.consentString),
+                'us_privacy=' + encodeURIComponent(privacyStats.ccpa.consentString)
             ].join('&');
 
             /* --------------------------------------------------------------------------------------- */

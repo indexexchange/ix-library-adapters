@@ -87,17 +87,26 @@ function validateBidRequest(request) {
 function validateBidRequestWithPrivacy(request) {
     var queryObj = JSON.parse(request.body);
 
-    expect(queryObj.regs).toEqual(jasmine.objectContaining({
-        ext: {
-            gdpr: 1
-        }
-    }));
+    expect(queryObj.regs.ext.ttx.tcf.version).toEqual(1);
 
-    expect(queryObj.user).toEqual(jasmine.objectContaining({
-        ext: {
-            consent: 'TEST_GDPR_CONSENT_STRING'
-        }
-    }));
+    expect(queryObj.regs.ext.gdpr).toEqual(1);
+    expect(queryObj.user.ext.consent).toEqual('TEST_GDPR_CONSENT_STRING');
+}
+
+function validateBidRequestWithTcf2(request) {
+    var queryObj = JSON.parse(request.body);
+
+    expect(queryObj.regs.ext.ttx.tcf.version).toEqual(2);
+
+    expect(queryObj.regs.ext.gdpr).toEqual(1);
+    expect(queryObj.user.ext.consent).toEqual('TEST_TCF2_CONSENT_STRING');
+}
+
+function validateBidRequestWithUspapi(request) {
+    var queryObj = JSON.parse(request.body);
+
+    expect(queryObj.regs.ext.ttx.ccpa.version).toEqual(1);
+    expect(queryObj.regs.ext.us_privacy).toEqual('TEST_USPAPI_CONSENT_STRING');
 }
 
 function getValidResponse(request, creative) {
@@ -160,6 +169,8 @@ module.exports = {
     getConfig: getConfig,
     validateBidRequest: validateBidRequest,
     validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+    validateBidRequestWithTcf2: validateBidRequestWithTcf2,
+    validateBidRequestWithUspapi: validateBidRequestWithUspapi,
     getValidResponse: getValidResponse,
     validateTargeting: validateTargeting,
     getPassResponse: getPassResponse
