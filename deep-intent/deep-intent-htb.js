@@ -245,7 +245,7 @@ function DeepIntentHtb(configs) {
         var callbackId = System.generateUniqueId();
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = 'https://prebid.deepintent.com/prebid';
+        var baseUrl = 'https://prebid.deepintent.com/ix';
         var impressions = [];
         var idData = returnParcels[0] && returnParcels[0].identityData;
         if (Utilities.isArray(returnParcels)) {
