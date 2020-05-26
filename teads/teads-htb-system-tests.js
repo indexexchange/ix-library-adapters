@@ -71,11 +71,16 @@ function validateBidRequest(request) {
     expect(q.data[1].transactionId).toBeDefined();
 }
 
-function validateBidRequestWithPrivacy(request) {
+function validateBidRequestWithGdpr(request) {
     var q = JSON.parse(request.body);
     expect(q.gdpr_iab).toBeDefined();
     expect(q.gdpr_iab.consent).toBe('TEST_GDPR_CONSENT_STRING');
     expect(q.gdpr_iab.status).toBe(12);
+}
+
+function validateBidRequestWithUspapi(request) {
+    var q = JSON.parse(request.body);
+    expect(q.us_privacy).toBe('TEST_USPAPI_CONSENT_STRING');
 }
 
 function getValidResponse(request, creative) {
@@ -94,6 +99,7 @@ function getValidResponse(request, creative) {
                 width: 300,
                 height: 600,
                 ad: creative,
+                dealId: 'ABC-123',
                 requestId: q.data[1].requestId
             }
         ]
@@ -104,8 +110,10 @@ function getValidResponse(request, creative) {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_teads_om: jasmine.arrayWithExactContents(['300x250_200', '300x600_200']),
-        ix_teads_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
+        ix_teads_om: jasmine.arrayWithExactContents(['300x250_200']),
+        ix_teads_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)]),
+        ix_teads_pm: jasmine.arrayWithExactContents(['300x600_200']),
+        ix_teads_pmid: jasmine.arrayWithExactContents(['300x600_ABC-123'])
     }));
 }
 
@@ -125,7 +133,8 @@ module.exports = {
     getConfig: getConfig,
     getBidRequestRegex: getBidRequestRegex,
     validateBidRequest: validateBidRequest,
-    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+    validateBidRequestWithGdpr: validateBidRequestWithGdpr,
+    validateBidRequestWithUspapi: validateBidRequestWithUspapi,
     getValidResponse: getValidResponse,
     getPassResponse: getPassResponse,
     validateTargeting: validateTargeting

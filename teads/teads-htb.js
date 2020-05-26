@@ -201,6 +201,8 @@ function TeadsHtb(configs) {
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
 
+            var dealId = curBid.dealId;
+
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
             * leave empty;
@@ -231,8 +233,14 @@ function TeadsHtb(configs) {
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
+
+            if (dealId) {
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + dealId];
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            } else {
+                curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+            }
             //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {

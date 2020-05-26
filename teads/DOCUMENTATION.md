@@ -102,7 +102,8 @@
          width: "300",
          height: "250",
          ad: "<script>script containing the ad</script>",
-         requestId: "requestId"
+         requestId: "requestId",
+         dealId: "teads_ABC"
       }
     ]
 ```
