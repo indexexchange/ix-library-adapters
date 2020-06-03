@@ -1,2 +1,3 @@
-# 2.0.0
-- Initial release of GDPR and CCPA compliant adapter.
+Version 2.0.0
+=============
+- Initial release of GDPR and CCPA compliant adapter for Verizon Media.
