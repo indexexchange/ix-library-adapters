@@ -379,9 +379,11 @@ function AOLHtb(configs) {
         var sizeKey = Size.arrayToString(curReturnParcel.size);
 
         if (bidDealId) {
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + bidDealId];
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
+        } else {
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
         }
-        curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
         curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
         //? }
 
@@ -459,7 +461,8 @@ function AOLHtb(configs) {
             targetingKeys: {
                 om: 'ix_aol_om',
                 pm: 'ix_aol_pm',
-                id: 'ix_aol_id'
+                id: 'ix_aol_id',
+                pmid: 'ix_aol_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
