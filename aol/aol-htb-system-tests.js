@@ -1,38 +1,38 @@
 'use strict';
 
 function getPartnerId() {
-  return 'AOLHtb';
+    return 'AOLHtb';
 }
 
 function getStatsId() {
-  return 'AOL';
+    return 'AOL';
 }
 
 function getCallbackType() {
-  return 'NONE';
+    return 'NONE';
 }
 
 function getArchitecture() {
-  return 'MRA';
+    return 'MRA';
 }
 
 function getConfig() {
-  return {
-    region: 'us',
-    networkId: '9599.1',
-    xSlots: {
-      1: {
-        placementId: '4601516'
-      }
-    }
-  };
+    return {
+        region: 'us',
+        networkId: '9599.1',
+        xSlots: {
+            1: {
+                placementId: '4601516'
+            }
+        }
+    };
 }
 
 function getBidRequestRegex() {
-  return {
-    method: 'GET',
-    urlRegex: /adserver-us\.adtech\.advertising\.com\/pubapi/
-  };
+    return {
+        method: 'GET',
+        urlRegex: /adserver-us\.adtech\.advertising\.com\/pubapi/
+    };
 }
 
 function validateBidRequest(request) {
@@ -53,63 +53,63 @@ function validateBidRequest(request) {
 }
 
 function getValidResponse(request, creative) {
-  var response = {
-    id: '135118129423453799',
-    seatbid: [
-      {
-        bid: [
-          {
-            id: '135118129423453799',
-            price: '2.00',
-            adm: creative || '<div id="aol-test-adm">HELLO WORLD</div>',
-            crid: '19992723',
-            w: 300,
-            h: 250
-          }
-        ]
-      }
-    ],
-    ext: {}
-  };
+    var response = {
+        id: '135118129423453799',
+        seatbid: [
+            {
+                bid: [
+                    {
+                        id: '135118129423453799',
+                        price: '2.00',
+                        adm: creative || '<div id="aol-test-adm">HELLO WORLD</div>',
+                        crid: '19992723',
+                        w: 300,
+                        h: 250
+                    }
+                ]
+            }
+        ],
+        ext: {}
+    };
 
-  return JSON.stringify(response);
+    return JSON.stringify(response);
 }
 
-function getPassResponse(request) {
-  var response = {
-    id: '135118129423453799',
-    seatbid: [],
-    nbr: 1
-  };
+function getPassResponse() {
+    var response = {
+        id: '135118129423453799',
+        seatbid: [],
+        nbr: 1
+    };
 
-  return JSON.stringify(response);
+    return JSON.stringify(response);
 }
 
 function validateTargeting(targetingMap) {
-  expect(targetingMap).toEqual(
-    jasmine.objectContaining({
-      ix_aol_om: jasmine.arrayWithExactContents(['300x250_200']),
-      ix_aol_id: jasmine.arrayWithExactContents([jasmine.any(String)])
-    })
-  );
+    expect(targetingMap).toEqual(
+        jasmine.objectContaining({
+            ix_aol_om: jasmine.arrayWithExactContents(['300x250_200']),
+            ix_aol_id: jasmine.arrayWithExactContents([jasmine.any(String)])
+        })
+    );
 }
 
 function validateBidRequestWithPrivacy(request) {
-  var params = request.pathname.split('ADTECH;')[1].split(';');
-  expect(params).toContain('gdpr=1');
-  expect(params).toContain('euconsent=TEST_GDPR_CONSENT_STRING');
+    var params = request.pathname.split('ADTECH;')[1].split(';');
+    expect(params).toContain('gdpr=1');
+    expect(params).toContain('euconsent=TEST_GDPR_CONSENT_STRING');
 }
 
 module.exports = {
-  getPartnerId: getPartnerId,
-  getStatsId: getStatsId,
-  getCallbackType: getCallbackType,
-  getArchitecture: getArchitecture,
-  getConfig: getConfig,
-  getBidRequestRegex: getBidRequestRegex,
-  validateBidRequest: validateBidRequest,
-  getValidResponse: getValidResponse,
-  validateTargeting: validateTargeting,
-  getPassResponse: getPassResponse,
-  validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
+    getPartnerId: getPartnerId,
+    getStatsId: getStatsId,
+    getCallbackType: getCallbackType,
+    getArchitecture: getArchitecture,
+    getConfig: getConfig,
+    getBidRequestRegex: getBidRequestRegex,
+    validateBidRequest: validateBidRequest,
+    getValidResponse: getValidResponse,
+    validateTargeting: validateTargeting,
+    getPassResponse: getPassResponse,
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
 };

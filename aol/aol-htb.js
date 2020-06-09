@@ -4,7 +4,6 @@
 // Dependencies ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-var Browser = require('browser.js');
 var Classify = require('classify.js');
 var Constants = require('constants.js');
 var Partner = require('partner.js');
@@ -130,12 +129,12 @@ function AOLHtb(configs) {
         /* ---------------------- PUT CODE HERE ------------------------------------ */
 
         var REGIONAL_HOSTNAMES = {
-          eu: 'adserver-eu.adtech.advertising.com',
-          us: 'adserver-us.adtech.advertising.com',
-          asia: 'adserver-as.adtech.advertising.com'
+            eu: 'adserver-eu.adtech.advertising.com',
+            us: 'adserver-us.adtech.advertising.com',
+            asia: 'adserver-as.adtech.advertising.com'
         };
 
-        REGIONAL_HOSTNAMES['na'] = REGIONAL_HOSTNAMES['us'];
+        REGIONAL_HOSTNAMES.na = REGIONAL_HOSTNAMES.us;
 
         var parcel = returnParcels[0];
         var xSlot = parcel.xSlotRef;
@@ -181,7 +180,15 @@ function AOLHtb(configs) {
         var pageId = xSlot.pageId || '0';
 
         var url = Network.buildUrl(baseUrl,
-            ['pubapi', '3.0', configs.networkId, xSlot.placementId, pageId, sizeId, 'ADTECH;']);
+            [
+                'pubapi',
+                '3.0',
+                configs.networkId,
+                xSlot.placementId,
+                pageId,
+                sizeId,
+                'ADTECH;'
+            ]);
 
         var requestParams = {
             v: 2,
@@ -199,7 +206,9 @@ function AOLHtb(configs) {
             if (gdprConsent.consentString) {
                 requestParams.euconsent = gdprConsent.consentString;
             }
+
             if (uspConsent) {
+                // eslint-disable-next-line camelcase
                 requestParams.us_privacy = uspConsent.uspString;
             }
         }
@@ -319,6 +328,7 @@ function AOLHtb(configs) {
                 __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
             }
             curReturnParcel.pass = true;
+
             return;
         }
 
@@ -361,7 +371,7 @@ function AOLHtb(configs) {
             }
             curReturnParcel.pass = true;
 
-           // Continue;
+            // Continue;
         }
 
         if (__profile.enabledAnalytics.requestTime) {
