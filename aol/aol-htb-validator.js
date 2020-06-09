@@ -20,7 +20,12 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * https://atinux.fr/schema-inspector/.
  */
 
-var VALID_REGIONS = ['eu', 'us', 'na', 'asia'];
+var VALID_REGIONS = [
+    'eu',
+    'us',
+    'na',
+    'asia'
+];
 
 function partnerValidator(configs) {
     var result = Inspector.validate({
@@ -30,9 +35,9 @@ function partnerValidator(configs) {
                 type: 'string',
                 exec: function (schema, region) {
                     if (VALID_REGIONS.indexOf(region) === -1) {
-                    this.report('Region must be one of the predefined values: ' + VALID_REGIONS);
+                        this.report('Region must be one of the predefined values: ' + VALID_REGIONS);
+                    }
                 }
-              }
             },
             networkId: {
                 type: 'string',

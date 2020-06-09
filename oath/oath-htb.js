@@ -17,7 +17,7 @@ var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('aol-htb-validator.js');
+var PartnerSpecificValidator = require('oath-htb-validator.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
@@ -31,7 +31,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function AOLHtb(configs) {
+function OathHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -56,6 +56,129 @@ function AOLHtb(configs) {
     /* =====================================
      * Functions
      * ---------------------------------- */
+    /**
+     * Endpoints URLS
+     * @type {{eu: string, na: string, asia: string}}
+     */
+    var ENDPOINT_DOMAINS = {
+        oneDisplay: {
+            eu: 'https://adserver-eu.adtech.advertising.com',
+            us: 'https://adserver-us.adtech.advertising.com',
+            asia: 'https://adserver-as.adtech.advertising.com'
+        },
+        oneMobile: 'https://c2shb.ssp.yahoo.com'
+    };
+
+    /**
+     * Determine if the xSlot should target OneMobile endpoint.
+     * @param {object} xSlot
+     * @return {boolean} true if xSlots targets OneMobile.
+     */
+    function __isOneMobileRequest(xSlot) {
+        return xSlot.dcn && xSlot.pos;
+    }
+
+    function __addRegulatoryParams(params) {
+        var gdprData = ComplianceService.gdpr.getConsent();
+        var uspData = ComplianceService.usp && ComplianceService.usp.getConsent();
+
+        if (gdprData && gdprData.applies) {
+            params.gdpr = 1;
+
+            if (gdprData.consentString) {
+                params.euconsent = gdprData.consentString;
+            }
+        }
+
+        if (uspData) {
+            // eslint-disable-next-line camelcase
+            params.us_privacy = uspData.uspString;
+        }
+    }
+
+    /**
+     * Construct request object for OneMobile Endpoint.
+     * @param {object} xSlot
+     * @return {object} request object.
+     */
+    function __generateOneMobileRequest(xSlot) {
+        var baseUrl = ENDPOINT_DOMAINS.oneMobile;
+
+        var requestParams = {
+            dcn: xSlot.dcn,
+            pos: xSlot.pos
+        };
+
+        requestParams.secure = 1;
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            __addRegulatoryParams(requestParams);
+        }
+
+        var url = Network.buildUrl(baseUrl, ['bidRequest?cmd=bid']);
+
+        for (var parameter in requestParams) {
+            if (!requestParams.hasOwnProperty(parameter)) {
+                continue;
+            }
+            url += '&' + parameter + '=' + requestParams[parameter];
+        }
+
+        return {
+            url: url,
+            data: {}
+        };
+    }
+
+    /**
+     * Construct request object for OneDisplay Endpoint.
+     * @param {object} xSlot
+     * @return {object} request object.
+     */
+    function __generateOneDisplayRequest(xSlot) {
+        var region = ENDPOINT_DOMAINS.oneDisplay.hasOwnProperty(configs.region) ? configs.region : 'us';
+        var baseUrl = ENDPOINT_DOMAINS.oneDisplay[region] + '/pubapi/3.0/' + configs.networkId;
+
+        /* Sizeid & pageid */
+        var sizeId = xSlot.sizeId || '-1';
+        var pageId = xSlot.pageId || '0';
+
+        /* Request params */
+        var requestParams = {
+            cmd: 'bid',
+            cors: 'yes',
+            v: '2',
+            misc: System.now()
+        };
+
+        if (xSlot.bidFloor) {
+            requestParams.bidFloor = xSlot.bidFloor;
+        }
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            __addRegulatoryParams(requestParams);
+        }
+
+        var url = Network.buildUrl(baseUrl, [
+            xSlot.placementId,
+            pageId,
+            sizeId,
+            'ADTECH;'
+        ]);
+
+        /* Build url paramters */
+        for (var parameter in requestParams) {
+            if (!requestParams.hasOwnProperty(parameter)) {
+                continue;
+            }
+            url += parameter + '=' + requestParams[parameter] + ';';
+        }
+
+        return {
+            url: url,
+            data: {}
+        };
+    }
 
     /* Utilities
      * ---------------------------------- */
@@ -127,20 +250,15 @@ function AOLHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
+        var returnParcel = returnParcels[0];
+        var xSlot = returnParcel.xSlotRef;
+        if (__isOneMobileRequest(xSlot)) {
+            __profile.statsId = 'OATHM';
 
-        var REGIONAL_HOSTNAMES = {
-            eu: 'adserver-eu.adtech.advertising.com',
-            us: 'adserver-us.adtech.advertising.com',
-            asia: 'adserver-as.adtech.advertising.com'
-        };
+            return __generateOneMobileRequest(xSlot);
+        }
 
-        REGIONAL_HOSTNAMES.na = REGIONAL_HOSTNAMES.us;
-
-        var parcel = returnParcels[0];
-        var xSlot = parcel.xSlotRef;
-
-        // AOL endpoints only support secure traffic.
-        var baseUrl = 'https://' + REGIONAL_HOSTNAMES[configs.region];
+        return __generateOneDisplayRequest(xSlot);
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -166,65 +284,12 @@ function AOLHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprConsent = ComplianceService.gdpr.getConsent();
-        var uspConsent = ComplianceService.usp && ComplianceService.usp.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
         /* -------------------------------------------------------------------------- */
-
-        var sizeId = xSlot.sizeId || '-1';
-        var pageId = xSlot.pageId || '0';
-
-        var url = Network.buildUrl(baseUrl,
-            [
-                'pubapi',
-                '3.0',
-                configs.networkId,
-                xSlot.placementId,
-                pageId,
-                sizeId,
-                'ADTECH;'
-            ]);
-
-        var requestParams = {
-            v: 2,
-            cmd: 'bid',
-            cors: 'yes',
-            misc: System.now()
-        };
-
-        if (xSlot.bidFloor) {
-            requestParams.bidFloor = xSlot.bidFloor;
-        }
-
-        if (privacyEnabled) {
-            requestParams.gdpr = gdprConsent.applies ? '1' : '0';
-            if (gdprConsent.consentString) {
-                requestParams.euconsent = gdprConsent.consentString;
-            }
-
-            if (uspConsent) {
-                // eslint-disable-next-line camelcase
-                requestParams.us_privacy = uspConsent.uspString;
-            }
-        }
-
-        /* Add ad-server parameters */
-        for (var parameter in requestParams) {
-            if (!requestParams.hasOwnProperty(parameter)) {
-                continue;
-            }
-            url += parameter + '=' + requestParams[parameter] + ';';
-        }
-
-        return {
-            url: url,
-            data: {}
-        };
     }
 
     /* =============================================================================
@@ -335,7 +400,7 @@ function AOLHtb(configs) {
         /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
         /* Using the above variable, curBid, extract various information about the bid and assign it to
-         * these local variables */
+             * these local variables */
 
         /* The bid price for the given slot */
         var bidPrice = curBid.price;
@@ -448,9 +513,9 @@ function AOLHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'AOLHtb',
-            namespace: 'AOLHtb',
-            statsId: 'AOL',
+            partnerId: 'OathHtb',
+            namespace: 'OathHtb',
+            statsId: 'OATH',
             version: '3.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
@@ -469,10 +534,10 @@ function AOLHtb(configs) {
 
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                om: 'ix_aol_om',
-                pm: 'ix_aol_pm',
-                id: 'ix_aol_id',
-                pmid: 'ix_aol_dealid'
+                id: 'ix_oath_id',
+                om: 'ix_oath_cpm',
+                pm: 'ix_oath_pcpm',
+                pmid: 'ix_oath_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
@@ -509,7 +574,7 @@ function AOLHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'AOLHtb',
+        __type__: 'OathHtb',
         //? }
 
         //? if (TEST) {
@@ -540,4 +605,4 @@ function AOLHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = AOLHtb;
+module.exports = OathHtb;

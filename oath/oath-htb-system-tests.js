@@ -1,11 +1,11 @@
 'use strict';
 
 function getPartnerId() {
-    return 'AOLHtb';
+    return 'OathHtb';
 }
 
 function getStatsId() {
-    return 'AOL';
+    return 'OATH';
 }
 
 function getCallbackType() {
@@ -61,7 +61,7 @@ function getValidResponse(request, creative) {
                     {
                         id: '135118129423453799',
                         price: '2.00',
-                        adm: creative || '<div id="aol-test-adm">HELLO WORLD</div>',
+                        adm: creative || '<div id="oath-test-adm">HELLO WORLD</div>',
                         crid: '19992723',
                         w: 300,
                         h: 250
@@ -88,8 +88,8 @@ function getPassResponse() {
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(
         jasmine.objectContaining({
-            ix_aol_om: jasmine.arrayWithExactContents(['300x250_200']),
-            ix_aol_id: jasmine.arrayWithExactContents([jasmine.any(String)])
+            ix_oath_cpm: jasmine.arrayWithExactContents(['300x250_200']),
+            ix_oath_id: jasmine.arrayWithExactContents([jasmine.any(String)])
         })
     );
 }
