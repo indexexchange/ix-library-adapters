@@ -5,3 +5,7 @@
 # 2.1.0
 
 - Added CCPA support
+
+# 2.2.0
+
+- Added unified id and liveramp support
