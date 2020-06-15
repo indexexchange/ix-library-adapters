@@ -143,7 +143,7 @@ function ColossusHtb(configs) {
                 if (identityData.AdserverOrgIp && identityData.AdserverOrgIp.data) {
                     tmp.eids.push(identityData.AdserverOrgIp.data);
                 }
-                
+     
                 if (identityData.LiveRampIp && identityData.LiveRampIp.data) {
                     tmp.eids.push(identityData.LiveRampIp.data);
                 }
