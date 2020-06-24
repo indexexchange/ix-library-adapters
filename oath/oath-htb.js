@@ -436,7 +436,7 @@ function OathHtb(configs) {
             }
             curReturnParcel.pass = true;
 
-            // Continue;
+            return;
         }
 
         if (__profile.enabledAnalytics.requestTime) {
@@ -536,7 +536,7 @@ function OathHtb(configs) {
             targetingKeys: {
                 id: 'ix_oath_id',
                 om: 'ix_oath_cpm',
-                pm: 'ix_oath_pcpm',
+                pm: 'ix_oath_cpm',
                 pmid: 'ix_oath_dealid'
             },
 
