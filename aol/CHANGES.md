@@ -6,6 +6,3 @@
 
 ### Added
 - Passing the USP string to the servers.
-
-### Fixed
-- Name duplication of the open market price targeting key by the private price targeting key. 
