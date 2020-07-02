@@ -136,7 +136,7 @@ function ColossusHtb(configs) {
             tmp = {
                 placementId: returnParcels[i].xSlotRef.placementId,
                 sizes: returnParcels[i].xSlotRef.sizes || [],
-                mediaType: returnParcels[i].xSlotRef.mediaType || 'banner',
+                traffic: returnParcels[i].xSlotRef.mediaType || 'banner',
                 bidId: returnParcels[i].requestId,
                 eids: []
             };

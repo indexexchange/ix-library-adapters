@@ -9,3 +9,9 @@
 # 2.2.0
 
 - Added unified id and liveramp support
+
+# 2.2.1
+
+- Fix adapter params description
+- Add traffic param, to determine video and banner
+- Pass sizes to placements

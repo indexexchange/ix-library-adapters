@@ -100,19 +100,19 @@ USD
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| placementId | Yes | String | Collossus placemnt id |
+| placementId | Yes | Number | Collossus placemnt id |
 | sizes | Yes | Int[][] | Ad slot sizes |
-| mediaType | No | String | banner or video (banner by default)
+| traffic | No | String | banner or video (banner by default)
 ### Example
 ```javascript
 {
-    "placementId": "222",
+    "placementId": 222,
     "sizes": [[728, 90], [300, 250]]
-    "mediaType": "banner"
+    "traffic": "banner"
 }
 {
-    "placementId": "222",
+    "placementId": 222,
     "sizes": [[1366, 768]]
-    "mediaType": "video"
+    "traffic": "video"
 }
 ```
