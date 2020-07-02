@@ -135,6 +135,8 @@ function ColossusHtb(configs) {
         for (var i = 0; i < len; i++) {
             tmp = {
                 placementId: returnParcels[i].xSlotRef.placementId,
+                sizes: returnParcels[i].xSlotRef.sizes || [],
+                mediaType: returnParcels[i].xSlotRef.mediaType || 'banner',
                 bidId: returnParcels[i].requestId,
                 eids: []
             };
