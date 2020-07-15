@@ -31,7 +31,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function AOLHtb(configs) {
+function AolHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -371,7 +371,7 @@ function AOLHtb(configs) {
             }
             curReturnParcel.pass = true;
 
-            // Continue;
+            return;
         }
 
         if (__profile.enabledAnalytics.requestTime) {
@@ -448,8 +448,8 @@ function AOLHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            partnerId: 'AOLHtb',
-            namespace: 'AOLHtb',
+            partnerId: 'AolHtb',
+            namespace: 'AolHtb',
             statsId: 'AOL',
             version: '3.0.0',
             targetingType: 'slot',
@@ -509,7 +509,7 @@ function AOLHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'AOLHtb',
+        __type__: 'AolHtb',
         //? }
 
         //? if (TEST) {
@@ -540,4 +540,4 @@ function AOLHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = AOLHtb;
+module.exports = AolHtb;
