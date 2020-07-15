@@ -136,8 +136,8 @@ function OathHtb(configs) {
      * @return {object} request object.
      */
     function __generateOneDisplayRequest(xSlot) {
-        var region = ENDPOINT_DOMAINS.oneDisplay.hasOwnProperty(configs.region) ? configs.region : 'us';
-        var baseUrl = ENDPOINT_DOMAINS.oneDisplay[region] + '/pubapi/3.0/' + configs.networkId;
+        var region = ENDPOINT_DOMAINS.oneDisplay.hasOwnProperty(xSlot.region) ? xSlot.region : 'us';
+        var baseUrl = ENDPOINT_DOMAINS.oneDisplay[region] + '/pubapi/3.0/' + xSlot.networkId;
 
         /* Sizeid & pageid */
         var sizeId = xSlot.sizeId || '-1';
