@@ -1,7 +1,7 @@
 'use strict';
 
 function getPartnerId() {
-    return 'AOLHtb';
+    return 'AolHtb';
 }
 
 function getStatsId() {
