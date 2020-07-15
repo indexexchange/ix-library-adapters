@@ -18,10 +18,10 @@ function getArchitecture() {
 
 function getConfig() {
     return {
-        region: 'us',
-        networkId: '9599.1',
         xSlots: {
             1: {
+                region: 'us',
+                networkId: '9599.1',
                 placementId: '4601516'
             }
         }
