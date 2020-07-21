@@ -50,7 +50,7 @@
   bidId: "_fakeBidId",
   instant_play_capable: "true",
   hbSource: "indexExchange",
-  hbVersion: "2.2.0",
+  hbVersion: "2.3.0",
   cbust: System.now()
 };
 ```
