@@ -21,7 +21,7 @@ function getConfig() {
         xSlots: {
             1: {
                 placementId: '36891',
-                sizes: [[300, 250],[350,600]]
+                sizes: [[300, 250], [350, 600]]
             }
         }
     };

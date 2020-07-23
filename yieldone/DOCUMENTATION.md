@@ -2,38 +2,38 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | No |
+| Native Ad Support | No |
+| SafeFrame Support | No |
+| PMP Support | Yes |
  
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome |  |
-| Edge |  |
-| Firefox |  |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| Chrome | Yes |
+| Edge | Yes |
+| Firefox | Yes |
+| Internet Explorer 9 | No |
+| Internet Explorer 10 | Yes |
+| Internet Explorer 11 | Yes |
+| Safari | Yes |
+| Mobile Chrome | Yes |
+| Mobile Safari | Yes |
+| UC Browser | Yes |
+| Samsung Internet | Yes |
+| Opera | Yes |
  
 ## Adapter Information
 | Info | |
 |---|---|
 | Partner Id | YieldoneHtb |
 | Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
-| Ad Server URLs | |
-| Slot Mapping Sytle (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Bid Type (Gross / Net) | Net |
+| GAM Key (Open Market) | ix_yie_cpm |
+| GAM Key (Private Market) | ix_yie_cpm |
+| Ad Server URLs | http(s)://y.one.impact-ad.jp/h_bid |
+| Slot Mapping Sytle (Size / Multiple Sizes / Slot) | Slot |
+| Request Architecture (MRA / SRA) | MRA |
  
 ## Currencies Supported
  
@@ -62,8 +62,10 @@
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| placementId | Yes | string | The placement ID |
 ### Example
 ```javascript
- 
+ {
+     "placementId": "36891"
+ }
 ```
