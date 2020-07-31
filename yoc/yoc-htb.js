@@ -359,6 +359,15 @@ function YocHtb(configs) {
             var pixelUrl = Browser.getProtocol() + '//t.visx.net/push_sync?wrapperType=IX&wrapperVersion='
                 + SpaceCamp.version + '&adapterVersion=' + __profile.version;
 
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+            if (gdprStatus) {
+                if (gdprStatus.consentString) {
+                    pixelUrl = pixelUrl + '&gdpr_consent=' + encodeURIComponent(gdprStatus.consentString);
+                }
+                // eslint-disable-next-line camelcase
+                pixelUrl = pixelUrl + '&gdpr_applies=' + Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
+            }
+
             /* --------------------------------------------------------------------------------------- */
 
             curBid = null;
