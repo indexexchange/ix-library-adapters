@@ -51,6 +51,7 @@ function validateBidRequest(request) {
     expect(q.referrer).toBeDefined();
     expect(q.pageReferrer).toBeDefined();
     expect(q.networkBandwidth).toBeDefined();
+    expect(q.timeToFirstByte).toBeDefined();
     expect(q.hb_version).toBeDefined();
     expect(q.data[0].placementId).toBe(10);
     expect(q.data[0].pageId).toBe(1);

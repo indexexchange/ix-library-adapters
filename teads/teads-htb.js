@@ -75,6 +75,36 @@ function TeadsHtb(configs) {
         return nav && nav.connection && nav.connection.downlink >= 0 ? nav.connection.downlink.toString() : '';
     }
 
+    function __getTimeToFirstByte(win) {
+        var winPerformance = win.performance || win.webkitPerformance || win.msPerformance || win.mozPerformance;
+
+        var ttfbWithTimingV2 = winPerformance
+            && typeof winPerformance.getEntriesByType === 'function'
+            && Object.prototype.toString.call(winPerformance.getEntriesByType) === '[object Function]'
+            && winPerformance.getEntriesByType('navigation')[0]
+            && winPerformance.getEntriesByType('navigation')[0].responseStart
+            && winPerformance.getEntriesByType('navigation')[0].requestStart
+            && winPerformance.getEntriesByType('navigation')[0].responseStart >= 0
+            && winPerformance.getEntriesByType('navigation')[0].requestStart >= 0
+            && Math.round(
+                winPerformance.getEntriesByType('navigation')[0].responseStart
+                - winPerformance.getEntriesByType('navigation')[0].requestStart
+            );
+
+        if (ttfbWithTimingV2) {
+            return ttfbWithTimingV2.toString();
+        }
+
+        var ttfbWithTimingV1 = winPerformance
+            && winPerformance.timing.responseStart
+            && winPerformance.timing.requestStart
+            && winPerformance.timing.responseStart >= 0
+            && winPerformance.timing.requestStart >= 0
+            && winPerformance.timing.responseStart - winPerformance.timing.requestStart;
+
+        return ttfbWithTimingV1 ? ttfbWithTimingV1.toString() : '';
+    }
+
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
@@ -90,6 +120,7 @@ function TeadsHtb(configs) {
             referrer: Browser.getPageUrl(),
             pageReferrer: Browser.getReferrer(),
             networkBandwidth: __getConnectionDownlink(window.navigator),
+            timeToFirstByte: __getTimeToFirstByte(window),
             // eslint-disable-next-line camelcase
             hb_version: __profile.version
         };
