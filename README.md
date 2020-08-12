@@ -145,7 +145,7 @@ if (__directInterface.Layers.PartnersLayer.Partners.ExampleCompanyHtb) {
 }
 ```
 4. <b>Complete the `<adapter-name>-htb-system-tests.js` file</b>
-    * This file contains all your adapter's test functions. Follow the process outlined on <a href="https://knowledgebase.indexexchange.com/display/ADAPTER/Test+Cases">Knowledge Base</a> to write our your test cases.
+    * This file contains all your adapter's test functions. Follow the process outlined on <a href="https://kb.indexexchange.com/ix_library_partners/build_adapter/write_and_run_the_test_cases.htm">Knowledge Base</a> to write your test cases.
 5. <b>Run the system tests and linter</b>
     * Make sure all your test cases are passing by running `npm run debug` on OSX or Linux, or `npm run win-debug` on Windows in your adapter folder and then accessing the system tests page.
     * Ensure that there are no lint errors in your adapter folder by running `npm run lint` on OSX or Linux, or `npm run win-lint` on Windows.
@@ -519,13 +519,13 @@ There are a lot of helper objects available to you in you adapter module.
 Note that bid transformer instances suitable for DFP targeting and price reporting are already provided via `__baseClass._bidTransformers`. It is recommended to use the provided instances as they are sufficient for almost all use cases.
 
 # <a name='linting'></a> Linting
-All code must pass the linting before it is submitted for review. Follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/ESLint) to run the linter.
+All code must pass the linting before it is submitted for review. Follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/check_your_code_using_ESLint.htm) to run the linter.
 
 # <a name='debugging'></a> Debugging
-To walk through your bidder code and debug, follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Adapter+Debugger).
+To walk through your bidder code and debug, follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/test_your_adapter_using_the_debugger.htm).
 
 # <a name='testing'></a> Testing
-To implement the system tests, follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Test+Cases).
+To implement the system tests, follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/write_and_run_the_test_cases.htm).
 
 # <a name='codeSubmissionGuidelines'></a> Code Submission Guidelines
-Follow the steps [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Adapter+Code+Submission+Guidelines) to submit your code for review to Index Exchange.
+Follow the steps [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/code_submission_checklist_for_bidding_adapters.htm) to submit your code for review to Index Exchange.
