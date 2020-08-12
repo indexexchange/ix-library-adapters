@@ -313,7 +313,7 @@ function GumGumHtb(configs) {
                 queryObj.pi = 3;
                 queryObj.si = parseInt(xSlot.inSlot, 10);
             }
-            queryObj.bF = xSlot.sizes.reduce(function (acc, curSlotDim) {
+            queryObj.bf = xSlot.sizes.reduce(function (acc, curSlotDim) {
                 // Use the uriencoded version of ,
                 var deliminter = acc ? '%2C' : '';
 
