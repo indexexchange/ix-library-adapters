@@ -29,12 +29,12 @@ This repository contains all the certified IX Library adapters, as well as the t
 Below you will find the information you will need to complete the certification process and become a part of the IX Library Ecosystem!
 
 There are two branches in this repository:
-* `master` - The stable branch where all certified adapters reside. This is the default branch, and so all <b>new</b> adapters should make their pull request against this branch.
-* `canary` - The branch used for already-certified adapters to test their updates with publishers before merging to the stable `master` branch.
+* `master` - The stable branch where all certified adapters reside.
+* `canary` - The branch used for adapters to test their updates or new adapter with publishers before merging to the stable `master` branch.
 
 ## New Adapters
 
-New adapters will be asked to make their first pull request, upon meeting all the requirements highlighted in the [Requirements](#requirements) section, to the stable `master` branch.
+New adapters must submit a pull request to the `canary` branch upon meeting all the requirements highlighted in the [Requirements](#requirements) section to test their adapter.  After testing is complete, submit a pull request to the `master` branch. The adapter update will then be merged into the stable `master` branch, making it availabe to all publishers using the IX Library.
 
 ## Existing Adapters
 
@@ -528,4 +528,35 @@ To walk through your bidder code and debug, follow the instructions [here](https
 To implement the system tests, follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/write_and_run_the_test_cases.htm).
 
 # <a name='codeSubmissionGuidelines'></a> Code Submission Guidelines
-Follow the steps [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/code_submission_checklist_for_bidding_adapters.htm) to submit your code for review to Index Exchange.
+
+## Code submission checklist for bidding adapters
+
+Verify that your bidding adapter code meets the following requirements:
+
+* The following files are complete and up-to-date:
+   * `<adapter-name>-htb.js`
+   * `<adapter-name>-htb-exports.js`
+   * `<adapter-name>-htb-validator.js`
+   * `<adapter-name>-htb-system-tests.js`
+* Your adapter version number is up-to-date.
+* Your bidder documentation is up-to-date.
+* The CHANGES.md file is up-to-date and formatted correctly:
+   * The latest adapter version number must always be at the top.
+   * The latest adapter version number must match the version number in your code (and in the pull request you log in GitHub).
+   * The file should use the following format:
+      `# <ADAPTER VERSION NUMBER>`
+         `<update information 1>`
+         `<update information 1>`
+      `# <PREVIOUS ADAPTER VERSION NUMBER>`
+         `<update information 1>`
+         `<update information 1>`
+* You have [checked your code using ESLint](https://kb.indexexchange.com/ix_library_partners/build_adapter/check_your_code_using_ESLint.htm) and corrected all errors originating from your adapter.
+* You have run the debugger tool and test cases, and checked that they all pass in the browsers listed in the bidder documentation in your GitHub repository.
+
+## Code submission checklist for non bidding adapters
+
+Verify that your non-bidding adapter code meets the following requirements:
+
+* Your code is instantiating correctly when the IX Library loads.
+* The correct bid request information is being sent to your server's endpoint.
+* Google ad slot targeting is set correctly based on your ad server's bid response information.
