@@ -194,6 +194,7 @@ function TrustXHtb(configs) {
          * }
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
         var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
@@ -211,18 +212,19 @@ function TrustXHtb(configs) {
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
-        if (gdprStatus) {
-            if (gdprStatus.consentString) {
-                queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+        if (privacyEnabled) {
+            if (gdprStatus) {
+                if (gdprStatus.consentString) {
+                    queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+                }
+                // eslint-disable-next-line camelcase
+                queryObj.gdpr_applies
+                    = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
             }
-            // eslint-disable-next-line camelcase
-            queryObj.gdpr_applies
-                = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
-        }
 
-        if (uspConsentObj) {
-            // eslint-disable-next-line camelcase
-            queryObj.us_privacy = uspConsentObj.uspString;
+            if (uspConsentObj) {
+                queryObj.us_privacy = uspConsentObj.uspString; // eslint-disable-line camelcase
+            }
         }
 
         /* -------------------------------------------------------------------------- */
