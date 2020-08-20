@@ -1,3 +1,10 @@
+# 2.3.0
+- Send `us_privacy` param for CCPA
+
+# 2.2.0
+- Use an `https` endpoint
+- Send `secure` param
+
 # 2.1.2
 
 - Add support for Unified ID in `__generateRequestObj` function of adapter code

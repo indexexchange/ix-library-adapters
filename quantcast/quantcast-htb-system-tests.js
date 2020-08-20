@@ -105,6 +105,13 @@ function validateTargeting(targetingMap) {
     }));
 }
 
+function validateBidRequestWithPrivacy(request) {
+    var r = JSON.parse(request.body);
+
+    expect(r.gdprSignal).toEqual(1);
+    expect(r.gdprConsent).toEqual('TEST_GDPR_CONSENT_STRING');
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -115,5 +122,6 @@ module.exports = {
     getPassResponse: getPassResponse,
     validateBidRequest: validateBidRequest,
     getValidResponse: getValidResponse,
-    validateTargeting: validateTargeting
+    validateTargeting: validateTargeting,
+    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy
 };

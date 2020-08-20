@@ -291,10 +291,15 @@ function GumGumHtb(configs) {
         if (ComplianceService) {
             var privacyEnabled = ComplianceService.isPrivacyEnabled();
             var gdprConsent = ComplianceService.gdpr.getConsent();
+            var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
             if (privacyEnabled && gdprConsent.applies) {
                 // Casts to 0 or 1
                 queryObj.gdprApplies = Number(gdprConsent.applies);
                 queryObj.gdprConsent = gdprConsent.consentString;
+            }
+
+            if (privacyEnabled && uspConsentObj) {
+                queryObj.uspConsent = uspConsentObj.uspString;
             }
         }
 
@@ -585,7 +590,7 @@ function GumGumHtb(configs) {
             partnerId: 'GumGumHtb',
             namespace: 'GumGumHtb',
             statsId: 'GUM',
-            version: '2.1.0',
+            version: '2.2.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

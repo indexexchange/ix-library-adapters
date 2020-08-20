@@ -68,7 +68,8 @@
         "clientID": "",
         "tdID": "",
         "crbIDs": {},
-        "optOut": false
+        "optOut": false,
+        "usp": "1YNN"
     },
     "krux": {
         "userID": null,
