@@ -306,6 +306,7 @@ function AdYouLikeHtb(configs) {
             var curReturnParcel = returnParcels[j];
 
             var headerStatsInfo = {};
+            var placementId = curReturnParcel.xSlotRef.placementId;
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
@@ -314,7 +315,7 @@ function AdYouLikeHtb(configs) {
 
             for (var i = 0; i < bids.length; i++) {
                 /* ----------- Find a matching bid for the current parcel ------------- */
-                if (htSlotId === bids[i].BidID) {
+                if (placementId === bids[i].Placement) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
