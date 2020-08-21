@@ -236,8 +236,10 @@ function AdYouLikeHtb(configs) {
      * If the endpoint does not have an appropriate field for this, set the profile's
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
+    /* Function adResponseCallback omitted
     function adResponseCallback(adResponse) {
     }
+    */
 
     /* -------------------------------------------------------------------------- */
 
@@ -297,7 +299,6 @@ function AdYouLikeHtb(configs) {
          */
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
-
         var bids = adResponse;
 
         /* --------------------------------------------------------------------------------- */
@@ -497,8 +498,7 @@ function AdYouLikeHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj,
-            adResponseCallback: adResponseCallback
+            generateRequestObj: __generateRequestObj
         });
     })();
 
@@ -530,8 +530,7 @@ function AdYouLikeHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback
+        generateRequestObj: __generateRequestObj
         //? }
     };
 
