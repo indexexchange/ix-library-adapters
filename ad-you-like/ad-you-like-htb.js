@@ -173,7 +173,7 @@ function AdYouLikeHtb(configs) {
         }, {});
 
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//hb-api.omnitagjs.com/hb-api/prebid/v1';
+        var baseUrl = Browser.getProtocol() + '//hb-api.omnitagjs.com/hb-api/ix/v1';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
