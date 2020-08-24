@@ -19,30 +19,42 @@ function getArchitecture() {
 function getBidRequestRegex() {
     return {
         method: 'GET',
-        urlRegex: /hb-api\.omnitagjs\.com\/hb-api\/ix\/v1.*/
+        urlRegex: /.*hb-api\.omnitagjs\.com\/hb-api\/ix\/v1.*/
     };
 }
 
 function getConfig() {
     return {
-        siteId: '123456',
         xSlots: {
             1: {
-                size: [300, 250],
-                siteId: '372138'
+                placementId: '15894224',
+                sizes: [[300, 250]]
             },
             2: {
-                size: [300, 250],
-                siteId: '372138'
+                placementId: '15901268',
+                sizes: [[300, 250], [300, 600]]
             }
+        },
+        mapping: {
+            'Fake Unit 1 300x250': ['1'],
+            'Fake Unit 2 300x250 or 300x600': ['2']
         }
     };
 }
-/*
-function validateBidRequest(request) {
-    expect(request.query.v).toBe('7.2');
-}
 
+function validateBidRequest(request) {
+    var query = request.query;
+    var slotConf = JSON.parse(query.Bids).htSlotDesktopAId;
+    var consentData = query.gdprConsent;
+
+    expect(query.PageRefreshed).toMatch(/(true|false)/);
+    expect(consentData.consentString).toBeDefined();
+    expect(consentData.consentRequired).toBeDefined();
+
+    expect(slotConf.PlacementID).toBe('15901268');
+    expect(slotConf.AvailableSizes).toBe('300x250,300x600');
+}
+/*
 function validateBidRequestWithPrivacy(request) {
     var r = JSON.parse(request.query.r);
   
@@ -185,8 +197,8 @@ module.exports = {
     getArchitecture: getArchitecture,
     getBidRequestRegex: getBidRequestRegex,
     getConfig: getConfig,
-    /*validateBidRequest: validateBidRequest,
-    validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
+    validateBidRequest: validateBidRequest,
+    /*validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
     validateBidRequestWithAdSrvrOrg: validateBidRequestWithAdSrvrOrg,
     getValidResponse: getValidResponse,
     validateTargeting: validateTargeting,
