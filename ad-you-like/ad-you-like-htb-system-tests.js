@@ -31,7 +31,7 @@ function getConfig() {
                 sizes: [[300, 250]]
             },
             2: {
-                placementId: 'e622af275681965d3095808561a1e510',
+                placementId: 'e622af275681965d3095808561a1e512',
                 sizes: [[300, 250], [300, 600]]
             }
         },
@@ -51,7 +51,7 @@ function validateBidRequest(request) {
     expect(consentData.consentString).toBeDefined();
     expect(consentData.consentRequired).toBeDefined();
 
-    expect(slotConf.PlacementID).toBe('e622af275681965d3095808561a1e510');
+    expect(slotConf.PlacementID).toBe('e622af275681965d3095808561a1e512');
     expect(slotConf.AvailableSizes).toBe('300x250,300x600');
 }
 
@@ -66,6 +66,16 @@ function getValidResponse(request, creative) {
             Ad: creative,
             CreativeID: '858f255f656ea3d3dcae8256ca30775c',
             BidID: '2ec156839b9502'
+        },
+        {
+            Price: 2,
+            Attempt: '0aa4828b26ba4869e622af275681965dbis',
+            Placement: 'e622af275681965d3095808561a1e512',
+            Width: 300,
+            Height: 250,
+            Ad: creative,
+            CreativeID: '858f255f656ea3d3dcae8256ca30775c',
+            BidID: '2ec156839b9503'
         }
     ];
 
@@ -73,16 +83,16 @@ function getValidResponse(request, creative) {
 }
 
 function validateBidRequestWithPrivacy(request) {
-    var r = JSON.parse(request.query.r);
+    var r = request.query;
 
     expect(r.gdprConsent).toEqual(jasmine.objectContaining({
-        consentRequired: 1,
+        consentRequired: true,
         consentString: 'TEST_GDPR_CONSENT_STRING'
     }));
 }
 
 function validateBidRequestWithUAdSrvrOrg(request) {
-    var r = JSON.parse(request.query.r);
+    var r = request.query;
 
     expect(r.user.eids).toEqual(jasmine.arrayContaining([
         {
