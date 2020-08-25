@@ -83,12 +83,11 @@ function getValidResponse(request, creative) {
 }
 
 function validateBidRequestWithPrivacy(request) {
-    var r = request.query;
 
-    expect(r.gdprConsent).toEqual(jasmine.objectContaining({
-        consentRequired: true,
-        consentString: 'TEST_GDPR_CONSENT_STRING'
-    }));
+    var consentData = JSON.parse(request.query.gdprConsent);
+
+    expect(consentData.consentString).toEqual('TEST_GDPR_CONSENT_STRING');
+    expect(consentData.consentRequired).toEqual(true);
 }
 
 function validateBidRequestWithUAdSrvrOrg(request) {
