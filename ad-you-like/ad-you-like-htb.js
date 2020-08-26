@@ -154,6 +154,8 @@ function AdYouLikeHtb(configs) {
         var queryObj = {};
         var callbackId;
         var partnerId = null;
+        var liveRampIp = null;
+        var adserverOrgIp = null;
 
         var bids = returnParcels.reduce(function (accumulator, bid) {
             var bidId = bid.htSlot.getId();
@@ -170,7 +172,17 @@ function AdYouLikeHtb(configs) {
             accumulator[bidId].Height = size.height;
             accumulator[bidId].AvailableSizes = formatAvailableSize(sizesArray);
 
-            partnerId = bid.xSlotRef.partnerId;
+            if (!partnerId) {
+                partnerId = bid.xSlotRef.partnerId;
+            }
+
+            if (!liveRampIp && bid.identityData) {
+                liveRampIp = bid.identityData.LiveRampIp;
+            }
+
+            if (!adserverOrgIp && bid.identityData) {
+                adserverOrgIp = bid.identityData.AdserverOrgIp;
+            }
 
             return accumulator;
         }, {});
@@ -217,6 +229,14 @@ function AdYouLikeHtb(configs) {
 
         if (partnerId) {
             queryObj.Partner = partnerId;
+        }
+
+        if (liveRampIp) {
+            queryObj.LiveRampIp = JSON.stringify(liveRampIp);
+        }
+
+        if (adserverOrgIp) {
+            queryObj.AdserverOrgIp = JSON.stringify(adserverOrgIp);
         }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
