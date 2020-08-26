@@ -83,7 +83,6 @@ function getValidResponse(request, creative) {
 }
 
 function validateBidRequestWithPrivacy(request) {
-
     var consentData = JSON.parse(request.query.gdprConsent);
 
     expect(consentData.consentString).toEqual('TEST_GDPR_CONSENT_STRING');
