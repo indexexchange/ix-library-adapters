@@ -153,6 +153,7 @@ function AdYouLikeHtb(configs) {
         /* ---------------------- PUT CODE HERE ------------------------------------ */
         var queryObj = {};
         var callbackId;
+        var partnerId = null;
 
         var bids = returnParcels.reduce(function (accumulator, bid) {
             var bidId = bid.htSlot.getId();
@@ -168,6 +169,8 @@ function AdYouLikeHtb(configs) {
             accumulator[bidId].Width = size.width;
             accumulator[bidId].Height = size.height;
             accumulator[bidId].AvailableSizes = formatAvailableSize(sizesArray);
+
+            partnerId = bid.xSlotRef.partnerId;
 
             return accumulator;
         }, {});
@@ -211,6 +214,10 @@ function AdYouLikeHtb(configs) {
             gdprConsent: JSON.stringify(gdprConsent),
             PageRefreshed: getPageRefreshed()
         };
+
+        if (partnerId) {
+            queryObj.Partner = partnerId;
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
