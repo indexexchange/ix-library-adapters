@@ -72,4 +72,10 @@
 (Test configuration or methodology that can be used to retrieve & render a test creative from Ad You Like's platform)
 ```javascript
  
+{	 
+  "partnerId":"43f85e81e6012cb9139f22c314de17c5",
+  "placementId":"c1be58c5b3ced5f984a8a0b82b24dddf",
+  "sizes": [[300,250]]
+}
+  
 ```
