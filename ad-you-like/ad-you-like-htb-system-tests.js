@@ -115,6 +115,10 @@ function validateTargeting(targetingMap) {
     }));
 }
 
+function getPassResponse() {
+    return JSON.stringify({ is_ad_return: false });
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -126,5 +130,6 @@ module.exports = {
     getValidResponse: getValidResponse,
     validateBidRequestWithPrivacy: validateBidRequestWithPrivacy,
     validateBidRequestWithUAdSrvrOrg: validateBidRequestWithUAdSrvrOrg,
-    validateTargeting: validateTargeting
+    validateTargeting: validateTargeting,
+    getPassResponse: getPassResponse
 };
