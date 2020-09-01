@@ -46,6 +46,27 @@ function partnerValidator(configs) {
                                         type: 'integer'
                                     }
                                 }
+                            },
+                            keywords: {
+                                type: 'object',
+                                optional: true,
+                                properties: {
+                                    '*': {
+                                        type: 'array',
+                                        minLength: 1,
+                                        items: {
+                                            type: 'string'
+                                        }
+                                    }
+                                }
+                            },
+                            usePaymentRule: {
+                                type: 'boolean',
+                                optional: true
+                            },
+                            allowSmallerSizes: {
+                                type: 'boolean',
+                                optional: true
                             }
                         }
                     }
