@@ -1,3 +1,9 @@
+# 2.1.6
+
+- Adapter changes:  
+  - schain support: reads the schain object to create a serialized obj for sending with `fastlane.json` as `rp_schain`  
+  - CCPA support
+
 # 2.1.5
 
 - Adapter changes:
