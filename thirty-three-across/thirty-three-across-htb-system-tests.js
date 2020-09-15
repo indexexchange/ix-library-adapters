@@ -25,7 +25,7 @@ function getArchitecture() {
 
 function getConfig() {
     return {
-        siteId: 'acbdefgABCDEFG-1234567',
+        siteId: 'abcdef_ABCDEF-12345678',
         test: 1,
         xSlots: {
             1: {
