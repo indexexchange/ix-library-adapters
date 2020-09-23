@@ -194,6 +194,8 @@ function TrustXHtb(configs) {
          * }
          */
         var gdprStatus = ComplianceService.gdpr.getConsent();
+        var privacyEnabled = ComplianceService.isPrivacyEnabled();
+        var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
         var adSlotIds = [];
@@ -210,13 +212,19 @@ function TrustXHtb(configs) {
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
-        if (gdprStatus) {
-            if (gdprStatus.consentString) {
-                queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+        if (privacyEnabled) {
+            if (gdprStatus) {
+                if (gdprStatus.consentString) {
+                    queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+                }
+                // eslint-disable-next-line camelcase
+                queryObj.gdpr_applies
+                    = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
             }
-            // eslint-disable-next-line camelcase
-            queryObj.gdpr_applies
-                = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
+
+            if (uspConsentObj) {
+                queryObj.us_privacy = uspConsentObj.uspString; // eslint-disable-line camelcase
+            }
         }
 
         /* -------------------------------------------------------------------------- */
@@ -428,7 +436,7 @@ function TrustXHtb(configs) {
             // Should be same as partnerName
             namespace: 'TrustXHtb',
             statsId: 'TRSTX',
-            version: '2.2.0',
+            version: '2.3.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

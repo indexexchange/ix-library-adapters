@@ -327,6 +327,7 @@ function PubMaticHtb(configs) {
         var isPrivacyEnabled = ComplianceService.isPrivacyEnabled();
         if (isPrivacyEnabled) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
+            var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
             payload.user.ext = {
                 consent: gdprStatus.consentString
             };
@@ -335,6 +336,10 @@ function PubMaticHtb(configs) {
                     gdpr: gdprStatus.applies ? 1 : 0
                 }
             };
+            if (uspConsentObj) {
+                // eslint-disable-next-line camelcase
+                payload.regs.ext.us_privacy = uspConsentObj.uspString;
+            }
         }
 
         /* -------------------------------------------------------------------------- */
@@ -622,7 +627,7 @@ function PubMaticHtb(configs) {
 
             // Unique partner identifier
             statsId: 'PUBM',
-            version: '2.1.3',
+            version: '2.1.4',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: !0

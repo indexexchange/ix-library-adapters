@@ -83,16 +83,19 @@ function ShareThroughHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var baseUrl = Browser.getProtocol() + '//btlr.sharethrough.com/t6oivhQt/v1';
+        var baseUrl = 'https://btlr.sharethrough.com/t6oivhQt/v1';
 
         var queryObj = {
             placement_key: returnParcels[0].xSlotRef.placementKey,
             bidId: returnParcels[0].requestId,
             instant_play_capable: __canAutoPlayHTML5Video(),
             hbSource: "indexExchange",
-            hbVersion: "2.1.2",
+            hbVersion: "2.3.0",
             cbust: System.now()
         };
+
+        var nonHttp = __getProtocol().indexOf('http') < 0;
+        queryObj.secure = nonHttp || (__getProtocol().indexOf('https') > -1);
 
         var unifiedID = __getUnifiedID(returnParcels);
         if (unifiedID) {
@@ -104,6 +107,12 @@ function ShareThroughHtb(configs) {
         if (privacyEnabled && gdprStatus) {
             queryObj.consent_required = gdprStatus.applies;
             queryObj.consent_string = gdprStatus.consentString;
+        }
+        
+        // US Privacy consent string, i.e. CCPA
+        var uspString = ComplianceService.usp.getConsent().uspString;
+        if (privacyEnabled && uspString) {
+            queryObj.us_privacy = uspString;
         }
 
         return {
@@ -158,6 +167,10 @@ function ShareThroughHtb(configs) {
         } else {
             return false;
         }
+    }
+
+    function __getProtocol() {
+        return document.location.protocol;
     }
 
     /* =============================================================================
@@ -345,7 +358,7 @@ function ShareThroughHtb(configs) {
             partnerId: 'ShareThroughHtb', // PartnerName
             namespace: 'ShareThroughHtb', // Should be same as partnerName
             statsId: 'SHTH', // Unique partner identifier
-            version: '2.1.2',
+            version: '2.3.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
@@ -385,7 +398,8 @@ function ShareThroughHtb(configs) {
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
-            b64EncodeUnicode: __b64EncodeUnicode
+            b64EncodeUnicode: __b64EncodeUnicode,
+            getProtocol: __getProtocol
         });
     })();
 
