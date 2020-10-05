@@ -364,8 +364,8 @@ function YocHtb(configs) {
                 if (gdprStatus.consentString) {
                     pixelUrl = pixelUrl + '&gdpr_consent=' + encodeURIComponent(gdprStatus.consentString);
                 }
-                // eslint-disable-next-line camelcase
-                pixelUrl = pixelUrl + '&gdpr_applies=' + Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
+                pixelUrl = pixelUrl + '&gdpr_applies='
+                    + (Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1);
             }
 
             /* --------------------------------------------------------------------------------------- */
