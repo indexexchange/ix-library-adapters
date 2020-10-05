@@ -1,22 +1,9 @@
-/**
- * @author:    Partner
- * @license:   UNLICENSED
- *
- * @copyright: Copyright (c) 2017 by Index Exchange. All rights reserved.
- *
- * The information contained within this document is confidential, copyrighted
- * and or a trade secret. No part of this document may be reproduced or
- * distributed in any form or by any means, in whole or in part, without the
- * prior written permission of Index Exchange.
- */
-
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Dependencies ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-var Browser = require('browser.js');
 var Classify = require('classify.js');
 var Constants = require('constants.js');
 var Partner = require('partner.js');
@@ -24,14 +11,13 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('trust-x-htb-validator.js');
+var PartnerSpecificValidator = require('oath-htb-validator.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
@@ -45,7 +31,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function TrustXHtb(configs) {
+function OathHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -67,46 +53,135 @@ function TrustXHtb(configs) {
      */
     var __profile;
 
-    /**
-     * Base url for bid requests.
-     *
-     * @private {object}
-     */
-    var __baseUrl;
-
     /* =====================================
      * Functions
      * ---------------------------------- */
-
-    /* Utilities
-     * ---------------------------------- */
+    /**
+     * Endpoints URLS
+     * @type {{eu: string, na: string, asia: string}}
+     */
+    var ENDPOINT_DOMAINS = {
+        oneDisplay: {
+            eu: 'https://adserver-eu.adtech.advertising.com',
+            us: 'https://adserver-us.adtech.advertising.com',
+            asia: 'https://adserver-as.adtech.advertising.com'
+        },
+        oneMobile: 'https://c2shb.ssp.yahoo.com'
+    };
 
     /**
-     * Returns the matching bid given a single parcel and an array of bids
-     * returned from the ad server.
-     *
-     * @param {object} parcel the parcel for which a bid needs to be found
-     * @param {any} bidResponse the bidResponse object containing all the bids returned
-     *                          from the server
-     * @returns {any} the bid that belongs to the parcel if found
+     * Determine if the xSlot should target OneMobile endpoint.
+     * @param {object} xSlot
+     * @return {boolean} true if xSlots targets OneMobile.
      */
-    function __getMatchingBid(parcel, bidResponse) {
-        if (!bidResponse.hasOwnProperty('seatbid')) {
-            return null;
-        }
+    function __isOneMobileRequest(xSlot) {
+        return xSlot.dcn && xSlot.pos;
+    }
 
-        for (var h = 0; h < bidResponse.seatbid.length; h++) {
-            var bids = bidResponse.seatbid[h].bid;
+    function __addRegulatoryParams(params) {
+        var gdprData = ComplianceService.gdpr.getConsent();
+        var uspData = ComplianceService.usp && ComplianceService.usp.getConsent();
 
-            for (var i = 0; i < bids.length; i++) {
-                if (parcel.xSlotRef.adSlotId === String(bids[i].auid)) {
-                    return bids[i];
-                }
+        if (gdprData && gdprData.applies) {
+            params.gdpr = 1;
+
+            if (gdprData.consentString) {
+                params.euconsent = gdprData.consentString;
             }
         }
 
-        return null;
+        if (uspData) {
+            // eslint-disable-next-line camelcase
+            params.us_privacy = uspData.uspString;
+        }
     }
+
+    /**
+     * Construct request object for OneMobile Endpoint.
+     * @param {object} xSlot
+     * @return {object} request object.
+     */
+    function __generateOneMobileRequest(xSlot) {
+        var baseUrl = ENDPOINT_DOMAINS.oneMobile;
+
+        var requestParams = {
+            dcn: xSlot.dcn,
+            pos: xSlot.pos
+        };
+
+        requestParams.secure = 1;
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            __addRegulatoryParams(requestParams);
+        }
+
+        var url = Network.buildUrl(baseUrl, ['bidRequest?cmd=bid']);
+
+        for (var parameter in requestParams) {
+            if (!requestParams.hasOwnProperty(parameter)) {
+                continue;
+            }
+            url += '&' + parameter + '=' + requestParams[parameter];
+        }
+
+        return {
+            url: url,
+            data: {}
+        };
+    }
+
+    /**
+     * Construct request object for OneDisplay Endpoint.
+     * @param {object} xSlot
+     * @return {object} request object.
+     */
+    function __generateOneDisplayRequest(xSlot) {
+        var region = ENDPOINT_DOMAINS.oneDisplay.hasOwnProperty(xSlot.region) ? xSlot.region : 'us';
+        var baseUrl = ENDPOINT_DOMAINS.oneDisplay[region] + '/pubapi/3.0/' + xSlot.networkId;
+
+        /* Sizeid & pageid */
+        var sizeId = xSlot.sizeId || '-1';
+        var pageId = xSlot.pageId || '0';
+
+        /* Request params */
+        var requestParams = {
+            cmd: 'bid',
+            cors: 'yes',
+            v: '2',
+            misc: System.now()
+        };
+
+        if (xSlot.bidFloor) {
+            requestParams.bidFloor = xSlot.bidFloor;
+        }
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            __addRegulatoryParams(requestParams);
+        }
+
+        var url = Network.buildUrl(baseUrl, [
+            xSlot.placementId,
+            pageId,
+            sizeId,
+            'ADTECH;'
+        ]);
+
+        /* Build url paramters */
+        for (var parameter in requestParams) {
+            if (!requestParams.hasOwnProperty(parameter)) {
+                continue;
+            }
+            url += parameter + '=' + requestParams[parameter] + ';';
+        }
+
+        return {
+            url: url,
+            data: {}
+        };
+    }
+
+    /* Utilities
+     * ---------------------------------- */
 
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
@@ -117,9 +192,6 @@ function TrustXHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var queryObj = {};
-        var callbackId = '_' + System.generateUniqueId();
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -177,6 +249,17 @@ function TrustXHtb(configs) {
          * }
          */
 
+        /* ---------------------- PUT CODE HERE ------------------------------------ */
+        var returnParcel = returnParcels[0];
+        var xSlot = returnParcel.xSlotRef;
+        if (__isOneMobileRequest(xSlot)) {
+            __profile.statsId = 'OATHM';
+
+            return __generateOneMobileRequest(xSlot);
+        }
+
+        return __generateOneDisplayRequest(xSlot);
+
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.
@@ -192,53 +275,41 @@ function TrustXHtb(configs) {
          *      applies: true,
          *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
          * }
+         *
+         * You can also determine whether or not the publisher has enabled privacy
+         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
+         *
+         * This function will return a boolean, which indicates whether the wrapper's
+         * privacy features are on (true) or off (false). If they are off, the values
+         * returned from gdpr.getConsent() are safe defaults and no attempt has been
+         * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
-        var adSlotIds = [];
-
-        for (var i = 0; i < returnParcels.length; i++) {
-            adSlotIds.push(returnParcels[i].xSlotRef.adSlotId);
-        }
-
-        queryObj.auids = adSlotIds.join(',');
-        queryObj.u = Browser.getPageUrl();
-        queryObj.pt = 'net';
-        queryObj.cb
-            = 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId;
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
-        if (privacyEnabled) {
-            if (gdprStatus) {
-                if (gdprStatus.consentString) {
-                    queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
-                }
-                // eslint-disable-next-line camelcase
-                queryObj.gdpr_applies
-                    = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
-            }
-
-            if (uspConsentObj) {
-                queryObj.us_privacy = uspConsentObj.uspString; // eslint-disable-line camelcase
-            }
-        }
-
         /* -------------------------------------------------------------------------- */
-
-        if (SpaceCamp.globalTimeout) {
-            queryObj.wtimeout = SpaceCamp.globalTimeout;
-        }
-
-        return {
-            url: __baseUrl,
-            data: queryObj,
-            callbackId: callbackId
-        };
     }
+
+    /* =============================================================================
+     * STEP 3  | Response callback
+     * -----------------------------------------------------------------------------
+     *
+     * This generator is only necessary if the partner's endpoint has the ability
+     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
+     * the response and save the response to adResponseStore keyed by that ID.
+     *
+     * If the endpoint does not have an appropriate field for this, set the profile's
+     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
+     */
+    function adResponseCallback(adResponse) {
+        /* Get callbackId from adResponse here */
+        var callbackId = 0;
+        __baseClass._adResponseStore[callbackId] = adResponse;
+    }
+
+    /* -------------------------------------------------------------------------- */
 
     /* Helpers
      * ---------------------------------- */
@@ -268,7 +339,7 @@ function TrustXHtb(configs) {
      *
      * @param {string} sessionId The sessionId, used for stats and other events.
      *
-     * @param {any} adResponse This is the adresponse as returned from the bid request, that was either
+     * @param {any} adResponse This is the bid response as returned from the bid request, that was either
      * passed to a JSONP callback or simply sent back via AJAX.
      *
      * @param {object[]} returnParcels The array of original parcels, SAME array that was passed to
@@ -297,120 +368,132 @@ function TrustXHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        for (var j = 0; j < returnParcels.length; j++) {
-            var curReturnParcel = returnParcels[j];
+        var bids = adResponse;
 
-            /* Find a matching bid for the parcel */
-            var curBid = __getMatchingBid(curReturnParcel, adResponse);
+        /* --------------------------------------------------------------------------------- */
 
-            var headerStatsInfo = {};
-            var htSlotId = curReturnParcel.htSlot.getId();
-            headerStatsInfo[htSlotId] = {};
-            headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
+        // MRA - only one bid returned.
+        var curReturnParcel = returnParcels[0];
 
-            /* No matching bid found so its a pass */
-            if (!curBid) {
-                if (__profile.enabledAnalytics.requestTime) {
-                    // eslint-disable-next-line camelcase
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
+        var headerStatsInfo = {};
+        var htSlotId = curReturnParcel.htSlot.getId();
+        headerStatsInfo[htSlotId] = {};
+        headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
-                continue;
+        var curBid;
+        try {
+            curBid = bids.seatbid[0].bid[0];
+        } catch (e) {
+            curBid = null;
+        }
+
+        /* No matching bid found so its a pass */
+        if (!curBid || curBid.hasOwnProperty('nbr')) {
+            if (__profile.enabledAnalytics.requestTime) {
+                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
             }
+            curReturnParcel.pass = true;
 
-            /* ---------- Fill the bid variables with data from the bid response here. ------------ */
+            return;
+        }
 
-            /* Using the above variable, curBid, extract various information about the bid and assign it to
+        /* ---------- Fill the bid variables with data from the bid response here. ------------ */
+
+        /* Using the above variable, curBid, extract various information about the bid and assign it to
              * these local variables */
 
-            /* The bid price for the given slot */
-            var bidPrice = curBid.price;
+        /* The bid price for the given slot */
+        var bidPrice = curBid.price;
 
-            /* The size of the given slot */
-            var bidSize = [Number(curBid.w), Number(curBid.h)];
+        /* The size of the given slot */
+        var bidSize = [Number(curBid.w), Number(curBid.h)];
 
-            /* The creative/adm for the given slot that will be rendered if is the winner.
-             * Please make sure the URL is decoded and ready to be document.written.
-             */
-            var bidCreative = curBid.adm;
+        /* The creative/adm for the given slot that will be rendered if is the winner.
+         * Please make sure the URL is decoded and ready to be document.written.
+         */
+        var bidCreative = curBid.adm;
 
-            /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+        /* The dealId if applicable for this slot. */
+        var bidDealId = curBid.hasOwnProperty('dealid') ? curBid.dealid : '';
 
-            /* Explicitly pass */
-            var bidIsPass = bidPrice <= 0;
+        /* Explicitly pass */
+        var bidIsPass = bidPrice <= 0;
 
-            /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-             * If firing a tracking pixel is not required or the pixel url is part of the adm,
-             * leave empty;
-             */
-            var pixelUrl = '';
+        /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
+         * If firing a tracking pixel is not required or the pixel url is part of the adm,
+         * leave empty;
+         */
+        var pixelUrl = adResponse.hasOwnProperty('ext') ? adResponse.ext.pixels : '';
 
-            /* --------------------------------------------------------------------------------------- */
+        /* --------------------------------------------------------------------------------------- */
 
-            if (bidIsPass) {
-                //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + curBid.auid + ' }.');
-                //? }
-                if (__profile.enabledAnalytics.requestTime) {
-                    __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
-                }
-                curReturnParcel.pass = true;
-
-                continue;
-            }
-
+        if (bidIsPass) {
+            //? if (DEBUG) {
+            Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
+            //? }
             if (__profile.enabledAnalytics.requestTime) {
-                __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+                __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
             }
+            curReturnParcel.pass = true;
 
-            curReturnParcel.size = bidSize;
-            curReturnParcel.targetingType = 'slot';
-            curReturnParcel.targeting = {};
-
-            var targetingCpm = '';
-
-            //? if (FEATURES.GPT_LINE_ITEMS) {
-            targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
-            var sizeKey = Size.arrayToString(curReturnParcel.size);
-
-            if (bidDealId) {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-            } else {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
-            }
-
-            curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
-            //? }
-
-            //? if (FEATURES.RETURN_CREATIVE) {
-            curReturnParcel.adm = bidCreative;
-            //? }
-
-            //? if (FEATURES.RETURN_PRICE) {
-            curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
-            //? }
-
-            var pubKitAdId = RenderService.registerAd({
-                sessionId: sessionId,
-                partnerId: __profile.partnerId,
-                adm: bidCreative,
-                requestId: curReturnParcel.requestId,
-                size: curReturnParcel.size,
-                price: targetingCpm,
-                dealId: bidDealId,
-                // eslint-disable-next-line max-len
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,
-                auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
-            });
-
-            //? if (FEATURES.INTERNAL_RENDER) {
-            curReturnParcel.targeting.pubKitAdId = pubKitAdId;
-            //? }
+            return;
         }
+
+        if (__profile.enabledAnalytics.requestTime) {
+            __baseClass._emitStatsEvent(sessionId, 'hs_slot_bid', headerStatsInfo);
+        }
+
+        curReturnParcel.size = bidSize;
+        curReturnParcel.targetingType = 'slot';
+        curReturnParcel.targeting = {};
+
+        var targetingCpm = '';
+
+        //? if (FEATURES.GPT_LINE_ITEMS) {
+        targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
+        var sizeKey = Size.arrayToString(curReturnParcel.size);
+
+        if (bidDealId) {
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
+        } else {
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
+        }
+        curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
+        //? }
+
+        //? if (FEATURES.RETURN_CREATIVE) {
+        curReturnParcel.adm = bidCreative;
+        if (pixelUrl) {
+            curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+        }
+        //? }
+
+        //? if (FEATURES.RETURN_PRICE) {
+        curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
+        //? }
+
+        var expiry = 0;
+        if (__profile.features.demandExpiry.enabled) {
+            expiry = __profile.features.demandExpiry.value + System.now();
+        }
+
+        var pubKitAdId = RenderService.registerAd({
+            sessionId: sessionId,
+            partnerId: __profile.partnerId,
+            adm: bidCreative,
+            requestId: curReturnParcel.requestId,
+            size: curReturnParcel.size,
+            price: targetingCpm,
+            dealId: bidDealId || null,
+            timeOfExpiry: expiry,
+            auxFn: __renderPixel,
+            auxArgs: [pixelUrl]
+        });
+
+        //? if (FEATURES.INTERNAL_RENDER) {
+        curReturnParcel.targeting.pubKitAdId = pubKitAdId;
+        //? }
     }
 
     /* =====================================
@@ -430,13 +513,10 @@ function TrustXHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            // PartnerName
-            partnerId: 'TrustXHtb',
-
-            // Should be same as partnerName
-            namespace: 'TrustXHtb',
-            statsId: 'TRSTX',
-            version: '2.3.0',
+            partnerId: 'OathHtb',
+            namespace: 'OathHtb',
+            statsId: 'OATH',
+            version: '3.0.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
@@ -452,24 +532,20 @@ function TrustXHtb(configs) {
                 }
             },
 
-            // Targeting keys for demand, should follow format ix_{statsId}_id
+            /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_trstx_id',
-                om: 'ix_trstx_cpm',
-                pm: 'ix_trstx_cpm',
-                pmid: 'ix_trstx_dealid'
+                id: 'ix_oath_id',
+                om: 'ix_oath_cpm',
+                pm: 'ix_oath_cpm',
+                pmid: 'ix_oath_dealid'
             },
+
+            /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-
-            // Callback type, please refer to the readme for details
-            callbackType: Partner.CallbackTypes.CALLBACK_NAME,
-
-            // Request architecture, please refer to the readme for details
-            architecture: Partner.Architectures.SRA,
-
-            // Request type, jsonp, ajax, or any.
-            requestType: Partner.RequestTypes.ANY
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.MRA,
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
@@ -482,11 +558,10 @@ function TrustXHtb(configs) {
         }
         //? }
 
-        __baseUrl = Browser.getProtocol() + '//sofia.trustx.org/hb';
-
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj
+            generateRequestObj: __generateRequestObj,
+            adResponseCallback: adResponseCallback
         });
     })();
 
@@ -499,7 +574,7 @@ function TrustXHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'TrustXHtb',
+        __type__: 'OathHtb',
         //? }
 
         //? if (TEST) {
@@ -519,7 +594,7 @@ function TrustXHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        getMatchingBid: __getMatchingBid
+        adResponseCallback: adResponseCallback
         //? }
     };
 
@@ -530,4 +605,4 @@ function TrustXHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = TrustXHtb;
+module.exports = OathHtb;
