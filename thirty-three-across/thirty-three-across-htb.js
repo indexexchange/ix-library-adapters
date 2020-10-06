@@ -55,7 +55,7 @@ function ThirtyThreeAcrossHtb(configs) {
     var __profile;
 
     var _indexLibVersion = SpaceCamp.version;
-    var _adapterVersion = '2.0.0';
+    var _adapterVersion = '2.0.1';
 
     var SYNC_ENDPOINT = 'https://ssc-cms.33across.com/ps/?m=xch&rt=html&ru=deb';
     var DEFAULT_SYNC_ID = 'zzz000000000003zzz';
