@@ -25,7 +25,7 @@ function partnerValidator(configs) {
         properties: {
             siteId: {
                 type: 'string',
-                pattern: /^[a-zA-Z0-9-]{22}$/
+                pattern: /^[a-zA-Z0-9_-]{22}$/
             },
             test: {
                 type: 'number',
