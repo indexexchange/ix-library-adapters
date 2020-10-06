@@ -1,3 +1,8 @@
+Version 2.4.1
+=============
+
+- fix location where hb_source is passed in request
+
 Version 2.4.0
 =============
 

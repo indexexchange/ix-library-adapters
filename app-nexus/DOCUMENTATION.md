@@ -42,7 +42,6 @@
 | Key | Required | Type | Description |
 |---|---|---|---|
 | sdk | true | Object | Contains version information on adapter |
-| hb_source | true | Number | Identifies type of source making the header bid request; has to be 2 |
 | referrer_detection | true | Object | Contains referrer values of the current page |
 | tags | true | Object[] | Contains information about the requested placement |
 | gdpr_consent | false | Object | Contains GDPR consent related information on user |
@@ -54,7 +53,6 @@
   "sdk":{
     "version":"2.4.0"
   },
-  "hb_source":2,
   "referrer_detection":{
     "rd_ifs":null,
     "rd_ref":"http%3A%2F%2Ftest.mysite.com%2Fpage",
@@ -66,6 +64,7 @@
     "allow_smaller_sizes":false,
     "disable_psa":true,
     "id":15901268,
+    "hb_source":2,
     "prebid": true,
     "primary_size":{
       "width":300,

@@ -57,6 +57,7 @@ function validateBidRequest(request) {
     expect(data.tags).toBeDefined();
     expect(data.tags[0].ad_types).toBeDefined();
     expect(data.tags[0].id).toBeDefined();
+    expect(data.tags[0].hb_source).toBeDefined();
     expect(data.tags[0].primary_size).toBeDefined();
     expect(data.tags[0].sizes).toBeDefined();
     expect(data.tags[0].uuid).toBeDefined();
