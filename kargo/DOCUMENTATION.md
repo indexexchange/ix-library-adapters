@@ -67,6 +67,8 @@
         "kargoID": "",
         "clientID": "",
         "tdID": "",
+        "idlEnv": "",
+        "identityData": null,
         "crbIDs": {},
         "optOut": false,
         "usp": "1YNN"
