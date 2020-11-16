@@ -55,6 +55,7 @@ function validateBidRequest(request) {
     expect(r.userIDs.kargoID).toBeDefined();
     expect(r.userIDs.optOut).toBeDefined();
     expect(r.userIDs.tdID).toBeDefined();
+    expect(r.userIDs.idlEnv).toBeDefined();
     expect(r.userIDs.crbIDs).toBeDefined();
 }
 

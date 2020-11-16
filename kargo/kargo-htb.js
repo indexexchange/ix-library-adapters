@@ -121,6 +121,38 @@ function KargoHtb(configs) {
         return unifiedID;
     }
 
+    function __getIDLEnvelope(returnParcels) {
+        var idlEnvelope = '';
+        var uids = []
+        if (returnParcels &&
+            returnParcels.length &&
+            returnParcels[0].identityData &&
+            returnParcels[0].identityData.LiveRampIp &&
+            returnParcels[0].identityData.LiveRampIp.data &&
+            returnParcels[0].identityData.LiveRampIp.data.uids) {
+            uids = returnParcels[0].identityData.LiveRampIp.data.uids;
+        } else {
+            return idlEnvelope;
+        }
+        for (var i = 0; i < uids.length; i++) {
+            if (uids[i].ext &&
+                uids[i].ext.rtiPartner &&
+                uids[i].ext.rtiPartner === 'idl') {
+                idlEnvelope = uids[i].id;
+                break;
+            }
+        };
+        return idlEnvelope;
+    }
+
+    function __getIdentityData(returnParcels) {
+        if (returnParcels && returnParcels.length) {
+            return returnParcels[0].identityData;
+        } else {
+            return null;
+        }
+    }
+
     function __getCrbFromCookie() {
         try {
             var crb = JSON.parse(decodeURIComponent(Browser.readCookie('krg_crb')));
@@ -173,6 +205,8 @@ function KargoHtb(configs) {
             kargoID: crb.userId || '',
             clientID: crb.clientId || '',
             tdID: __getTDID(returnParcels),
+            idlEnv: __getIDLEnvelope(returnParcels),
+            identityData: __getIdentityData(returnParcels),
             crbIDs: crb.syncIds || {},
             optOut: crb.optOut || false,
             usp: privacyEnabled && uspConsentObj ? uspConsentObj.uspString : null
@@ -584,7 +618,7 @@ function KargoHtb(configs) {
 
             // Unique partner identifier
             statsId: 'KARG',
-            version: '2.2.1',
+            version: '2.4.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
