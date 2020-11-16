@@ -22,11 +22,13 @@ function getConfig() {
         xSlots: {
             1: {
                 sizes: [300, 250],
-                placementId: 1
+                placementId: 'foo',
+                site: 'bar.com'
             },
             2: {
                 sizes: [[300, 600], [150, 300]],
-                placementId: 2
+                placementId: 'baz',
+                site: 'bar.com'
             }
         }
     };
@@ -64,11 +66,15 @@ function validateBidRequest(request) {
     expect(slots[0]).toBeDefined();
     expect(slots[0].name).toBe('1');
     expect(slots[0].partnerId).toBe('test_partner');
+    expect(slots[0].site).toBe('bar.com');
+    expect(slots[0].placementId).toBe('foo');
     expect(slots[0].sizes).toEqual([300, 250]);
 
     expect(slots[1]).toBeDefined();
     expect(slots[1].name).toBe('2');
     expect(slots[1].partnerId).toBe('test_partner');
+    expect(slots[1].site).toBe('bar.com');
+    expect(slots[1].placementId).toBe('baz');
     expect(slots[1].sizes.length).toBe(2);
     expect(slots[1].sizes[0]).toEqual([300, 600]);
     expect(slots[1].sizes[1]).toEqual([150, 300]);

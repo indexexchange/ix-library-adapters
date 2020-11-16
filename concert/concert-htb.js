@@ -93,6 +93,8 @@ function ConcertHtb(configs) {
                 return {
                     name: parcel.xSlotName,
                     sizes: parcel.xSlotRef.sizes,
+                    placementId: parcel.xSlotRef.placementId,
+                    site: parcel.xSlotRef.site,
                     partnerId: configs.partnerId
                 };
             }),
