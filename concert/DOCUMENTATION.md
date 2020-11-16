@@ -1,31 +1,35 @@
 # Concert
+
 ## General Compatibility
-| Feature           |       |
-|-------------------|-------|
-| Consent           | Yes   |
-| Native Ad Support | ?     |
-| SafeFrame Support | No(?) |
-| PMP Support       | ?     |
+
+| Feature           |     |
+| ----------------- | --- |
+| Consent           | Yes |
+| Native Ad Support | No  |
+| SafeFrame Support | No  |
+| PMP Support       | No  |
 
 ## Browser Compatibility
-| Browser              |   |
-|----------------------|---|
-| Chrome               | Y |
-| Edge                 | ? |
-| Firefox              | ? |
-| Internet Explorer 9  | ? |
-| Internet Explorer 10 | ? |
-| Internet Explorer 11 | ? |
-| Safari               | ? |
-| Mobile Chrome        | ? |
-| Mobile Safari        | ? |
-| UC Browser           | ? |
-| Samsung Internet     | ? |
-| Opera                | ? |
+
+| Browser              |     |
+| -------------------- | --- |
+| Chrome               | Y   |
+| Edge                 | Y   |
+| Firefox              | Y   |
+| Internet Explorer 9  | Y   |
+| Internet Explorer 10 | Y   |
+| Internet Explorer 11 | Y   |
+| Safari               | Y   |
+| Mobile Chrome        | Y   |
+| Mobile Safari        | Y   |
+| UC Browser           | Y   |
+| Samsung Internet     | Y   |
+| Opera                | Y   |
 
 ## Adapter Information
+
 | Info                                              |                         |
-|---------------------------------------------------|-------------------------|
+| ------------------------------------------------- | ----------------------- |
 | Partner Id                                        | ConcertHtb              |
 | Ad Server Responds in (Cents, Dollars, etc)       | Dollars                 |
 | Bid Type (Gross / Net)                            | Net                     |
@@ -42,7 +46,7 @@ USD
 ## Bid Request Information
 
 | Key        | Required | Type   | Description                           |
-|------------|----------|--------|---------------------------------------|
+| ---------- | -------- | ------ | ------------------------------------- |
 | callbackId | Yes      | String | Generated identifier for this request |
 | meta       | Yes      | Object | See below                             |
 | slots      | Yes      | Array  | See below                             |
@@ -51,16 +55,18 @@ USD
 
 `slots` object, above, is an array of these objects:
 
-| Key       | Required | Type                      | Description                                                     |
-|-----------|----------|---------------------------|-----------------------------------------------------------------|
-| partnerId | Yes      | String                    | Partner's identifier/name                                       |
-| name      | Yes      | String                    | Slot Name                                                       |
-| sizes     | Yes      | [[Integer, Integer], ...] | Array of ad sizes (which are arrays of width and height values) |
+| Key         | Required | Type                      | Description                                                     |
+| ----------- | -------- | ------------------------- | --------------------------------------------------------------- |
+| name        | Yes      | String                    | Slot Name                                                       |
+| sizes       | Yes      | [[Integer, Integer], ...] | Array of ad sizes (which are arrays of width and height values) |
+| partnerId   | Yes      | String                    | Partner's identifier/name                                       |
+| placementId | Yes      | String                    | Identifier for the current slot                                 |
+| site        | Yes      | String                    | Identifier for the current site                                 |
 
 #### `meta` object
 
 | Key            | Required | Type              | Description                                                                                                  |
-|----------------|----------|-------------------|--------------------------------------------------------------------------------------------------------------|
+| -------------- | -------- | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | adapterVersion | Yes      | String            | Version number of the Concert/Index Exchange adapter                                                         |
 | pageUrl        | Yes      | String            | URL of the page making the request                                                                           |
 | screen         | Yes      | String            | Screen dimensions, as a string formatted as `<width>x<height>`                                               |
@@ -72,6 +78,7 @@ USD
 | debug          | No       | Boolean           | Whether or not to return debugging data for this request; set by a query string param of `debug_concert_ads` |
 
 ### Example
+
 ```javascript
 {
   "callbackId": "4woTD0mj",
@@ -84,21 +91,27 @@ USD
   },
   "slots": [
     {
-      "partnerId": "index_exchange",
+      "partnerId": "test_partner",
       "sizes": [[1030, 590], [620, 366], [620, 371], [620,415]],
-      "name": "IRKUKZzN"
+      "name": "IRKUKZzN",
+      "placementId": "foo",
+      "site": "bar.com"
     },
     {
-      "partnerId": "index_exchange",
+      "partnerId": "test_partner",
       "sizes": [[1030, 590], [620, 366], [620, 371], [620,415]],
-      "name": "C9xSqX3I"
+      "name": "C9xSqX3I",
+      "placementId": "baz",
+      "site": "bar.com"
     }
   ]
 }
 ```
 
 ## Bid Response Information
+
 ### Bid Example
+
 ```javascript
 {
   "bids": [
@@ -143,27 +156,50 @@ USD
 ```
 
 ### Pass Example
+
 ```javascript
 {
-  bids: []
+  bids: [];
 }
 ```
 
 ## Configuration Information
+
 ### Configuration Keys
-| Key       | Required | Type   | Description                                        |
-|-----------|----------|--------|----------------------------------------------------|
-| partnerId | Yes      | String | Identifier of partner bidding, provided by Concert |
+
+| Key         | Required | Type   | Description                                        |
+| ----------- | -------- | ------ | -------------------------------------------------- |
+| partnerId   | Yes      | String | Identifier of partner bidding, provided by Concert |
+| placementId | Yes      | String | Identifier for the current slot                    |
+| site        | Yes      | String | Identifier for the current site                    |
 
 ### Example
+
 ```javascript
 {
- "partnerId": "daily_planet"
+  partnerId: "daily_planet"
+  xSlots: {
+    1: {
+      placementId: 'foo',
+      site: 'bar.com'
+    }
+  }
 }
 ```
 
 ## Test Configuration
+
 (Test configuration or methodology that can be used to retrieve & render a test creative from Concert's platform)
+
 ```javascript
-???
+{
+  partnerId: "test_partner"
+  xSlots: {
+    1: {
+      placementId: 'foo',
+      site: 'bar.com',
+      sizes: [[1030, 590]]
+    }
+  }
+}
 ```
