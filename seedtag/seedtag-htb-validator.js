@@ -29,10 +29,36 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            placementId: {
+                            adunitId: {
                                 type: 'string',
                                 minLength: 1
-                            }
+                            },
+                            sizes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
+                            },
+                            placement: {
+                                type: 'string',
+                                minLength: 1
+                            },
+                            suplyTypes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'string'
+                                }
+                            },
+                            publisherToken: {
+                                type: 'string',
+                                minLength: 1
+                            },
                         }
                     }
                 }

@@ -129,11 +129,34 @@ function SeedtagHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var queryObj = {};
         var callbackId = System.generateUniqueId();
 
+        var payload = {
+            url: Browser.getPageUrl(),
+            publisherToken: '',
+            cpm: false,
+            timeout: 4000,
+            version: __profile.version,
+            bidRequests: [],
+        }
+
+        returnParcels.forEach(function (parcel) {
+            payload.bidRequests.push({
+                sizes: parcel.xSlotRef.sizes,
+                adunitId: parcel.xSlotRef.adunitId,
+                id: parcel.requestId,
+                transactionId: System.generateUniqueId(),
+                placement: parcel.xSlotRef.placement,
+                supplyTypes: parcel.xSlotRef.supplyTypes
+            });
+
+            // i think it's the only way to pass it,
+            // so it imply that this value is the same for all xSlotRef
+            payload.publisherToken = parcel.xSlotRef.publisherToken
+        });
+
         /* Change this to your bidder endpoint. */
-        var baseUrl = Browser.getProtocol() + '//someAdapterEndpoint.com/bid';
+        var baseUrl = 'https://s.seedtag.com/c/hb/bid';
 
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
@@ -159,8 +182,19 @@ function SeedtagHtb(configs) {
          * returned from gdpr.getConsent() are safe defaults and no attempt has been
          * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+
+            payload.cd = gdprStatus.consentString
+            payload.cmp = !Utilities.isEmpty(gdprStatus);
+
+            if (ComplianceService.usp) {
+                var uspStatus = ComplianceService.usp.getConsent();
+                // eslint-disable-next-line camelcase
+                payload.us_privacy = uspStatus.uspString;
+            }
+        }
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
@@ -170,8 +204,11 @@ function SeedtagHtb(configs) {
 
         return {
             url: baseUrl,
-            data: queryObj,
-            callbackId: callbackId
+            data: payload,
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
 
@@ -186,11 +223,11 @@ function SeedtagHtb(configs) {
      * If the endpoint does not have an appropriate field for this, set the profile's
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
-    function adResponseCallback(adResponse) {
-        /* Get callbackId from adResponse here */
-        var callbackId = 0;
-        __baseClass._adResponseStore[callbackId] = adResponse;
-    }
+    // function adResponseCallback(adResponse) {
+    //     /* Get callbackId from adResponse here */
+    //     var callbackId = 0;
+    //     __baseClass._adResponseStore[callbackId] = adResponse;
+    // }
 
     /* -------------------------------------------------------------------------- */
 
@@ -274,7 +311,7 @@ function SeedtagHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotRef.someCriteria === bids[i].someCriteria) {
+                if (curReturnParcel.requestId === bids[i].bidId) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
@@ -306,10 +343,7 @@ function SeedtagHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
-            var bidCreative = curBid.adm;
-
-            /* The dealId if applicable for this slot. */
-            var bidDealId = curBid.dealid;
+            var bidCreative = curBid.content;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
@@ -348,13 +382,7 @@ function SeedtagHtb(configs) {
             //? if (FEATURES.GPT_LINE_ITEMS) {
             targetingCpm = __baseClass._bidTransformers.targeting.apply(bidPrice);
             var sizeKey = Size.arrayToString(curReturnParcel.size);
-
-            if (bidDealId) {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pmid] = [sizeKey + '_' + bidDealId];
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.pm] = [sizeKey + '_' + targetingCpm];
-            } else {
-                curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
-            }
+            curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
             //? }
 
@@ -440,7 +468,7 @@ function SeedtagHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 1,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.ID,
+            callbackType: Partner.CallbackTypes.CALLBACK_NAME,
             architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.ANY
         };
