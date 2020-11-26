@@ -404,7 +404,7 @@ function SeedtagHtb(configs) {
                 size: curReturnParcel.size,
                 price: targetingCpm,
 
-                dealId: null,
+                dealId: curBid.dealId,
                 timeOfExpiry: expiry,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
