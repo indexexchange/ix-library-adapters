@@ -129,16 +129,14 @@ function SeedtagHtb(configs) {
          */
 
         /* ---------------------- PUT CODE HERE ------------------------------------ */
-        var callbackId = System.generateUniqueId();
-
         var payload = {
             url: Browser.getPageUrl(),
             publisherToken: '',
             cpm: false,
             timeout: 4000,
             version: __profile.version,
-            bidRequests: [],
-        }
+            bidRequests: []
+        };
 
         returnParcels.forEach(function (parcel) {
             payload.bidRequests.push({
@@ -150,9 +148,9 @@ function SeedtagHtb(configs) {
                 supplyTypes: parcel.xSlotRef.supplyTypes
             });
 
-            // i think it's the only way to pass it,
-            // so it imply that this value is the same for all xSlotRef
-            payload.publisherToken = parcel.xSlotRef.publisherToken
+            // It's the only way to pass it,
+            // So it implies that this value is the same for all xSlotRef
+            payload.publisherToken = parcel.xSlotRef.publisherToken;
         });
 
         /* Change this to your bidder endpoint. */
@@ -186,7 +184,7 @@ function SeedtagHtb(configs) {
         if (ComplianceService.isPrivacyEnabled()) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
 
-            payload.cd = gdprStatus.consentString
+            payload.cd = gdprStatus.consentString;
             payload.cmp = !Utilities.isEmpty(gdprStatus);
 
             if (ComplianceService.usp) {
@@ -223,11 +221,6 @@ function SeedtagHtb(configs) {
      * If the endpoint does not have an appropriate field for this, set the profile's
      * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
      */
-    // function adResponseCallback(adResponse) {
-    //     /* Get callbackId from adResponse here */
-    //     var callbackId = 0;
-    //     __baseClass._adResponseStore[callbackId] = adResponse;
-    // }
 
     /* -------------------------------------------------------------------------- */
 
@@ -402,6 +395,7 @@ function SeedtagHtb(configs) {
                 expiry = __profile.features.demandExpiry.value + System.now();
             }
 
+            // @FIXME, check if we can get dealId from SSP response
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
@@ -409,7 +403,8 @@ function SeedtagHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                dealId: bidDealId || null,
+
+                dealId: null,
                 timeOfExpiry: expiry,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
@@ -470,7 +465,7 @@ function SeedtagHtb(configs) {
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
             callbackType: Partner.CallbackTypes.CALLBACK_NAME,
             architecture: Partner.Architectures.SRA,
-            requestType: Partner.RequestTypes.ANY
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
@@ -486,7 +481,7 @@ function SeedtagHtb(configs) {
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
-            adResponseCallback: adResponseCallback
+            adResponseCallback: null
         });
     })();
 
@@ -519,7 +514,7 @@ function SeedtagHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: adResponseCallback
+        adResponseCallback: null
         //? }
     };
 

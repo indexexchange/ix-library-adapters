@@ -58,7 +58,7 @@ function partnerValidator(configs) {
                             publisherToken: {
                                 type: 'string',
                                 minLength: 1
-                            },
+                            }
                         }
                     }
                 }
