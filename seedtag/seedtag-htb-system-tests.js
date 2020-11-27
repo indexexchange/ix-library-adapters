@@ -90,7 +90,6 @@ function getValidResponse(request, creative) {
             width: bid.sizes[0][0],
             height: bid.sizes[0][1],
             mediaType: 'display',
-            creativeId: bid.id,
             ttl: 1800
         };
     });
@@ -109,11 +108,10 @@ function validateTargeting(targetingMap) {
 }
 
 function getPassResponse() {
-    var response = {
-        responses: []
-    };
-
-    return JSON.stringify(response);
+    return JSON.stringify({
+        bids: [],
+        cookieSync: ''
+    });
 }
 
 module.exports = {
