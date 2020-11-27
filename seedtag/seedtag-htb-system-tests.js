@@ -59,20 +59,18 @@ function validateBidRequest(request) {
     expect(payload.timeout).toBeDefined();
     expect(typeof payload.timeout).toBe('number');
     expect(payload.bidRequests).toBeDefined();
-    expect(payload.bidRequests.length).toBe(2);
 
-    for (var i = 0; i < 2; i++) {
-        var bid = payload.bidRequests[i];
+    payload.bidRequests.forEach(function (bid, i) {
         var conf = config.xSlots[String(i + 1)];
         expect(bid.adunitId).toBe(conf.adunitId);
-        expect(bid.sizes[0]).toEqual(conf.sizes);
+        expect(bid.sizes[0]).toEqual(conf.sizes[0]);
         expect(bid.placement).toBe(conf.placement);
         expect(bid.supplyTypes).toEqual(conf.supplyTypes);
         expect(bid.id).toBeDefined();
         expect(typeof bid.id).toBe('string');
         expect(bid.transactionId).toBeDefined();
         expect(typeof bid.transactionId).toBe('string');
-    }
+    });
 }
 
 function validateBidRequestWithPrivacy(request) {
@@ -81,19 +79,18 @@ function validateBidRequestWithPrivacy(request) {
     expect(payload.cd).toBe('TEST_GDPR_CONSENT_STRING');
 }
 
-function getValidResponse(request) {
+function getValidResponse(request, creative) {
     var payload = JSON.parse(request.body);
-
-    var bids = payload.bidRequests.map(function (bid) {
+    var bids = payload.bidRequests.map(function (bid, index) {
         return {
             bidId: bid.id,
             price: 0.5,
             currency: 'USD',
-            content: '<img src=\'https://storage.googleapis.com/statics.seedtag.com/ssp-test/images/creatives/seedtag_320x50.jpg\'/>',
-            width: 320,
-            height: 50,
+            content: creative,
+            width: bid.sizes[0][0],
+            height: bid.sizes[0][1],
             mediaType: 'display',
-            creativeId: '4',
+            creativeId: bid.id,
             ttl: 1800
         };
     });
@@ -104,9 +101,13 @@ function getValidResponse(request) {
     });
 }
 
+function getValidResponseWithDeal(request, creative) {
+    // @TODO
+}
+
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_see_om: jasmine.arrayWithExactContents(['300x250_200', '320x50_200']),
+        ix_see_om: jasmine.arrayWithExactContents(['300x250_50', '320x50_50']),
         ix_see_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
 }
@@ -117,6 +118,10 @@ function getPassResponse() {
     };
 
     return JSON.stringify(response);
+}
+
+function validateBidRequestWithAdSrvrOrg(request) {
+    // @TODO
 }
 
 module.exports = {

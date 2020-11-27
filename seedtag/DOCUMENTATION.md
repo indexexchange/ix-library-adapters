@@ -88,7 +88,26 @@
 ```
  
 ## Bid Response Information
-### Bid Example
+| Key  | Type | Description |
+|---|---|---|
+| bids  | array(bid) | all bids response available |
+| cookieSync | string |  |
+
+### Bid Information
+| Key | Type | Description |
+|---|---|---|
+| bidId  | string | bid identifier, map on index.requestId |
+| price | float |  |
+| currency | string |  |
+| content | string | the content of the ad |
+| width | int |  |
+| height | int |  |
+| mediatype | string | Holds the mediatype, value can be display or video |
+| creativeId | string | CreativeId from seedtag adserver |
+| dealId | string | |
+| ttl | int | adresponse TTL |
+
+### Bid Response Example
 ```javascript
  {
     "bids": [
@@ -109,7 +128,10 @@
 ```
 ### Pass Example
 ```javascript
- 
+{
+  bids: []
+  cookieSync: ''
+}
 ```
  
 ## Configuration Information
@@ -132,33 +154,62 @@
     "supplyTypes":[
       "display"
     ],
-    "adUnitId":"0000",
+    "adunitId":"0000",
     "placement":"banner",
     "publisherToken": "0000-0000-01"
 }
 ```
 
 ## Test Configuration
-(Test configuration or methodology that can be used to retrieve & render a test creative from Seedtag's platform)
-```javascript
- //@FIXME - SSP test response is broken
- {"url":"https://extra.globo.com/noticias/","publisherToken":"0000-0000-01","cmp":true,"timeout":4000,"version":"4.15.0","bidRequests":[{"id":"85875aa107f6a5","transactionId":"06a671d1-610f-4eae-bda7-e8a40f620881","sizes":[[320,50]],"supplyTypes":["display"],"adUnitId":"0000","placement":"banner"}]}
+The code bellow should perform an adRequest, return an adResponse, and print it in the body of the page.
 
- // response 
- {
-    "bids": [
-        {
-            "bidId": "85875aa107f6a5",
-            "price": 0.5,
-            "currency": "USD",
-            "content": "<img src=\"https://storage.googleapis.com/statics.seedtag.com/ssp-test/images/creatives/seedtag_320x50.jpg\"/>",
-            "width": 320,
-            "height": 50,
-            "mediaType": "display",
-            "creativeId": "4",
-            "ttl": 1800
-        }
-    ],
-    "cookieSync": ""
+When using `"publisherToken":"0000-0000-01"` Seedtag adserver should always return a valid response
+```javascript
+var endpoint = 'https://s.seedtag.com/c/hb/bid'
+var data =  {
+   "url":"https://extra.globo.com/noticias/",
+   "publisherToken":"0000-0000-01",
+   "cmp":true,
+   "timeout":4000,
+   "version":"4.15.0",
+   "bidRequests":[
+      {
+         "id":"85875aa107f6a5",
+         "transactionId":"06a671d1-610f-4eae-bda7-e8a40f620881",
+         "sizes":[
+            [
+               320,
+               50
+            ]
+         ],
+         "supplyTypes":[
+            "display"
+         ],
+         "adUnitId":"0000",
+         "placement":"banner"
+      }
+   ]
 }
+
+var headers = new Headers();
+headers.append("Content-Type", "text/plain");
+
+var body = JSON.stringify(data).replace(/'/g, "\\'");
+
+var requestOptions = {
+  method: 'POST',
+  headers,
+  body,
+  redirect: 'follow'
+};
+
+fetch(endpoint, requestOptions)
+  .then(response => response.text())
+  .then(adResponse => {
+      console.log('adResponse', adResponse)
+
+      var container = document.body.createrElement('div')
+      container.innerHTML = adResponse.bids[0].content
+  })
+  .catch(error => console.log('error', error));
 ```

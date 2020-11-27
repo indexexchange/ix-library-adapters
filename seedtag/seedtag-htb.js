@@ -185,7 +185,7 @@ function SeedtagHtb(configs) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
 
             payload.cd = gdprStatus.consentString;
-            payload.cmp = !Utilities.isEmpty(gdprStatus);
+            payload.cmp = !!gdprStatus.consentString;
 
             if (ComplianceService.usp) {
                 var uspStatus = ComplianceService.usp.getConsent();
@@ -199,7 +199,6 @@ function SeedtagHtb(configs) {
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
         /* -------------------------------------------------------------------------- */
-
         return {
             url: baseUrl,
             data: payload,
@@ -281,10 +280,8 @@ function SeedtagHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
-        var bids = adResponse;
-
+        var bids = adResponse.bids;
         /* --------------------------------------------------------------------------------- */
-
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
 
@@ -318,10 +315,8 @@ function SeedtagHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
-
                 continue;
             }
-
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
@@ -336,10 +331,13 @@ function SeedtagHtb(configs) {
             /* The creative/adm for the given slot that will be rendered if is the winner.
              * Please make sure the URL is decoded and ready to be document.written.
              */
+
             var bidCreative = curBid.content;
 
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
+
+            var dealId = curBid.dealId
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -358,7 +356,6 @@ function SeedtagHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
-
                 continue;
             }
 
@@ -394,8 +391,6 @@ function SeedtagHtb(configs) {
             if (__profile.features.demandExpiry.enabled) {
                 expiry = __profile.features.demandExpiry.value + System.now();
             }
-
-            // @FIXME, check if we can get dealId from SSP response
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
@@ -403,11 +398,10 @@ function SeedtagHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-
-                dealId: curBid.dealId,
+                dealId: dealId,
                 timeOfExpiry: expiry,
                 auxFn: __renderPixel,
-                auxArgs: [pixelUrl]
+                auxArgs: []
             });
 
             //? if (FEATURES.INTERNAL_RENDER) {
@@ -455,15 +449,15 @@ function SeedtagHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_see_id',
-                om: 'ix_see_cpm',
-                pm: 'ix_see_cpm',
+                om: 'ix_see_om',
+                pm: 'ix_see_pm',
                 pmid: 'ix_see_dealid'
             },
 
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
-            bidUnitInCents: 1,
+            bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.CALLBACK_NAME,
+            callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.SRA,
             requestType: Partner.RequestTypes.AJAX
         };
@@ -481,7 +475,6 @@ function SeedtagHtb(configs) {
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
             generateRequestObj: __generateRequestObj,
-            adResponseCallback: null
         });
     })();
 
@@ -514,7 +507,6 @@ function SeedtagHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        adResponseCallback: null
         //? }
     };
 

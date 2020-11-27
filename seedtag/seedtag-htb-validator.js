@@ -48,7 +48,7 @@ function partnerValidator(configs) {
                                 type: 'string',
                                 minLength: 1
                             },
-                            suplyTypes: {
+                            supplyTypes: {
                                 type: 'array',
                                 minLength: 1,
                                 items: {
