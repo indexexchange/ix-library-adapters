@@ -208,7 +208,7 @@ fetch(endpoint, requestOptions)
   .then(adResponse => {
       console.log('adResponse', adResponse)
 
-      var container = document.body.createrElement('div')
+      var container = document.body.createElement('div')
       container.innerHTML = adResponse.bids[0].content
   })
   .catch(error => console.log('error', error));

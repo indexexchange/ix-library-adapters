@@ -81,7 +81,7 @@ function validateBidRequestWithPrivacy(request) {
 
 function getValidResponse(request, creative) {
     var payload = JSON.parse(request.body);
-    var bids = payload.bidRequests.map(function (bid, index) {
+    var bids = payload.bidRequests.map(function (bid) {
         return {
             bidId: bid.id,
             price: 0.5,
@@ -101,10 +101,6 @@ function getValidResponse(request, creative) {
     });
 }
 
-function getValidResponseWithDeal(request, creative) {
-    // @TODO
-}
-
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
         ix_see_om: jasmine.arrayWithExactContents(['300x250_50', '320x50_50']),
@@ -118,10 +114,6 @@ function getPassResponse() {
     };
 
     return JSON.stringify(response);
-}
-
-function validateBidRequestWithAdSrvrOrg(request) {
-    // @TODO
 }
 
 module.exports = {

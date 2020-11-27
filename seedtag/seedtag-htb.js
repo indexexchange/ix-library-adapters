@@ -12,7 +12,6 @@ var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
 var Network = require('network.js');
-var Utilities = require('utilities.js');
 
 var ComplianceService;
 var RenderService;
@@ -153,9 +152,6 @@ function SeedtagHtb(configs) {
             payload.publisherToken = parcel.xSlotRef.publisherToken;
         });
 
-        /* Change this to your bidder endpoint. */
-        var baseUrl = 'https://s.seedtag.com/c/hb/bid';
-
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.
@@ -185,7 +181,7 @@ function SeedtagHtb(configs) {
             var gdprStatus = ComplianceService.gdpr.getConsent();
 
             payload.cd = gdprStatus.consentString;
-            payload.cmp = !!gdprStatus.consentString;
+            payload.cmp = Boolean(gdprStatus.consentString);
 
             if (ComplianceService.usp) {
                 var uspStatus = ComplianceService.usp.getConsent();
@@ -200,7 +196,7 @@ function SeedtagHtb(configs) {
 
         /* -------------------------------------------------------------------------- */
         return {
-            url: baseUrl,
+            url: 'https://s.seedtag.com/c/hb/bid',
             data: payload,
             networkParamOverrides: {
                 method: 'POST',
@@ -279,9 +275,7 @@ function SeedtagHtb(configs) {
          */
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
-
         var bids = adResponse.bids;
-        /* --------------------------------------------------------------------------------- */
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
 
@@ -315,8 +309,10 @@ function SeedtagHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
+
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
             /* Using the above variable, curBid, extract various information about the bid and assign it to
@@ -337,7 +333,7 @@ function SeedtagHtb(configs) {
             /* Explicitly pass */
             var bidIsPass = bidPrice <= 0;
 
-            var dealId = curBid.dealId
+            var dealId = curBid.dealId;
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
             * If firing a tracking pixel is not required or the pixel url is part of the adm,
@@ -356,6 +352,7 @@ function SeedtagHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
@@ -474,7 +471,7 @@ function SeedtagHtb(configs) {
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj,
+            generateRequestObj: __generateRequestObj
         });
     })();
 
@@ -506,7 +503,7 @@ function SeedtagHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
+        generateRequestObj: __generateRequestObj
         //? }
     };
 
