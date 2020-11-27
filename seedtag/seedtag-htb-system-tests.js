@@ -36,7 +36,7 @@ function getConfig() {
             },
             2: {
                 adunitId: '0002',
-                sizes: [[320, 50]],
+                sizes: [[300, 600]],
                 placement: 'banner',
                 supplyTypes: ['display', 'video'],
                 publisherToken: '0000-0000-01'
@@ -84,7 +84,7 @@ function getValidResponse(request, creative) {
     var bids = payload.bidRequests.map(function (bid) {
         return {
             bidId: bid.id,
-            price: 0.5,
+            price: 2,
             currency: 'USD',
             content: creative,
             width: bid.sizes[0][0],
@@ -102,7 +102,7 @@ function getValidResponse(request, creative) {
 
 function validateTargeting(targetingMap) {
     expect(targetingMap).toEqual(jasmine.objectContaining({
-        ix_see_om: jasmine.arrayWithExactContents(['300x250_50', '320x50_50']),
+        ix_see_om: jasmine.arrayWithExactContents(['300x250_200', '300x600_200']),
         ix_see_id: jasmine.arrayWithExactContents([jasmine.any(String), jasmine.any(String)])
     }));
 }
