@@ -2,38 +2,38 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | Yes |
+| Native Ad Support | Yes |
+| SafeFrame Support | Yes |
+| PMP Support | Yes |
  
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome |  |
-| Edge |  |
-| Firefox |  |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| Chrome | Yes |
+| Edge | Yes |
+| Firefox | Yes |
+| Internet Explorer 9 | Yes |
+| Internet Explorer 10 | Yes |
+| Internet Explorer 11 | Yes |
+| Safari | Yes |
+| Mobile Chrome |Yes |
+| Mobile Safari |Yes |
+| UC Browser |Yes |
+| Samsung Internet |Yes |
+| Opera |Yes |
  
 ## Adapter Information
 | Info | |
 |---|---|
 | Partner Id | SeedtagHtb |
-| Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
-| Ad Server URLs | |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Ad Server Responds in (Cents, Dollars, etc) | Dollars |
+| Bid Type (Gross / Net) | Net |
+| GAM Key (Open Market) | ix_see_om |
+| GAM Key (Private Market) | ix_see_cpm |
+| Ad Server URLs | https://s.seedtag.com/c/hb/bid |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | Multiple Sizes |
+| Request Architecture (MRA / SRA) | SRA |
  
 ## Currencies Supported
  
@@ -163,7 +163,7 @@
 ## Test Configuration
 The code bellow should perform an adRequest, return an adResponse, and print it in the body of the page.
 
-When using `"publisherToken":"0000-0000-01"` Seedtag adserver should always return a valid response
+When using `"publisherToken":"0000-0000-01"` Seedtag HB endpoint should always return a valid response
 ```javascript
 var endpoint = 'https://s.seedtag.com/c/hb/bid'
 var data =  {
@@ -208,7 +208,8 @@ fetch(endpoint, requestOptions)
   .then(adResponse => {
       console.log('adResponse', adResponse)
 
-      var container = document.body.createElement('div')
+      var container = document.createElement('div')
+      document.body.appendChild(container)
       container.innerHTML = adResponse.bids[0].content
   })
   .catch(error => console.log('error', error));
