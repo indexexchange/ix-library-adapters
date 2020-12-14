@@ -29,12 +29,12 @@ This repository contains all the certified IX Library adapters, as well as the t
 Below you will find the information you will need to complete the certification process and become a part of the IX Library Ecosystem!
 
 There are two branches in this repository:
-* `master` - The stable branch where all certified adapters reside. This is the default branch, and so all <b>new</b> adapters should make their pull request against this branch.
-* `canary` - The branch used for already-certified adapters to test their updates with publishers before merging to the stable `master` branch.
+* `master` - The stable branch where all certified adapters reside.
+* `canary` - The branch used for adapters to test their updates or new adapter with publishers before merging to the stable `master` branch.
 
 ## New Adapters
 
-New adapters will be asked to make their first pull request, upon meeting all the requirements highlighted in the [Requirements](#requirements) section, to the stable `master` branch.
+New adapters must submit a pull request to the `canary` branch upon meeting all the requirements highlighted in the [Requirements](#requirements) section to test their adapter.  After testing is complete, submit a pull request to the `master` branch. The adapter update will then be merged into the stable `master` branch, making it availabe to all publishers using the IX Library.
 
 ## Existing Adapters
 
@@ -145,7 +145,7 @@ if (__directInterface.Layers.PartnersLayer.Partners.ExampleCompanyHtb) {
 }
 ```
 4. <b>Complete the `<adapter-name>-htb-system-tests.js` file</b>
-    * This file contains all your adapter's test functions. Follow the process outlined on <a href="https://knowledgebase.indexexchange.com/display/ADAPTER/Test+Cases">Knowledge Base</a> to write our your test cases.
+    * This file contains all your adapter's test functions. Follow the process outlined on <a href="https://kb.indexexchange.com/ix_library_partners/build_adapter/write_and_run_the_test_cases.htm">Knowledge Base</a> to write your test cases.
 5. <b>Run the system tests and linter</b>
     * Make sure all your test cases are passing by running `npm run debug` on OSX or Linux, or `npm run win-debug` on Windows in your adapter folder and then accessing the system tests page.
     * Ensure that there are no lint errors in your adapter folder by running `npm run lint` on OSX or Linux, or `npm run win-lint` on Windows.
@@ -519,13 +519,44 @@ There are a lot of helper objects available to you in you adapter module.
 Note that bid transformer instances suitable for DFP targeting and price reporting are already provided via `__baseClass._bidTransformers`. It is recommended to use the provided instances as they are sufficient for almost all use cases.
 
 # <a name='linting'></a> Linting
-All code must pass the linting before it is submitted for review. Follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/ESLint) to run the linter.
+All code must pass the linting before it is submitted for review. Follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/check_your_code_using_ESLint.htm) to run the linter.
 
 # <a name='debugging'></a> Debugging
-To walk through your bidder code and debug, follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Adapter+Debugger).
+To walk through your bidder code and debug, follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/test_your_adapter_using_the_debugger.htm).
 
 # <a name='testing'></a> Testing
-To implement the system tests, follow the instructions [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Test+Cases).
+To implement the system tests, follow the instructions [here](https://kb.indexexchange.com/ix_library_partners/build_adapter/write_and_run_the_test_cases.htm).
 
 # <a name='codeSubmissionGuidelines'></a> Code Submission Guidelines
-Follow the steps [here](https://knowledgebase.indexexchange.com/display/ADAPTER/Adapter+Code+Submission+Guidelines) to submit your code for review to Index Exchange.
+
+## Code submission checklist for bidding adapters
+
+Verify that your bidding adapter code meets the following requirements:
+
+* The following files are complete and up-to-date:
+   * `<adapter-name>-htb.js`
+   * `<adapter-name>-htb-exports.js`
+   * `<adapter-name>-htb-validator.js`
+   * `<adapter-name>-htb-system-tests.js`
+* Your adapter version number is up-to-date.
+* Your bidder documentation is up-to-date.
+* The CHANGES.md file is up-to-date and formatted correctly:
+   * The latest adapter version number must always be at the top.
+   * The latest adapter version number must match the version number in your code (and in the pull request you log in GitHub).
+   * The file should use the following format:
+      `# <ADAPTER VERSION NUMBER>`
+         `<update information 1>`
+         `<update information 1>`
+      `# <PREVIOUS ADAPTER VERSION NUMBER>`
+         `<update information 1>`
+         `<update information 1>`
+* You have [checked your code using ESLint](https://kb.indexexchange.com/ix_library_partners/build_adapter/check_your_code_using_ESLint.htm) and corrected all errors originating from your adapter.
+* You have run the debugger tool and test cases, and checked that they all pass in the browsers listed in the bidder documentation in your GitHub repository.
+
+## Code submission checklist for non bidding adapters
+
+Verify that your non-bidding adapter code meets the following requirements:
+
+* Your code is instantiating correctly when the IX Library loads.
+* The correct bid request information is being sent to your server's endpoint.
+* Google ad slot targeting is set correctly based on your ad server's bid response information.

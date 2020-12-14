@@ -1,15 +1,3 @@
-/**
- * @author:    Partner
- * @license:   UNLICENSED
- *
- * @copyright: Copyright (c) 2017 by Index Exchange. All rights reserved.
- *
- * The information contained within this document is confidential, copyrighted
- * and or a trade secret. No part of this document may be reproduced or
- * distributed in any form or by any means, in whole or in part, without the
- * prior written permission of Index Exchange.
- */
-
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +11,6 @@ var Partner = require('partner.js');
 var Size = require('size.js');
 var SpaceCamp = require('space-camp.js');
 var System = require('system.js');
-var Network = require('network.js');
 var Utilities = require('utilities.js');
 
 var ComplianceService;
@@ -31,7 +18,7 @@ var RenderService;
 
 //? if (DEBUG) {
 var ConfigValidators = require('config-validators.js');
-var PartnerSpecificValidator = require('trust-x-htb-validator.js');
+var PartnerSpecificValidator = require('thirty-three-across-htb-validator.js');
 var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
@@ -45,7 +32,7 @@ var Whoopsie = require('whoopsie.js');
  *
  * @class
  */
-function TrustXHtb(configs) {
+function ThirtyThreeAcrossHtb(configs) {
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -67,45 +54,230 @@ function TrustXHtb(configs) {
      */
     var __profile;
 
-    /**
-     * Base url for bid requests.
-     *
-     * @private {object}
-     */
-    var __baseUrl;
+    var _indexLibVersion = SpaceCamp.version;
+    var _adapterVersion = '2.0.1';
+
+    var SYNC_ENDPOINT = 'https://ssc-cms.33across.com/ps/?m=xch&rt=html&ru=deb';
+    var DEFAULT_SYNC_ID = 'zzz000000000003zzz';
+    var NON_MEASURABLE = 'nm';
 
     /* =====================================
      * Functions
      * ---------------------------------- */
 
-    /* Utilities
+    /* Viewability Utilities
      * ---------------------------------- */
+    function _formatSize(size) {
+        return {
+            w: parseInt(size[0], 10),
+            h: parseInt(size[1], 10)
+        };
+    }
 
-    /**
-     * Returns the matching bid given a single parcel and an array of bids
-     * returned from the ad server.
-     *
-     * @param {object} parcel the parcel for which a bid needs to be found
-     * @param {any} bidResponse the bidResponse object containing all the bids returned
-     *                          from the server
-     * @returns {any} the bid that belongs to the parcel if found
-     */
-    function __getMatchingBid(parcel, bidResponse) {
-        if (!bidResponse.hasOwnProperty('seatbid')) {
-            return null;
+    function _getMinSize(sizes) {
+        return sizes.reduce(function (min, size) {
+            return size.h * size.w < min.h * min.w ? size : min;
+        });
+    }
+
+    function _getBoundingBox(element, minSize) {
+        var w = minSize.w;
+        var h = minSize.h;
+        var rect = Utilities.mergeObjects({
+            width: 0,
+            height: 0,
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0
+        }, element.getBoundingClientRect());
+
+        if ((rect.width === 0 || rect.height === 0) && w && h) {
+            rect.width = w;
+            rect.height = h;
+            rect.right = rect.left + w;
+            rect.bottom = rect.top + h;
         }
 
-        for (var h = 0; h < bidResponse.seatbid.length; h++) {
-            var bids = bidResponse.seatbid[h].bid;
+        return rect;
+    }
 
-            for (var i = 0; i < bids.length; i++) {
-                if (parcel.xSlotRef.adSlotId === String(bids[i].auid)) {
-                    return bids[i];
-                }
+    function _getIntersectionOfRects(rects) {
+        var bbox = {
+            left: rects[0].left,
+            right: rects[0].right,
+            top: rects[0].top,
+            bottom: rects[0].bottom
+        };
+
+        for (var i = 1; i < rects.length; ++i) {
+            bbox.left = Math.max(bbox.left, rects[i].left);
+            bbox.right = Math.min(bbox.right, rects[i].right);
+
+            if (bbox.left >= bbox.right) {
+                return null;
+            }
+
+            bbox.top = Math.max(bbox.top, rects[i].top);
+            bbox.bottom = Math.min(bbox.bottom, rects[i].bottom);
+
+            if (bbox.top >= bbox.bottom) {
+                return null;
             }
         }
 
-        return null;
+        bbox.width = bbox.right - bbox.left;
+        bbox.height = bbox.bottom - bbox.top;
+
+        return bbox;
+    }
+
+    // In order to obtain the percentage of the viewability,
+    // We take the positions (top, left, bottom, right) for both the viewport and the creative
+    // And use that to calculate the coordinates of intersection between the viewport and the creative
+    // Lastly divide the area of intersection by the area of creative (width*height) for the viewability percentage
+    function _getPercentInView(element, topWin, minSize) {
+        var elementBoundingBox = _getBoundingBox(element, minSize);
+
+        // Obtain the intersection of the element and the viewport
+        var elementInViewBoundingBox = _getIntersectionOfRects([
+            {
+                left: 0,
+                top: 0,
+                right: topWin.innerWidth,
+                bottom: topWin.innerHeight
+            },
+            elementBoundingBox
+        ]);
+
+        var elementInViewArea;
+        var elementTotalArea;
+
+        if (elementInViewBoundingBox !== null) {
+            // Some or all of the element is in view
+            elementInViewArea = elementInViewBoundingBox.width * elementInViewBoundingBox.height;
+            elementTotalArea = elementBoundingBox.width * elementBoundingBox.height;
+
+            return (elementInViewArea / elementTotalArea) * 100;
+        }
+
+        // No overlap between element and the viewport; therefore, the element lies completely out of view
+        return 0;
+    }
+
+    function _isIframe() {
+        /*
+         * NOTE: this function should doing the following, otherwise revisit this code
+         *  try {
+         *      return window.top !== window.self;
+         *  } catch (e) {
+         *      return true;
+         *  }
+         */
+        return !Browser.isTopFrame();
+    }
+
+    function _getAdSlotHTMLElement(parcel) {
+        var slotElementId = null;
+
+        // NOTE: viewability feature supports the DFP tag only for now
+        if (parcel.ref && parcel.ref.getSlotElementId && parcel.ref.getSlotElementId()) {
+            slotElementId = parcel.ref.getSlotElementId();
+        }
+
+        return document.getElementById(slotElementId);
+    }
+
+    function _isViewabilityMeasurable(element) {
+        return element !== null && !_isIframe();
+    }
+
+    function _getViewability(element, topWin, minSize) {
+        return topWin.document.visibilityState === 'visible' ? _getPercentInView(element, topWin, minSize) : 0;
+    }
+
+    /* Utilities
+     * ---------------------------------- */
+    function _getImpId(returnParcel) {
+        return returnParcel.requestId + '-' + returnParcel.xSlotName;
+    }
+
+    function _generateImp(parcel) {
+        var xSlotRef = parcel.xSlotRef;
+        var formatedSizes = xSlotRef.sizes.map(_formatSize);
+
+        var element = _getAdSlotHTMLElement(parcel);
+        var minSize = _getMinSize(formatedSizes);
+
+        var viewabilityAmount = NON_MEASURABLE;
+        if (_isViewabilityMeasurable(element)) {
+            viewabilityAmount = Math.round(_getViewability(element, Browser.topWindow, minSize));
+        }
+
+        return {
+            id: _getImpId(parcel),
+            banner: {
+                format: formatedSizes,
+                ext: {
+                    ttx: {
+                        viewability: {
+                            amount: viewabilityAmount
+                        }
+                    }
+                }
+            },
+            ext: {
+                ttx: {
+                    prod: xSlotRef.productId
+                }
+            },
+            bidfloor: xSlotRef.bidfloor
+        };
+    }
+
+    /**
+     * Obtain the normalized CCPA and TCF stats.
+     *
+     * @example
+     * {
+     *   tcf: {
+     *      gdpr: 1|0,
+     *      version: number,
+     *      consentString: undefined|string
+     *   },
+     *   ccpa: {
+     *      version: number,
+     *      consentString: string
+     *   }
+     * }
+     */
+    function getPrivacyStats() {
+        // Default value
+        var tcf = {
+            gdpr: 0
+        };
+        var ccpa = { };
+
+        if (ComplianceService.isPrivacyEnabled()) {
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+
+            tcf = Utilities.mergeObjects(tcf, {
+                gdpr: gdprStatus.applies === true ? 1 : 0,
+                version: gdprStatus.version,
+                consentString: gdprStatus.consentString
+            });
+
+            var uspStatus = ComplianceService.usp.getConsent();
+            ccpa = {
+                version: uspStatus.version,
+                consentString: uspStatus.uspString
+            };
+        }
+
+        return {
+            tcf: tcf,
+            ccpa: ccpa
+        };
     }
 
     /**
@@ -117,9 +289,6 @@ function TrustXHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var queryObj = {};
-        var callbackId = '_' + System.generateUniqueId();
-
         /* =============================================================================
          * STEP 2  | Generate Request URL
          * -----------------------------------------------------------------------------
@@ -177,6 +346,10 @@ function TrustXHtb(configs) {
          * }
          */
 
+        /* ---------------------- PUT CODE HERE ------------------------------------ */
+        /* Change this to your bidder endpoint. */
+        var baseUrl = 'https://ssc.33across.com/api/v1/hb';
+
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.
@@ -192,53 +365,98 @@ function TrustXHtb(configs) {
          *      applies: true,
          *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
          * }
+         *
+         * You can also determine whether or not the publisher has enabled privacy
+         * features in their wrapper by querying ComplianceService.isPrivacyEnabled().
+         *
+         * This function will return a boolean, which indicates whether the wrapper's
+         * privacy features are on (true) or off (false). If they are off, the values
+         * returned from gdpr.getConsent() are safe defaults and no attempt has been
+         * made by the wrapper to contact a Consent Management Platform.
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
-        var privacyEnabled = ComplianceService.isPrivacyEnabled();
-        var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
-
-        /* ---------------- Craft bid request using the above returnParcels --------- */
-        var adSlotIds = [];
-
-        for (var i = 0; i < returnParcels.length; i++) {
-            adSlotIds.push(returnParcels[i].xSlotRef.adSlotId);
-        }
-
-        queryObj.auids = adSlotIds.join(',');
-        queryObj.u = Browser.getPageUrl();
-        queryObj.pt = 'net';
-        queryObj.cb
-            = 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId;
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
+        var privacyStats = getPrivacyStats();
 
-        if (privacyEnabled) {
-            if (gdprStatus) {
-                if (gdprStatus.consentString) {
-                    queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+        /* ---------------- Craft bid request using the above returnParcels --------- */
+        // TTX only supports MRA now, so returnParcels always contains one item
+        var parcel = returnParcels[0];
+
+        var queryObj = {
+            id: parcel.requestId,
+            imp: returnParcels.map(_generateImp),
+            site: {
+                id: configs.siteId,
+
+                // NOTE: change to Browser.topWindow.location.href if needed
+                page: Browser.getPageUrl(),
+
+                // NOTE: change to Browser.topWindow.document.referrer if needed
+                ref: Browser.getReferrer()
+            },
+            user: {
+                ext: {
+                    consent: privacyStats.tcf.consentString
                 }
-                // eslint-disable-next-line camelcase
-                queryObj.gdpr_applies
-                    = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
-            }
-
-            if (uspConsentObj) {
-                queryObj.us_privacy = uspConsentObj.uspString; // eslint-disable-line camelcase
-            }
-        }
+            },
+            regs: {
+                ext: {
+                    gdpr: privacyStats.tcf.gdpr,
+                    us_privacy: privacyStats.ccpa.consentString, // eslint-disable-line camelcase
+                    ttx: {
+                        ccpa: {
+                            version: privacyStats.ccpa.version
+                        },
+                        tcf: {
+                            version: privacyStats.tcf.version
+                        }
+                    }
+                }
+            },
+            ext: {
+                ttx: {
+                    prebidStartedAt: System.now(),
+                    caller: [
+                        {
+                            name: 'index',
+                            version: _indexLibVersion
+                        }
+                    ]
+                }
+            },
+            test: configs.test
+        };
 
         /* -------------------------------------------------------------------------- */
 
-        if (SpaceCamp.globalTimeout) {
-            queryObj.wtimeout = SpaceCamp.globalTimeout;
-        }
-
         return {
-            url: __baseUrl,
+            url: baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain'
+            }
         };
     }
+
+    /* =============================================================================
+     * STEP 3  | Response callback
+     * -----------------------------------------------------------------------------
+     *
+     * This generator is only necessary if the partner's endpoint has the ability
+     * to return an arbitrary ID that is sent to it. It should retrieve that ID from
+     * the response and save the response to adResponseStore keyed by that ID.
+     *
+     * If the endpoint does not have an appropriate field for this, set the profile's
+     * callback type to CallbackTypes.CALLBACK_NAME and omit this function.
+     */
+    function adResponseCallback(adResponse) {
+        /* Get callbackId from adResponse here */
+        var callbackId = 0;
+        __baseClass._adResponseStore[callbackId] = adResponse;
+    }
+
+    /* -------------------------------------------------------------------------- */
 
     /* Helpers
      * ---------------------------------- */
@@ -255,10 +473,7 @@ function TrustXHtb(configs) {
      */
     function __renderPixel(pixelUrl) {
         if (pixelUrl) {
-            Network.img({
-                url: decodeURIComponent(pixelUrl),
-                method: 'GET'
-            });
+            Browser.createHiddenIFrame(pixelUrl);
         }
     }
 
@@ -268,7 +483,7 @@ function TrustXHtb(configs) {
      *
      * @param {string} sessionId The sessionId, used for stats and other events.
      *
-     * @param {any} adResponse This is the adresponse as returned from the bid request, that was either
+     * @param {any} adResponse This is the bid response as returned from the bid request, that was either
      * passed to a JSONP callback or simply sent back via AJAX.
      *
      * @param {object[]} returnParcels The array of original parcels, SAME array that was passed to
@@ -297,27 +512,53 @@ function TrustXHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
+        var bids = [];
+        if (adResponse && adResponse.seatbid) {
+            bids = adResponse.seatbid.reduce(function (bidArr, seatbid) {
+                return bidArr.concat(seatbid.bid);
+            }, []);
+        }
+
+        /* --------------------------------------------------------------------------------- */
+
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
-
-            /* Find a matching bid for the parcel */
-            var curBid = __getMatchingBid(curReturnParcel, adResponse);
 
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
             headerStatsInfo[htSlotId][curReturnParcel.requestId] = [curReturnParcel.xSlotName];
 
+            var curBid;
+
+            for (var i = 0; i < bids.length; i++) {
+                /**
+                 * This section maps internal returnParcels and demand returned from the bid request.
+                 * In order to match them correctly, they must be matched via some criteria. This
+                 * is usually some sort of placements or inventory codes. Please replace the someCriteria
+                 * key to a key that represents the placement in the configuration and in the bid responses.
+                 */
+
+                /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
+                if (_getImpId(curReturnParcel) === bids[i].impid) {
+                    curBid = bids[i];
+                    bids.splice(i, 1);
+
+                    break;
+                }
+            }
+
             /* No matching bid found so its a pass */
             if (!curBid) {
                 if (__profile.enabledAnalytics.requestTime) {
-                    // eslint-disable-next-line camelcase
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
 
                 continue;
             }
+
+            var privacyStats = getPrivacyStats();
 
             /* ---------- Fill the bid variables with data from the bid response here. ------------ */
 
@@ -342,16 +583,23 @@ function TrustXHtb(configs) {
             var bidIsPass = bidPrice <= 0;
 
             /* OPTIONAL: tracking pixel url to be fired AFTER rendering a winning creative.
-             * If firing a tracking pixel is not required or the pixel url is part of the adm,
-             * leave empty;
-             */
-            var pixelUrl = '';
+            * If firing a tracking pixel is not required or the pixel url is part of the adm,
+            * leave empty;
+            */
+            var pixelUrl = [
+                SYNC_ENDPOINT,
+                'id=' + (configs.siteId || DEFAULT_SYNC_ID),
+                'gdpr=' + privacyStats.tcf.gdpr,
+                'gdpr_consent=' + encodeURIComponent(privacyStats.tcf.consentString),
+                'us_privacy=' + encodeURIComponent(privacyStats.ccpa.consentString)
+            ].join('&');
 
             /* --------------------------------------------------------------------------------------- */
 
+            curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + curBid.auid + ' }.');
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
                 //? }
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
@@ -381,17 +629,24 @@ function TrustXHtb(configs) {
             } else {
                 curReturnParcel.targeting[__baseClass._configs.targetingKeys.om] = [sizeKey + '_' + targetingCpm];
             }
-
             curReturnParcel.targeting[__baseClass._configs.targetingKeys.id] = [curReturnParcel.requestId];
             //? }
 
             //? if (FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
+            if (pixelUrl) {
+                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+            }
             //? }
 
             //? if (FEATURES.RETURN_PRICE) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
+
+            var expiry = 0;
+            if (__profile.features.demandExpiry.enabled) {
+                expiry = __profile.features.demandExpiry.value + System.now();
+            }
 
             var pubKitAdId = RenderService.registerAd({
                 sessionId: sessionId,
@@ -400,9 +655,8 @@ function TrustXHtb(configs) {
                 requestId: curReturnParcel.requestId,
                 size: curReturnParcel.size,
                 price: targetingCpm,
-                dealId: bidDealId,
-                // eslint-disable-next-line max-len
-                timeOfExpiry: __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0,
+                dealId: bidDealId || null,
+                timeOfExpiry: expiry,
                 auxFn: __renderPixel,
                 auxArgs: [pixelUrl]
             });
@@ -430,21 +684,20 @@ function TrustXHtb(configs) {
 
         /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
-            // PartnerName
-            partnerId: 'TrustXHtb',
-
-            // Should be same as partnerName
-            namespace: 'TrustXHtb',
-            statsId: 'TRSTX',
-            version: '2.3.0',
+            partnerId: 'ThirtyThreeAcrossHtb',
+            namespace: 'ThirtyThreeAcrossHtb',
+            statsId: 'THI',
+            version: _adapterVersion,
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
             },
             features: {
                 demandExpiry: {
-                    enabled: false,
-                    value: 0
+                    enabled: true,
+
+                    // 1min
+                    value: 60000
                 },
                 rateLimiting: {
                     enabled: false,
@@ -452,24 +705,20 @@ function TrustXHtb(configs) {
                 }
             },
 
-            // Targeting keys for demand, should follow format ix_{statsId}_id
+            /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
-                id: 'ix_trstx_id',
-                om: 'ix_trstx_cpm',
-                pm: 'ix_trstx_cpm',
-                pmid: 'ix_trstx_dealid'
+                id: 'ix_thi_id',
+                om: 'ix_thi_cpm',
+                pm: 'ix_thi_cpm',
+                pmid: 'ix_thi_dealid'
             },
+
+            /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-
-            // Callback type, please refer to the readme for details
-            callbackType: Partner.CallbackTypes.CALLBACK_NAME,
-
-            // Request architecture, please refer to the readme for details
-            architecture: Partner.Architectures.SRA,
-
-            // Request type, jsonp, ajax, or any.
-            requestType: Partner.RequestTypes.ANY
+            callbackType: Partner.CallbackTypes.NONE,
+            architecture: Partner.Architectures.MRA,
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
@@ -482,11 +731,10 @@ function TrustXHtb(configs) {
         }
         //? }
 
-        __baseUrl = Browser.getProtocol() + '//sofia.trustx.org/hb';
-
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,
-            generateRequestObj: __generateRequestObj
+            generateRequestObj: __generateRequestObj,
+            adResponseCallback: adResponseCallback
         });
     })();
 
@@ -499,7 +747,7 @@ function TrustXHtb(configs) {
          * ---------------------------------- */
 
         //? if (DEBUG) {
-        __type__: 'TrustXHtb',
+        __type__: 'ThirtyThreeAcrossHtb',
         //? }
 
         //? if (TEST) {
@@ -519,7 +767,7 @@ function TrustXHtb(configs) {
         //? if (TEST) {
         parseResponse: __parseResponse,
         generateRequestObj: __generateRequestObj,
-        getMatchingBid: __getMatchingBid
+        adResponseCallback: adResponseCallback
         //? }
     };
 
@@ -530,4 +778,4 @@ function TrustXHtb(configs) {
 // Exports /////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-module.exports = TrustXHtb;
+module.exports = ThirtyThreeAcrossHtb;
