@@ -21,7 +21,9 @@ function getConfig() {
         xSlots: {
             1: {
                 inScreen: 'ggumtest',
-                sizes: [[300, 100], [300, 600]]
+                sizes: [[300, 100], [300, 600]],
+                irisid: 'testIrisID',
+                iriscat: 'testIrisCat'
             }
         }
     };
@@ -38,7 +40,9 @@ function getBidRequestRegex() {
 function validateBidRequest(request) {
     expect(request.query.t).toBe('ggumtest');
     expect(request.query.pi).toBe('2');
-    expect(request.query.bF).toBe('300x100%2C300x600');
+    expect(request.query.bf).toBe('300x100%2C300x600');
+    expect(request.query.irisid).toBe('testIrisID');
+    expect(request.query.iriscat).toBe('testIrisCat');
 }
 
 function getValidResponse(request, creative) {
