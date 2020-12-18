@@ -35,6 +35,16 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * @class
  */
 function OnetagHtb(configs) {
+
+    // Endpoint w/ AJAX only
+    if (!Network.isXhrSupported()) {
+        // ? if (DEBUG) {
+        Scribe.warn('Partner onetag requires AJAX support. Aborting instantiation.');
+        // ? }
+
+        return null;
+    }
+
     /* =====================================
      * Data
      * ---------------------------------- */
@@ -291,8 +301,8 @@ function OnetagHtb(configs) {
                     adUnitCode: parcel.htSlot.getId(),
                     type: 'banner',
                     auctionId: auctionId,
-                    bidId: parcel.xSlotName,
-                    transactionId: ''
+                    bidId: parcel.requestId,
+                    transactionId: System.generateUniqueId()
 
                     // Context, playerSize, mimes
                 };
@@ -324,6 +334,7 @@ function OnetagHtb(configs) {
         };
     }
 
+
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -340,6 +351,7 @@ function OnetagHtb(configs) {
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
+        debugger;
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
@@ -362,6 +374,7 @@ function OnetagHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
+
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -382,8 +395,12 @@ function OnetagHtb(configs) {
          */
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
-        debugger;
         var bids = adResponse.bids;
+
+        /* If no bids returned, mark the original parcel as pass */
+        if (bids.nobid) {
+            returnParcels[0].pass = true;
+        }
 
         /* --------------------------------------------------------------------------------- */
 
@@ -406,7 +423,7 @@ function OnetagHtb(configs) {
                  */
 
                 /* ----------- Fill this out to find a matching bid for the current parcel ------------- */
-                if (curReturnParcel.xSlotName === bids[i].requestId) {
+                if (curReturnParcel.requestId === bids[i].requestId) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
@@ -566,8 +583,7 @@ function OnetagHtb(configs) {
             /* Targeting keys for demand, should follow format ix_{statsId}_id */
             targetingKeys: {
                 id: 'ix_one_id',
-                om: 'ix_one_cpm',
-                pm: 'ix_one_cpm',
+                om: 'ix_one_om',
                 pmid: 'ix_one_dealid'
             },
 
@@ -623,7 +639,7 @@ function OnetagHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj
+        generateRequestObj: __generateRequestObj,
         //? }
     };
 
