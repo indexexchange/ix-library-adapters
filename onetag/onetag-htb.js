@@ -397,15 +397,16 @@ function OnetagHtb(configs) {
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
         var bids = adResponse.bids;
 
-        /* If no bids returned, mark the original parcel as pass */
-        if (bids.nobid) {
-            returnParcels[0].pass = true;
-        }
-
         /* --------------------------------------------------------------------------------- */
 
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
+
+            /* If no bids returned, mark the original parcel as pass */
+            if (bids.nobid) {
+                curReturnParcel.pass = true;
+                continue;
+            }
 
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
@@ -448,8 +449,6 @@ function OnetagHtb(configs) {
 
             /* The bid price for the given slot */
             var bidPrice = curBid.cpm;
-
-            // TODO capire che currency ci si aspetta e come far arrivare il prezzo in quella currency
 
             /* The size of the given slot */
             var bidSize = [Number(curBid.width), Number(curBid.height)];

@@ -57,7 +57,6 @@ function validateBidRequest(request) {
 }
 
 function getValidResponse(request, creative) {
-    debugger;
     var data = JSON.parse(request.body);
     var bids = [];
     data.bids.forEach(function (bid) {
