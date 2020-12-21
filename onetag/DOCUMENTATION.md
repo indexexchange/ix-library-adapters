@@ -27,16 +27,16 @@
 | Info | |
 |---|---|
 | Partner Id | OnetagHtb |
-| Ad Server Responds in (Cents, Dollars, etc) | Euros |
+| Ad Server Responds in (Cents, Dollars, etc) | Dollars |
 | Bid Type (Gross / Net) | Gross |
 | GAM Key (Open Market) |  |
 | GAM Key (Private Market) | |
 | Ad Server URLs | |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | Slot |
+| Slot Mapping Style (Size / Multiple Sizes / Slot) | |
 | Request Architecture (MRA / SRA) | FSRA |
  
 ## Currencies Supported
-EUR
+EUR, USD
  
 ## Bid Request Information 
 ### Example
@@ -90,7 +90,7 @@ EUR
 ```
 ### Pass Example
 ```json
-{ "bids": [], "nobid": true }
+{ "bids": [] }
 ```
  
 ## Configuration Information
@@ -100,6 +100,7 @@ EUR
 |----------|----------|--------|----------------------------------------------------|
 | pubId | true | String | The publisher id for this slot.                             |
 | sizes    | true | Array<\[Number, Number]> | Sizes for this slot.
+| dealId    | false | String | Deal id for this slot.
 
 ### Example
 ```json

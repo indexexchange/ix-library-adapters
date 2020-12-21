@@ -351,7 +351,6 @@ function OnetagHtb(configs) {
      * @param  {string} pixelUrl Tracking pixel img url.
      */
     function __renderPixel(pixelUrl) {
-        debugger;
         if (pixelUrl) {
             Network.img({
                 url: decodeURIComponent(pixelUrl),
@@ -401,12 +400,6 @@ function OnetagHtb(configs) {
 
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
-
-            /* If no bids returned, mark the original parcel as pass */
-            if (bids.nobid) {
-                curReturnParcel.pass = true;
-                continue;
-            }
 
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
