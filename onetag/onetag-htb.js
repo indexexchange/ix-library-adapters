@@ -35,7 +35,6 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * @class
  */
 function OnetagHtb(configs) {
-
     // Endpoint w/ AJAX only
     if (!Network.isXhrSupported()) {
         // ? if (DEBUG) {
@@ -334,7 +333,6 @@ function OnetagHtb(configs) {
         };
     }
 
-
     /* -------------------------------------------------------------------------- */
 
     /* Helpers
@@ -373,7 +371,6 @@ function OnetagHtb(configs) {
      * attached to each one of the objects for which the demand was originally requested for.
      */
     function __parseResponse(sessionId, adResponse, returnParcels) {
-
         /* =============================================================================
          * STEP 4  | Parse & store demand response
          * -----------------------------------------------------------------------------
@@ -631,7 +628,7 @@ function OnetagHtb(configs) {
 
         //? if (TEST) {
         parseResponse: __parseResponse,
-        generateRequestObj: __generateRequestObj,
+        generateRequestObj: __generateRequestObj
         //? }
     };
 

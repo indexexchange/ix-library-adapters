@@ -44,7 +44,6 @@ function validateBidRequest(request) {
     expect(data.bids).toBeDefined();
     expect(Array.isArray(data.bids)).toBeTruthy();
     data.bids.forEach(function (bid) {
-        console.log(bid);
         expect(bid.pubId).toBeDefined();
         expect(bid.sizes).toBeDefined();
         expect(bid.adUnitCode).toBeDefined();
@@ -61,20 +60,21 @@ function getValidResponse(request, creative) {
     var bids = [];
     data.bids.forEach(function (bid) {
         bids.push({
-            "requestId": bid.bidId,
-            "cpm": 2,
-            "width": bid.sizes[0].width,
-            "height": bid.sizes[0].height,
-            "creativeId": "1168",
-            "mediaType": "banner",
-            "ad": creative,
-            "ttl": 300,
-            "currency": "USD"
+            requestId: bid.bidId,
+            cpm: 2,
+            width: bid.sizes[0].width,
+            height: bid.sizes[0].height,
+            creativeId: '1168',
+            mediaType: 'banner',
+            ad: creative,
+            ttl: 300,
+            currency: 'USD'
         });
     });
+
     return JSON.stringify({
         bids: bids
-    })
+    });
 }
 
 function validateTargeting(targetingMap) {
@@ -84,9 +84,11 @@ function validateTargeting(targetingMap) {
     }));
 }
 
-
 function getPassResponse() {
-    return JSON.stringify({ bids: [], nobid: true });
+    return JSON.stringify({
+        bids: [],
+        nobid: true
+    });
 }
 
 module.exports = {
