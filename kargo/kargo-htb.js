@@ -200,8 +200,9 @@ function KargoHtb(configs) {
         var crb = __getCrb();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
         var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
+        var gdprConsentObj = ComplianceService.gdpr && ComplianceService.gdpr.getConsent(2);
 
-        return {
+        var userIds = {
             kargoID: crb.userId || '',
             clientID: crb.clientId || '',
             tdID: __getTDID(returnParcels),
@@ -211,6 +212,17 @@ function KargoHtb(configs) {
             optOut: crb.optOut || false,
             usp: privacyEnabled && uspConsentObj ? uspConsentObj.uspString : null
         };
+
+        if (privacyEnabled && gdprConsentObj) {
+            userIds['gdpr'] = {
+                consent: gdprConsentObj.consentString || '',
+                applies: gdprConsentObj.applies ? true : false,
+                version: 2,
+                addtlConsent: gdprConsentObj.addtlConsent
+            }
+        }
+
+        return userIds;
     }
 
     function __getKruxDmpData() {
@@ -618,7 +630,7 @@ function KargoHtb(configs) {
 
             // Unique partner identifier
             statsId: 'KARG',
-            version: '2.4.0',
+            version: '2.5.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true

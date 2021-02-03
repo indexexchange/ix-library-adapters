@@ -1,3 +1,6 @@
+# 2.5.0
+- Add GDPR support
+
 # 2.4.0
 - Add Liveramp IDL Envelope support
 

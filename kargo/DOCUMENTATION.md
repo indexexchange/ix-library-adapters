@@ -2,7 +2,7 @@
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent | No |
+| Consent | Yes |
 | Native Ad Support | Yes |
 | SafeFrame Support | No |
 | PMP Support | Yes |
@@ -71,7 +71,13 @@
         "identityData": null,
         "crbIDs": {},
         "optOut": false,
-        "usp": "1YNN"
+        "usp": "1YNN",
+        "gdpr": {
+            "consent": "",
+            "applies": false,
+            "version": 2,
+            "addtlConsent": ""
+        }
     },
     "krux": {
         "userID": null,
