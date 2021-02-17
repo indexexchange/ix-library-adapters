@@ -1,79 +1,59 @@
-# Ad You Like
+# AdYouLike
+
 ## General Compatibility
 |Feature|  |
 |---|---|
-| Consent |  |
-| Native Ad Support |  |
-| SafeFrame Support |  |
-| PMP Support | |
+| Consent | Yes |
+| Native Ad Support | No |
+| SafeFrame Support | Yes |
+| PMP Support | Yes |
  
 ## Browser Compatibility
 | Browser |  |
 |--- |---|
-| Chrome |  |
-| Edge |  |
-| Firefox |  |
-| Internet Explorer 9 |  |
-| Internet Explorer 10 |  |
-| Internet Explorer 11 |  |
-| Safari |  |
-| Mobile Chrome | |
-| Mobile Safari | |
-| UC Browser | |
-| Samsung Internet | |
-| Opera | |
+| Chrome | Yes |
+| Edge | Yes |
+| Firefox | Yes |
+| Internet Explorer 9 | Yes |
+| Internet Explorer 10 | Yes |
+| Internet Explorer 11 | Yes |
+| Safari | Yes |
+| Mobile Chrome | Yes |
+| Mobile Safari | Yes |
+| UC Browser | No |
+| Samsung Internet | Yes |
+| Opera | Yes |
  
 ## Adapter Information
 | Info | |
 |---|---|
 | Partner Id | AdYouLikeHtb |
-| Ad Server Responds in (Cents, Dollars, etc) | |
-| Bid Type (Gross / Net) | |
-| GAM Key (Open Market) | |
-| GAM Key (Private Market) | |
-| Ad Server URLs | |
-| Slot Mapping Style (Size / Multiple Sizes / Slot) | |
-| Request Architecture (MRA / SRA) | |
+| Ad Server Responds in | Dollars |
+| Slot Mapping Style | Slot |
+| Request Architecture (MRA / SRA) | SRA |
  
 ## Currencies Supported
- 
-## Bid Request Information
-### Parameters
-| Key | Required | Type | Description |
-|---|---|---|---|
-| | | | |
- 
-### Example
-```javascript
- 
-```
- 
-## Bid Response Information
-### Bid Example
-```javascript
- 
-```
-### Pass Example
-```javascript
- 
-```
+ USD
  
 ## Configuration Information
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| | | | |
+| placementId | Yes | String | Identifier for this ad placement in AdYouLike's platform |
+| size | Yes | Int[][] | Compatible size list for current placement |
 ### Example
 ```javascript
- 
+{	 
+	"placementId":"<yourPlacementId>",
+	"sizes": [[300,250]]
+}
 ```
 
 ## Test Configuration
-(Test configuration or methodology that can be used to retrieve & render a test creative from Ad You Like's platform)
+(Test configuration or methodology that can be used to retrieve & render a test creative from AdYouLike's platform)
 ```javascript
  
 {	 
-  "partnerId":"43f85e81e6012cb9139f22c314de17c5",
   "placementId":"c1be58c5b3ced5f984a8a0b82b24dddf",
   "sizes": [[300,250]]
 }
