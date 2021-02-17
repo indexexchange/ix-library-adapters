@@ -1,4 +1,4 @@
 # 1.0
  
-- Create AdouLike adapter
+- Create AdYouLike adapter
  
