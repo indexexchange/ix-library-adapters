@@ -62,7 +62,7 @@ function ConcertHtb(configs) {
     var CONCERT_UID_KEY = 'c_uid';
 
     /**
-     * Local-storage key for whethere user has opted-out of Concert personalization.
+     * Local-storage key for whether user has opted-out of Concert personalization.
      *
      * @private {string}
      */
