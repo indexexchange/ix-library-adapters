@@ -18,9 +18,7 @@ function getArchitecture() {
 
 function getConfig() {
     return {
-        siteId: {
-            type: 2
-        },
+        siteId: 2,
         xSlots: {
             1: {
                 sizes: [[300, 250], [300, 600]]
