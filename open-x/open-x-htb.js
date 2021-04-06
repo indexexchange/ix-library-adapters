@@ -355,7 +355,7 @@ function OpenXHtb(configs) {
             curReturnParcel.price = Number(__baseClass._bidTransformers.price.apply(bidPrice));
             //? }
 
-            var pubKitAdId = RenderService.registerAd({
+            var obj = {
                 sessionId: sessionId,
                 partnerId: __profile.partnerId,
                 adm: bidCreative,
@@ -364,8 +364,9 @@ function OpenXHtb(configs) {
                 price: targetingCpm,
                 dealId: bidDealId,
                 timeOfExpiry:
-                    __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0
-            });
+                   __profile.features.demandExpiry.enabled ? __profile.features.demandExpiry.value + System.now() : 0
+            };
+            var pubKitAdId = RenderService.registerAd(obj);
 
             //? if (FEATURES.INTERNAL_RENDER) {
             curReturnParcel.targeting.pubKitAdId = pubKitAdId;
