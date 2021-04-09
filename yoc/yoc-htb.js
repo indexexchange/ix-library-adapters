@@ -165,9 +165,13 @@ function YocHtb(configs) {
         /* ---------------- Craft bid request using the above returnParcels --------- */
 
         var auids = [];
+        var identityData;
 
         for (var i = 0; i < returnParcels.length; i++) {
             auids.push(returnParcels[i].xSlotRef.auid);
+            if (returnParcels[i].identityData) {
+                identityData = returnParcels[i].identityData;
+            }
         }
 
         queryObj.auids = auids.join(',');
@@ -177,6 +181,19 @@ function YocHtb(configs) {
         queryObj.adapterVersion = __profile.version;
         queryObj.cb
             = 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId;
+
+        if (identityData && identityData.AdserverOrgIp && identityData.AdserverOrgIp.data) {
+            var adsrvrUids = identityData.AdserverOrgIp.data.uids;
+            if (Utilities.isArray(adsrvrUids)) {
+                for (var j = 0; j < adsrvrUids.length; j++) {
+                    if (adsrvrUids[j].ext && adsrvrUids[j].ext.rtiPartner === 'TDID') {
+                        queryObj.tdid = adsrvrUids[j].id;
+
+                        break;
+                    }
+                }
+            }
+        }
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
@@ -341,6 +358,15 @@ function YocHtb(configs) {
             */
             var pixelUrl = Browser.getProtocol() + '//t.visx.net/push_sync?wrapperType=IX&wrapperVersion='
                 + SpaceCamp.version + '&adapterVersion=' + __profile.version;
+
+            var gdprStatus = ComplianceService.gdpr.getConsent();
+            if (gdprStatus) {
+                if (gdprStatus.consentString) {
+                    pixelUrl = pixelUrl + '&gdpr_consent=' + encodeURIComponent(gdprStatus.consentString);
+                }
+                pixelUrl = pixelUrl + '&gdpr_applies='
+                    + (Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1);
+            }
 
             /* --------------------------------------------------------------------------------------- */
 

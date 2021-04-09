@@ -135,6 +135,15 @@ function validateTargetingWithDeal(targetingMap) {
     }));
 }
 
+function validateBidRequestWithTcf2(request) {
+    expect(request.query.gdpr_applies).toEqual(1);
+    expect(request.query.gdpr_consent).toEqual('TEST_TCF2_CONSENT_STRING');
+}
+
+function validateBidRequestWithUAdSrvrOrg(request) {
+    expect(request.query.tdid).toEqual('TEST_ADSRVR_ORG_STRING');
+}
+
 module.exports = {
     getPartnerId: getPartnerId,
     getStatsId: getStatsId,
@@ -147,5 +156,7 @@ module.exports = {
     getArchitecture: getArchitecture,
     getPassResponse: getPassResponse,
     getValidResponseWithDeal: getValidResponseWithDeal,
-    validateTargetingWithDeal: validateTargetingWithDeal
+    validateTargetingWithDeal: validateTargetingWithDeal,
+    validateBidRequestWithTcf2: validateBidRequestWithTcf2,
+    validateBidRequestWithUAdSrvrOrg: validateBidRequestWithUAdSrvrOrg
 };
