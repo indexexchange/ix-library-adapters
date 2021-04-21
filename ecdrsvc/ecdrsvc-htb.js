@@ -24,7 +24,6 @@ var Whoopsie = require('whoopsie.js');
  * @class
  */
 function EcdrsvcHtb(configs) {
-
     /**
      * Reference to the partner base class.
      *
@@ -39,7 +38,6 @@ function EcdrsvcHtb(configs) {
      */
     var __profile;
 
-
     /**
      * Generates the request URL and query data to the endpoint for the xSlots
      * in the given returnParcels.
@@ -49,43 +47,47 @@ function EcdrsvcHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-	
-        var callbackId = System.generateUniqueId();	
-        // MRA only get one parcel	
-        var returnParcel = returnParcels[0];	
-        var xSlot = returnParcel.xSlotRef;	
-        var payload = {};	
-        // eslint-disable-next-line camelcase	
-        payload.ad_slot = [];	
+        var callbackId = System.generateUniqueId();
+
+        // MRA only get one parcel
+        var returnParcel = returnParcels[0];
+        var xSlot = returnParcel.xSlotRef;
+        var payload = {};
+
+        // eslint-disable-next-line camelcase
+        payload.ad_slot = [];
+
         // Get the dimensions	
-        for (var i = 0; i < xSlot.sizes.length; i++) {	
-            var size = xSlot.sizes[i];	
-            if (size.length === 2) {	
-                payload.ad_slot.push({	
-                    width: size[0],	
-                    height: size[1]	
-                });	
-            }	
-        }	
-        // eslint-disable-next-line camelcase	
-        payload.request_id = returnParcel.requestId;	
-        payload.site = {	
-            url: Browser.getPageUrl(),	
-            referrer: Browser.getReferrer(),	
-            ppid: xSlot.ppid	
-        };	
-        var baseUrl = 'https://prometheus-ix.ecdrsvc.com/prometheus/bid';	
-        return {	
-            url: baseUrl,	
-            data: payload,	
-            callbackId: callbackId,	
-            networkParamOverrides: {	
-                method: 'POST',	
-                contentType: 'application/json'	
-            }	
+        for (var i = 0; i < xSlot.sizes.length; i++) {
+            var size = xSlot.sizes[i];
+            if (size.length === 2) {
+                payload.ad_slot.push({
+                    width: size[0],
+                    height: size[1]
+                });
+            }
+        }
+
+        // eslint-disable-next-line camelcase
+        payload.request_id = returnParcel.requestId;
+        payload.site = {
+            url: Browser.getPageUrl(),
+            referrer: Browser.getReferrer(),
+            ppid: xSlot.ppid
+        };
+
+        var baseUrl = 'https://prometheus-ix.ecdrsvc.com/prometheus/bid';
+
+        return {
+            url: baseUrl,
+            data: payload,
+            callbackId: callbackId,
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'application/json'
+            }
         };
     }
-
 
     /**
      * This function will render the pixel given.
@@ -238,10 +240,6 @@ function EcdrsvcHtb(configs) {
         }
     }
 
-    /* =====================================
-     * Constructors
-     * ---------------------------------- */
-
     (function __constructor() {
         RenderService = SpaceCamp.services.RenderService;
 
@@ -276,7 +274,7 @@ function EcdrsvcHtb(configs) {
             /* The bid price unit (in cents) the endpoint returns, please refer to the readme for details */
             bidUnitInCents: 100,
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
-            callbackType: Partner.CallbackTypes.None,
+            callbackType: Partner.CallbackTypes.NONE,
             architecture: Partner.Architectures.MRA,
             requestType: Partner.RequestTypes.AJAX
         };
@@ -295,10 +293,6 @@ function EcdrsvcHtb(configs) {
         });
     })();
 
-    /* =====================================
-     * Public Interface
-     * ---------------------------------- */
-
     var derivedClass = {
 
         //? if (DEBUG) {
@@ -309,11 +303,9 @@ function EcdrsvcHtb(configs) {
         __baseClass: __baseClass,
         //? }
 
-
         //? if (TEST) {
         profile: __profile,
         //? }
-
 
         //? if (TEST) {
         parseResponse: __parseResponse,
