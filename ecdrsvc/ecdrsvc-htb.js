@@ -1,9 +1,5 @@
 'use strict';
 
-////////////////////////////////////////////////////////////////////////////////
-// Dependencies ////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 var Browser = require('browser.js');
 var Classify = require('classify.js');
 var Constants = require('constants.js');
@@ -22,22 +18,12 @@ var Scribe = require('scribe.js');
 var Whoopsie = require('whoopsie.js');
 //? }
 
-////////////////////////////////////////////////////////////////////////////////
-// Main ////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Partner module template
  *
  * @class
  */
 function EcdrsvcHtb(configs) {
-    /* =====================================
-     * Data
-     * ---------------------------------- */
-
-    /* Private
-     * ---------------------------------- */
 
     /**
      * Reference to the partner base class.
@@ -100,12 +86,6 @@ function EcdrsvcHtb(configs) {
         };
     }
 
-
-    /* =============================================================================
-     * STEP 5  | Rendering Pixel
-     * -----------------------------------------------------------------------------
-     *
-    */
 
     /**
      * This function will render the pixel given.
@@ -187,8 +167,6 @@ function EcdrsvcHtb(configs) {
             */
             var pixelUrl = '';
 
-            /* --------------------------------------------------------------------------------------- */
-
             curBid = null;
             if (bidIsPass) {
                 //? if (DEBUG) {
@@ -267,14 +245,6 @@ function EcdrsvcHtb(configs) {
     (function __constructor() {
         RenderService = SpaceCamp.services.RenderService;
 
-        /* =============================================================================
-         * STEP 1  | Partner Configuration
-         * -----------------------------------------------------------------------------
-         *
-         * Please fill out the below partner profile according to the steps in the README doc.
-         */
-
-        /* ---------- Please fill out this partner profile according to your module ------------ */
         __profile = {
             partnerId: 'EcdrsvcHtb',
             namespace: 'EcdrsvcHtb',
@@ -311,8 +281,6 @@ function EcdrsvcHtb(configs) {
             requestType: Partner.RequestTypes.AJAX
         };
 
-        /* --------------------------------------------------------------------------------------- */
-
         //? if (DEBUG) {
         var results = ConfigValidators.partnerBaseConfig(configs) || PartnerSpecificValidator(configs);
 
@@ -332,8 +300,6 @@ function EcdrsvcHtb(configs) {
      * ---------------------------------- */
 
     var derivedClass = {
-        /* Class Information
-         * ---------------------------------- */
 
         //? if (DEBUG) {
         __type__: 'EcdrsvcHtb',
@@ -343,15 +309,11 @@ function EcdrsvcHtb(configs) {
         __baseClass: __baseClass,
         //? }
 
-        /* Data
-         * ---------------------------------- */
 
         //? if (TEST) {
         profile: __profile,
         //? }
 
-        /* Functions
-         * ---------------------------------- */
 
         //? if (TEST) {
         parseResponse: __parseResponse,
@@ -361,9 +323,5 @@ function EcdrsvcHtb(configs) {
 
     return Classify.derive(__baseClass, derivedClass);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Exports /////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 module.exports = EcdrsvcHtb;
