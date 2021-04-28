@@ -57,7 +57,7 @@ function EcdrsvcHtb(configs) {
         // eslint-disable-next-line camelcase
         payload.ad_slot = [];
 
-        // Get the dimensions	
+        // Get the dimensions
         for (var i = 0; i < xSlot.sizes.length; i++) {
             var size = xSlot.sizes[i];
             if (size.length === 2) {
@@ -132,6 +132,7 @@ function EcdrsvcHtb(configs) {
                 for (var i = 0; i < bids.length; i++) {
                     curBid = bids[i];
                     bids.splice(i, 1);
+
                     break;
                 }
             }
@@ -142,6 +143,7 @@ function EcdrsvcHtb(configs) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
                 }
                 curReturnParcel.pass = true;
+
                 continue;
             }
 
