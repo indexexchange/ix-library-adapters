@@ -75,7 +75,7 @@ function AppNexusNetworkHtb(configs) {
      */
     var __baseUrl;
 
-    var __version = '2.5.0';
+    var __version = '2.5.1';
 
     /* =====================================
      * Functions
@@ -124,7 +124,6 @@ function AppNexusNetworkHtb(configs) {
         };
 
         /* eslint-disable camelcase */
-        queryObj.hb_source = 2;
         queryObj.referrer_detection = {
             rd_ifs: null,
             rd_ref: encodeURIComponent(Browser.getPageUrl()),
@@ -151,6 +150,7 @@ function AppNexusNetworkHtb(configs) {
                 ad_types: ['banner'],
                 allow_smaller_sizes: allowSmallerSizes,
                 disable_psa: true,
+                hb_source: 2,
                 id: numPlacementId,
                 prebid: true,
                 primary_size: objSizes[0],
