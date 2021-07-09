@@ -19,18 +19,29 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
  * schema-insepctor to perform the validation. Information about it can be found here:
  * https://atinux.fr/schema-inspector/.
  */
+
+var VALID_REGIONS = [
+    'eu',
+    'us',
+    'na',
+    'asia'
+];
+
 function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
-            siteId: {
+            region: {
                 type: 'string',
-                pattern: /^[a-zA-Z0-9_-]{22}$/
+                exec: function (schema, region) {
+                    if (VALID_REGIONS.indexOf(region) === -1) {
+                        this.report('Region must be one of the predefined values: ' + VALID_REGIONS);
+                    }
+                }
             },
-            test: {
-                type: 'number',
-                optional: true,
-                eq: [0, 1]
+            networkId: {
+                type: 'string',
+                minLength: 1
             },
             xSlots: {
                 type: 'object',
@@ -38,25 +49,19 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            productId: {
+                            placementId: {
                                 type: 'string',
-                                eq: ['siab', 'inview']
+                                minLength: 1
                             },
-                            sizes: {
-                                type: 'array',
-                                minLength: 1,
-                                items: {
-                                    type: 'array',
-                                    exactLength: 2,
-                                    items: {
-                                        type: 'integer'
-                                    }
-                                }
-                            },
-                            bidfloor: {
-                                type: 'number',
+                            sizeId: {
                                 optional: true,
-                                gte: 0
+                                type: 'string',
+                                minLength: 1
+                            },
+                            pageId: {
+                                optional: true,
+                                type: 'string',
+                                minLength: 1
                             }
                         }
                     }

@@ -24,13 +24,7 @@ function partnerValidator(configs) {
         type: 'object',
         properties: {
             siteId: {
-                type: 'string',
-                pattern: /^[a-zA-Z0-9_-]{22}$/
-            },
-            test: {
-                type: 'number',
-                optional: true,
-                eq: [0, 1]
+                type: 'number'
             },
             xSlots: {
                 type: 'object',
@@ -38,10 +32,6 @@ function partnerValidator(configs) {
                     '*': {
                         type: 'object',
                         properties: {
-                            productId: {
-                                type: 'string',
-                                eq: ['siab', 'inview']
-                            },
                             sizes: {
                                 type: 'array',
                                 minLength: 1,
@@ -49,14 +39,10 @@ function partnerValidator(configs) {
                                     type: 'array',
                                     exactLength: 2,
                                     items: {
-                                        type: 'integer'
+                                        type: 'integer',
+                                        gte: 0
                                     }
                                 }
-                            },
-                            bidfloor: {
-                                type: 'number',
-                                optional: true,
-                                gte: 0
                             }
                         }
                     }

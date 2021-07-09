@@ -10,6 +10,14 @@
  * prior written permission of Index Exchange.
  */
 
+/**
+ * This file contains the necessary validation for the partner configuration.
+ * This validation will be performed on the partner specific configuration object
+ * that is passed into the wrapper. The wrapper uses an outside library called
+ * schema-insepctor to perform the validation. Information about it can be found here:
+ * https://atinux.fr/schema-inspector/.
+ */
+
 'use strict';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +25,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var Inspector = require('../../../libs/external/schema-inspector.js');
+
+// Var Inspector = require('schema-inspector');
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main ////////////////////////////////////////////////////////////////////////
@@ -26,6 +36,10 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            siteId: {
+                type: 'string',
+                minLength: 1
+            },
             xSlots: {
                 type: 'object',
                 properties: {
@@ -34,11 +48,11 @@ function partnerValidator(configs) {
                         properties: {
                             placementId: {
                                 type: 'string',
-                                minLength: 1
+                                minLength: 1,
+                                optional: true
                             },
                             sizes: {
                                 type: 'array',
-                                minLength: 1,
                                 items: {
                                     type: 'array',
                                     exactLength: 2,
@@ -47,25 +61,12 @@ function partnerValidator(configs) {
                                     }
                                 }
                             },
-                            keywords: {
-                                type: 'object',
-                                optional: true,
-                                properties: {
-                                    '*': {
-                                        type: 'array',
-                                        minLength: 1,
-                                        items: {
-                                            type: 'string'
-                                        }
-                                    }
-                                }
-                            },
-                            usePaymentRule: {
-                                type: 'boolean',
+                            bidfloor: {
+                                type: 'number',
                                 optional: true
                             },
-                            allowSmallerSizes: {
-                                type: 'boolean',
+                            position: {
+                                type: 'integer',
                                 optional: true
                             }
                         }
@@ -73,7 +74,14 @@ function partnerValidator(configs) {
                 }
             },
             mapping: {
-                type: 'object'
+                type: 'object',
+                properties: {
+                    '*': {
+                        type: 'array',
+                        items: { type: 'string' },
+                        minLength: 1
+                    }
+                }
             }
         }
     }, configs);
