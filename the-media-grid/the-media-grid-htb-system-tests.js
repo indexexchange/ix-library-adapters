@@ -31,19 +31,23 @@ function getConfig() {
                 sizes: [[300, 250]],
                 keywords: {
                     site: {
-                        "pub1": [{
-                            "name": "Pub name 1",
-                            "section1": ["pub1_sec1_key1", "pub1_sec1_key2"],
-                            "section2": ["pub1_sec2_key1"]
-                        }],
-                        "pub2": [{
-                            "name": "Pub name 2",
-                            "section_1": [
-                                "pub2_key1",
-                                "pub2_key2",
-                                "pub2_key3"
-                            ]
-                        }]
+                        pub1: [
+                            {
+                                name: 'Pub name 1',
+                                section1: ['pub1_sec1_key1', 'pub1_sec1_key2'],
+                                section2: ['pub1_sec2_key1']
+                            }
+                        ],
+                        pub2: [
+                            {
+                                name: 'Pub name 2',
+                                section_1: [
+                                    'pub2_key1',
+                                    'pub2_key2',
+                                    'pub2_key3'
+                                ]
+                            }
+                        ]
                     }
                 }
             },
@@ -93,8 +97,8 @@ function validateBidRequest(request) {
     expect(keywords.site.pub1[0].section2.toString()).toEqual('pub1_sec2_key1');
     expect(keywords.site.pub2).toBeDefined();
     expect(keywords.site.pub2[0].name).toEqual('Pub name 2');
-    expect(keywords.site.pub2[0]['section_1']).toBeDefined();
-    expect(keywords.site.pub2[0]['section_1'].toString()).toEqual('pub2_key1,pub2_key2,pub2_key3');
+    expect(keywords.site.pub2[0].section_1).toBeDefined();
+    expect(keywords.site.pub2[0].section_1.toString()).toEqual('pub2_key1,pub2_key2,pub2_key3');
 
     expect(body.imp[1].bidfloor).toEqual(0.01);
 
