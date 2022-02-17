@@ -1,3 +1,5 @@
+# 1.2.1
+- Added schain support
 
 # 1.2.0
 - Added USP module support that sends the consent information to Undertone API

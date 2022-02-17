@@ -74,7 +74,7 @@ function UndertoneHtb(configs) {
     /* Utilities
      * ---------------------------------- */
     var publisherId = configs.publisherId;
-    var adapterVersion = '1.2.0';
+    var adapterVersion = '1.2.1';
 
     function getPublisherId() {
         return publisherId;
@@ -205,12 +205,16 @@ function UndertoneHtb(configs) {
             });
         }
 
+        var commons = {
+            adapterVersion: adapterVersion,
+            uids: returnParcels[0].identityData
+        };
+        if (configs.schain && configs.schain.nodes) {
+            commons.schain = configs.schain;
+        }
         var queryObj = {
             'x-ut-hb-params': bidsArray,
-            commons: {
-                adapterVersion: adapterVersion,
-                uids: returnParcels[0].identityData
-            }
+            commons: commons
         };
 
         /* ------------------------ Get consent information -------------------------
