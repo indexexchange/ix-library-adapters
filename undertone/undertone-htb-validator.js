@@ -39,6 +39,12 @@ function partnerValidator(configs) {
                 optional: true,
                 type: 'object',
                 properties: {
+                    ver: {
+                        type: 'string'
+                    },
+                    complete: {
+                        type: 'integer'
+                    },
                     nodes: {
                         type: 'array'
                     }
