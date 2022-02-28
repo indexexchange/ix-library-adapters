@@ -40,7 +40,7 @@ function partnerValidator(configs) {
                 type: 'object',
                 properties: {
                     nodes: {
-                        type: 'object'
+                        type: 'array'
                     }
                 }
             },
