@@ -35,6 +35,47 @@ function partnerValidator(configs) {
     var result = Inspector.validate({
         type: 'object',
         properties: {
+            schain: {
+                optional: true,
+                type: 'object',
+                properties: {
+                    ver: {
+                        type: 'string'
+                    },
+                    complete: {
+                        type: 'integer'
+                    },
+                    nodes: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                asi: {
+                                    type: 'string'
+                                },
+                                sid: {
+                                    type: 'string'
+                                },
+                                rid: {
+                                    type: 'string',
+                                    optional: true
+                                },
+                                hp: {
+                                    type: 'integer'
+                                },
+                                name: {
+                                    type: 'string',
+                                    optional: true
+                                },
+                                domain: {
+                                    type: 'string',
+                                    optional: true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             publisherId: {
                 type: 'string',
                 items: { pattern: /^[\d]+$/ }
