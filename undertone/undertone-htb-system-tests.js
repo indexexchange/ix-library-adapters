@@ -1,5 +1,28 @@
 'use strict';
 
+var schainSample = {
+    ver: '1.0',
+    complete: 1,
+    nodes: [
+        {
+            asi: 'asi-sample.com',
+            sid: '232331',
+            hp: 1,
+            rid: '164608_ut',
+            name: 'DOMAIN NAME',
+            domain: 'domainname.cc'
+        },
+        {
+            asi: 'asi-sample-2.com',
+            sid: '232332',
+            hp: 0,
+            rid: '164602_ut',
+            name: 'DOMAIN NAME-2',
+            domain: 'domainnamev2.cc'
+        }
+    ]
+};
+
 function getPartnerId() {
     return 'UndertoneHtb';
 }
@@ -28,28 +51,7 @@ function getConfig() {
                 sizes: [[300, 600]]
             }
         },
-        schain: {
-            ver: '1.0',
-            complete: 1,
-            nodes: [
-                {
-                    asi: 'asi-sample.com',
-                    sid: '232331',
-                    hp: 1,
-                    rid: '164608_ut',
-                    name: 'DOMAIN NAME',
-                    domain: 'domainname.cc'
-                },
-                {
-                    asi: 'asi-sample-2.com',
-                    sid: '232332',
-                    hp: 0,
-                    rid: '164602_ut',
-                    name: 'DOMAIN NAME-2',
-                    domain: 'domainnamev2.cc'
-                }
-            ]
-        }
+        schain: schainSample
     };
 }
 
@@ -63,6 +65,7 @@ function getBidRequestRegex() {
 function validateBidRequest(request) {
     expect(request.query.pid).toBe('12345');
     expect(request.query.domain).toBeDefined();
+    expect(request.query.schain).toEqual(jasmine.objectContaining(schainSample));
 }
 
 function getValidResponse(request, creative) {
