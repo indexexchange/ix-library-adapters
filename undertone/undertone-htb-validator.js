@@ -46,7 +46,33 @@ function partnerValidator(configs) {
                         type: 'integer'
                     },
                     nodes: {
-                        type: 'array'
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                asi: {
+                                    type: 'string'
+                                },
+                                sid: {
+                                    type: 'string'
+                                },
+                                rid: {
+                                    type: 'string',
+                                    optional: true
+                                },
+                                hp: {
+                                    type: 'integer'
+                                },
+                                name: {
+                                    type: 'string',
+                                    optional: true
+                                },
+                                domain: {
+                                    type: 'string',
+                                    optional: true
+                                }
+                            }
+                        }
                     }
                 }
             },
