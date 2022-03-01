@@ -65,7 +65,8 @@ function getBidRequestRegex() {
 function validateBidRequest(request) {
     expect(request.query.pid).toBe('12345');
     expect(request.query.domain).toBeDefined();
-    expect(request.query.schain).toEqual(jasmine.objectContaining(schainSample));
+    var body = JSON.parse(request.body);
+    expect(body.commons.schain).toEqual(schainSample);
 }
 
 function getValidResponse(request, creative) {
