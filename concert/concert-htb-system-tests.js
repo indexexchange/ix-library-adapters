@@ -53,7 +53,7 @@ function validateBidRequest(request) {
     expect(meta).toBeDefined();
     expect(slots).toBeDefined();
 
-    expect(meta.adapterVersion).toBe('2.0.0');
+    expect(meta.adapterVersion).toBe('2.0.1');
 
     expect(meta.pageUrl).toBeDefined();
     expect(meta.screen).toMatch(/\d+x\d+/);
@@ -92,7 +92,7 @@ function getValidResponse(request, creative) {
                 bidId: slots[0].name,
                 width: slots[0].sizes[0],
                 height: slots[0].sizes[1],
-                cpm: '200',
+                cpm: 2.0,
                 currency: 'USD',
                 netRevenue: false,
                 ttl: 360
@@ -103,7 +103,7 @@ function getValidResponse(request, creative) {
                 bidId: slots[1].name,
                 width: slots[1].sizes[0],
                 height: slots[1].sizes[1],
-                cpm: '200',
+                cpm: 2.0,
                 currency: 'USD',
                 netRevenue: false,
                 ttl: 360
