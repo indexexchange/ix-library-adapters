@@ -137,6 +137,7 @@ function JustPremiumHtb(configs) {
         queryObj.sh = Browser.getScreenHeight();
         queryObj.ww = Browser.getViewportWidth();
         queryObj.wh = Browser.getViewportHeight();
+        queryObj.referer = Browser.getPageUrl();
         queryObj.cs = gdprStatus.applies ? (gdprStatus.consentString || '1') : '0';
         queryObj.json = JSON.stringify(returnParcels.map(function (parcel) {
             return {
