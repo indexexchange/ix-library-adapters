@@ -314,6 +314,15 @@ function partnerValidator(configs) {
                         }
                     }
                 }
+            },
+            schain: {
+                optional: true,
+                type: 'object',
+                properties: {
+                    nodes: {
+                        type: 'array'
+                    }
+                }
             }
         }
     }, configs);
