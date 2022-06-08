@@ -77,6 +77,7 @@ function partnerValidator(configs) {
                             },
                             sizes: {
                                 type: 'array',
+                                optional: true,
                                 minLength: 1,
                                 items: {
                                     type: 'array',
@@ -92,6 +93,38 @@ function partnerValidator(configs) {
                                 properties: {
                                     site: keywordItem,
                                     user: keywordItem
+                                }
+                            },
+                            video: {
+                                type: 'object',
+                                optional: true,
+                                properties: {
+                                    mimes: {
+                                        type: 'array',
+                                        minLength: 1,
+                                        items: {
+                                            type: 'string'
+                                        }
+                                    },
+                                    minduration: {
+                                        type: 'number',
+                                    },
+                                    maxduration: {
+                                        type: 'number',
+                                    },
+                                    protocols: {
+                                        type: 'array',
+                                        minLength: 1,
+                                        items: {
+                                            type: 'number'
+                                        }
+                                    },
+                                    w: {
+                                        type: 'number'
+                                    },
+                                    h: {
+                                        type: 'number'
+                                    }
                                 }
                             }
                         }
