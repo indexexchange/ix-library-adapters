@@ -125,25 +125,28 @@ function ConversantHtb(configs) {
      */
 
     function __getImps(returnParcels) {
-        var conversantImps = [];
         var secure = Browser.getProtocol()
             .search(/^https:/i) >= 0 ? 1 : 0;
 
         // Each parcel is a unique combination of a htSlot and xSlot.
         // Since Conversant bid requests do not require unique placement ids,
-        // RequestIds are used instead.
+        // Generate a new id and save it to be matched up in the response
 
-        for (var i = 0; i < returnParcels.length; ++i) {
-            var parcel = returnParcels[i];
+        return returnParcels.map(function (parcel) {
             var xSlot = parcel.xSlotRef;
             var imp = {};
-            var banner = {};
-
-            imp.id = parcel.requestId;
+            imp.id = System.generateUniqueId();
+            xSlot.id = imp.id;
             imp.secure = secure;
             imp.displaymanager = '40834-index-client';
             imp.displaymanagerver = __profile.version;
-
+            imp.banner = {};
+            imp.banner.format = xSlot.sizes.map(function (size) {
+                return {
+                    w: size[0],
+                    h: size[1]
+                };
+            });
             if (xSlot.hasOwnProperty('bidfloor')) {
                 imp.bidfloor = xSlot.bidfloor;
             }
@@ -152,27 +155,12 @@ function ConversantHtb(configs) {
                 imp.tagid = xSlot.placementId;
             }
 
-            var format = [];
-            for (var sizeIdx = 0; sizeIdx < xSlot.sizes.length; ++sizeIdx) {
-                var size = xSlot.sizes[sizeIdx];
-                format.push({
-                    w: size[0],
-                    h: size[1]
-                });
-            }
-
-            banner.format = format;
-
             if (xSlot.hasOwnProperty('position')) {
-                banner.pos = xSlot.position;
+                imp.banner.pos = xSlot.position;
             }
 
-            imp.banner = banner;
-
-            conversantImps.push(imp);
-        }
-
-        return conversantImps;
+            return imp;
+        });
     }
 
     /**
@@ -441,7 +429,7 @@ function ConversantHtb(configs) {
                  */
 
                 /* -------- Fill this out to find a matching bid for the current parcel --------- */
-                if (curReturnParcel.requestId === bids[i].impid) {
+                if (curReturnParcel.xSlotRef.id === bids[i].impid) {
                     curBid = bids[i];
                     bids.splice(i, 1);
 
