@@ -78,6 +78,68 @@ function TrustXHtb(configs) {
      * Functions
      * ---------------------------------- */
 
+    function __pubItemProcessing(formatedPublisher, pubItem) {
+        if (typeof pubItem === 'object' && pubItem.name) {
+            var formatedPubItem = {
+                name: pubItem.name,
+                segments: []
+            };
+            Object.keys(pubItem)
+                .forEach(function (key) {
+                    if (Utilities.isArray(pubItem[key])) {
+                        pubItem[key]
+                            .forEach(function (keyword) {
+                                if (keyword) {
+                                    if (typeof keyword === 'string') {
+                                        formatedPubItem.segments.push({
+                                            name: key,
+                                            value: keyword
+                                        });
+                                    } else if (
+                                        key === 'segments'
+                                        && typeof keyword.name === 'string'
+                                        && typeof keyword.value === 'string'
+                                    ) {
+                                        formatedPubItem.segments.push(keyword);
+                                    }
+                                }
+                            });
+                    }
+                });
+            if (formatedPubItem.segments.length) {
+                formatedPublisher.push(formatedPubItem);
+            }
+        }
+    }
+
+    function __reformatKeywords(pageKeywords) {
+        var formatedPageKeywords = {};
+        Object.keys(pageKeywords)
+            .forEach(function (key) {
+                var keywords = pageKeywords[key];
+                if (keywords) {
+                    if (key === 'site' || key === 'user') {
+                        var formatedKeywords = {};
+                        Object.keys(keywords)
+                            .forEach(function (pubName) {
+                                if (Utilities.isArray(keywords[pubName])) {
+                                    var formatedPublisher = [];
+                                    keywords[pubName].forEach(__pubItemProcessing.bind(null, formatedPublisher));
+                                    if (formatedPublisher.length) {
+                                        formatedKeywords[pubName] = formatedPublisher;
+                                    }
+                                }
+                            });
+                        formatedPageKeywords[key] = formatedKeywords;
+                    } else {
+                        formatedPageKeywords[key] = keywords;
+                    }
+                }
+            });
+
+        return Object.keys(formatedPageKeywords).length && formatedPageKeywords;
+    }
+
     /* Utilities
      * ---------------------------------- */
 
@@ -90,18 +152,10 @@ function TrustXHtb(configs) {
      *                          from the server
      * @returns {any} the bid that belongs to the parcel if found
      */
-    function __getMatchingBid(parcel, bidResponse) {
-        if (!bidResponse.hasOwnProperty('seatbid')) {
-            return null;
-        }
-
-        for (var h = 0; h < bidResponse.seatbid.length; h++) {
-            var bids = bidResponse.seatbid[h].bid;
-
-            for (var i = 0; i < bids.length; i++) {
-                if (parcel.xSlotRef.adSlotId === String(bids[i].auid)) {
-                    return bids[i];
-                }
+    function __getMatchingBid(parcel, bids) {
+        for (var i = 0; i < bids.length; i++) {
+            if (parcel.requestId.toString() === bids[i].impid) {
+                return bids.splice(i, 1)[0];
             }
         }
 
@@ -117,8 +171,7 @@ function TrustXHtb(configs) {
      * @return {object}
      */
     function __generateRequestObj(returnParcels) {
-        var queryObj = {};
-        var callbackId = '_' + System.generateUniqueId();
+        var callbackId = System.generateUniqueId();
 
         /* =============================================================================
          * STEP 2  | Generate Request URL
@@ -177,6 +230,106 @@ function TrustXHtb(configs) {
          * }
          */
 
+        var pageUrl = Browser.getPageUrl();
+        var source = {
+            tid: System.generateUniqueId(),
+            ext: {
+                wrapper: 'IX_js',
+                // eslint-disable-next-line camelcase
+                wrapper_version: SpaceCamp.version
+            }
+        };
+
+        var pageKeywords;
+        var imps = returnParcels.map(function (parcel) {
+            var xSlot = parcel.xSlotRef;
+            var impObj = {
+                id: parcel.requestId.toString(),
+                tagid: xSlot.adSlotId.toString()
+            };
+            if (parcel.ref) {
+                var impExt;
+                if (parcel.ref.getSlotElementId) {
+                    var divid = parcel.ref.getSlotElementId();
+                    if (divid) {
+                        impExt = impExt || {};
+                        impExt.divid = divid.toString();
+                    }
+                }
+
+                if (parcel.ref.getAdUnitPath) {
+                    var gpid = parcel.ref.getAdUnitPath();
+                    if (gpid) {
+                        impExt = impExt || {};
+                        impExt.gpid = gpid.toString();
+                        impExt.data = {
+                            adserver: {
+                                name: 'gam',
+                                adslot: gpid
+                            },
+                            pbadslot: gpid
+                        };
+                    }
+                }
+
+                if (impExt) {
+                    impObj.ext = impExt;
+                }
+            }
+
+            if (xSlot.keywords) {
+                if (!pageKeywords) {
+                    pageKeywords = xSlot.keywords;
+                }
+                impObj.ext.bidder = { keywords: xSlot.keywords };
+            }
+
+            if (xSlot.bidFloor) {
+                impObj.bidfloor = xSlot.bidFloor;
+            }
+
+            var format = [];
+            var banner = {};
+            for (var sizeIdx = 0; sizeIdx < xSlot.sizes.length; ++sizeIdx) {
+                var size = xSlot.sizes[sizeIdx];
+                format.push({
+                    w: size[0],
+                    h: size[1]
+                });
+            }
+
+            if (format[0]) {
+                banner.w = format[0].w;
+                banner.h = format[0].h;
+                banner.format = format;
+            }
+            impObj.banner = banner;
+
+            return impObj;
+        });
+
+        var queryObj = {
+            id: callbackId.toString(),
+            site: {
+                page: encodeURIComponent(pageUrl)
+            },
+            source: source,
+            imp: imps
+        };
+
+        if (SpaceCamp.globalTimeout) {
+            queryObj.tmax = SpaceCamp.globalTimeout;
+        }
+
+        if (pageKeywords) {
+            pageKeywords = __reformatKeywords(pageKeywords);
+            if (pageKeywords) {
+                queryObj.ext = {
+                    keywords: pageKeywords
+                };
+            }
+        }
+
         /* ------------------------ Get consent information -------------------------
          * If you want to implement GDPR consent in your adapter, use the function
          * ComplianceService.gdpr.getConsent() which will return an object.
@@ -193,50 +346,50 @@ function TrustXHtb(configs) {
          *      consentString: "BOQ7WlgOQ7WlgABABwAAABJOACgACAAQABA"
          * }
          */
-        var gdprStatus = ComplianceService.gdpr.getConsent();
+        var gdprConsent = ComplianceService.gdpr.getConsent();
         var privacyEnabled = ComplianceService.isPrivacyEnabled();
         var uspConsentObj = ComplianceService.usp && ComplianceService.usp.getConsent();
 
         /* ---------------- Craft bid request using the above returnParcels --------- */
-        var adSlotIds = [];
-
-        for (var i = 0; i < returnParcels.length; i++) {
-            adSlotIds.push(returnParcels[i].xSlotRef.adSlotId);
-        }
-
-        queryObj.auids = adSlotIds.join(',');
-        queryObj.u = Browser.getPageUrl();
-        queryObj.pt = 'net';
-        queryObj.cb
-            = 'window.' + SpaceCamp.NAMESPACE + '.' + __profile.namespace + '.adResponseCallbacks.' + callbackId;
 
         /* ------- Put GDPR consent code here if you are implementing GDPR ---------- */
 
         if (privacyEnabled) {
-            if (gdprStatus) {
-                if (gdprStatus.consentString) {
-                    queryObj.gdpr_consent = gdprStatus.consentString; // eslint-disable-line camelcase
+            if (gdprConsent) {
+                queryObj.user = {
+                    ext: {
+                        consent: gdprConsent.consentString
+                    }
+                };
+
+                if (gdprConsent) {
+                    queryObj.regs = {
+                        ext: {
+                            gdpr: gdprConsent.applies ? 1 : 0
+                        }
+                    };
                 }
-                // eslint-disable-next-line camelcase
-                queryObj.gdpr_applies
-                    = Utilities.isBoolean(gdprStatus.applies) ? Number(gdprStatus.applies) : 1;
             }
 
             if (uspConsentObj) {
-                queryObj.us_privacy = uspConsentObj.uspString; // eslint-disable-line camelcase
+                if (!queryObj.regs) {
+                    queryObj.regs = { ext: {} };
+                }
+                // eslint-disable-next-line camelcase
+                queryObj.regs.ext.us_privacy = uspConsentObj;
             }
         }
 
         /* -------------------------------------------------------------------------- */
 
-        if (SpaceCamp.globalTimeout) {
-            queryObj.wtimeout = SpaceCamp.globalTimeout;
-        }
-
         return {
             url: __baseUrl,
             data: queryObj,
-            callbackId: callbackId
+            networkParamOverrides: {
+                method: 'POST',
+                contentType: 'text/plain',
+                withCredentials: true
+            }
         };
     }
 
@@ -297,12 +450,21 @@ function TrustXHtb(configs) {
 
         /* ---------- Process adResponse and extract the bids into the bids array ------------ */
 
+        var bids = [];
+        if (adResponse.seatbid && adResponse.seatbid.length) {
+            adResponse.seatbid.forEach(function (seatbid) {
+                if (seatbid.bid && seatbid.bid.length) {
+                    bids = bids.concat(seatbid.bid);
+                }
+            });
+        }
+
+        /* --------------------------------------------------------------------------------- */
+
         for (var j = 0; j < returnParcels.length; j++) {
             var curReturnParcel = returnParcels[j];
 
-            /* Find a matching bid for the parcel */
-            var curBid = __getMatchingBid(curReturnParcel, adResponse);
-
+            var curBid = __getMatchingBid(curReturnParcel, bids);
             var headerStatsInfo = {};
             var htSlotId = curReturnParcel.htSlot.getId();
             headerStatsInfo[htSlotId] = {};
@@ -351,7 +513,7 @@ function TrustXHtb(configs) {
 
             if (bidIsPass) {
                 //? if (DEBUG) {
-                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + curBid.auid + ' }.');
+                Scribe.info(__profile.partnerId + ' returned pass for { id: ' + adResponse.id + ' }.');
                 //? }
                 if (__profile.enabledAnalytics.requestTime) {
                     __baseClass._emitStatsEvent(sessionId, 'hs_slot_pass', headerStatsInfo);
@@ -387,6 +549,9 @@ function TrustXHtb(configs) {
 
             //? if (FEATURES.RETURN_CREATIVE) {
             curReturnParcel.adm = bidCreative;
+            if (pixelUrl) {
+                curReturnParcel.winNotice = __renderPixel.bind(null, pixelUrl);
+            }
             //? }
 
             //? if (FEATURES.RETURN_PRICE) {
@@ -436,7 +601,7 @@ function TrustXHtb(configs) {
             // Should be same as partnerName
             namespace: 'TrustXHtb',
             statsId: 'TRSTX',
-            version: '2.3.0',
+            version: '2.4.0',
             targetingType: 'slot',
             enabledAnalytics: {
                 requestTime: true
@@ -463,13 +628,13 @@ function TrustXHtb(configs) {
             lineItemType: Constants.LineItemTypes.ID_AND_SIZE,
 
             // Callback type, please refer to the readme for details
-            callbackType: Partner.CallbackTypes.CALLBACK_NAME,
+            callbackType: Partner.CallbackTypes.NONE,
 
             // Request architecture, please refer to the readme for details
             architecture: Partner.Architectures.SRA,
 
             // Request type, jsonp, ajax, or any.
-            requestType: Partner.RequestTypes.ANY
+            requestType: Partner.RequestTypes.AJAX
         };
 
         /* --------------------------------------------------------------------------------------- */
@@ -482,7 +647,7 @@ function TrustXHtb(configs) {
         }
         //? }
 
-        __baseUrl = Browser.getProtocol() + '//sofia.trustx.org/hb';
+        __baseUrl = Browser.getProtocol() + '//grid.bidswitch.net/hbjson?sp=trustx';
 
         __baseClass = Partner(__profile, configs, null, {
             parseResponse: __parseResponse,

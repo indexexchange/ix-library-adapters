@@ -31,6 +31,44 @@ var Inspector = require('../../../libs/external/schema-inspector.js');
 ////////////////////////////////////////////////////////////////////////////////
 
 function partnerValidator(configs) {
+    var keywordItem = {
+        type: 'object',
+        optional: true,
+        properties: {
+            '*': {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        '*': {
+                            type: 'array',
+                            items: {
+                                type: 'string'
+                            }
+                        },
+                        name: {
+                            type: 'string'
+                        },
+                        segments: {
+                            type: 'array',
+                            optional: true,
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    name: {
+                                        type: 'string'
+                                    },
+                                    value: {
+                                        type: 'string'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
     var result = Inspector.validate({
         type: 'object',
         properties: {
@@ -43,6 +81,29 @@ function partnerValidator(configs) {
                             adSlotId: {
                                 type: 'string',
                                 minLength: 1
+                            },
+                            bidFloor: {
+                                type: 'number',
+                                optional: true
+                            },
+                            sizes: {
+                                type: 'array',
+                                minLength: 1,
+                                items: {
+                                    type: 'array',
+                                    exactLength: 2,
+                                    items: {
+                                        type: 'integer'
+                                    }
+                                }
+                            },
+                            keywords: {
+                                type: 'object',
+                                optional: true,
+                                properties: {
+                                    site: keywordItem,
+                                    user: keywordItem
+                                }
                             }
                         }
                     }
