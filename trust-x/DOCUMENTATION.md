@@ -31,26 +31,22 @@
 | Bid Type (Gross / Net) | Net |
 | GAM Key (Open Market) | ix_trstx_cpm |
 | GAM Key (Private Market) | ix_trstx_cpm |
-| Ad Server URLs | http(s)://sofia.trustx.org/hb |
+| Ad Server URLs | http(s)://grid.bidswitch.net/hbjson?sp=trustx |
 | Slot Mapping Sytle (Size / Multiple Sizes / Slot) | Slot |
 | Request Architecture (MRA / SRA) | SRA |
- 
+
+## Currencies Supported
+USD
+
 ## Bid Request Information
 ### Parameters
 | Key | Required | Type | Description |
 |---|---|---|---|
-| auids | Yes | string | Comma separated adslot IDs  |
-| u | No | string | Site page adslots are on |
-| pt | No | string | Represents the price type |
-| cb | No | string | JavaScript function to wrap response with, if empty or absent pure JSON will be returned |
-| wtimeout | No | number | Represents wrapper timeout value in milliseconds. Is obtained via wrapper API on page and wrapper load |
-| gdpr_consent | No | string | Shows whether GDPR regulations should apply to the user or not |
-| gdpr_applies | No | string | Shows whether the user has given its consent based on IAB consent policy |
-| us_privacy | No | string | The USP consent string, specifies whether US privacy laws (e.g. CCPA) apply or don't apply to the user in the bid request |
- 
+| | | | |
+
 ### Example
 ```javascript
- https://sofia.trustx.org/hb?auids=44%2C9045&u=http%3A%2F%2Flocalhost%3A5837%2Fpublic%2Fdebugger%2Fadapter-debugger.html&cb=window.headertag.TrustXHtb.adResponseCallbacks._0RXiEn86&gdpr_consent=TEST_GDPR_CONSENT_STRING&gdpr_applies=1&us_privacy=1YYN&wtimeout=5000
+
 ```
  
 ## Bid Response Information
@@ -67,7 +63,10 @@
 ### Configuration Keys
 | Key | Required | Type | Description |
 |---|---|---|---|
-| auid | Yes | string | The publisher's ad unit ID in YocHtb adapter |
+| adSlotId | Yes | string | The publisher's ad unit ID in TrustX adapter |
+| sizes | Yes | Array of 2 element arrays | List of ad sizes |
+| bidFloor | No | Number | Floor of the impression opportunity. If present in the request overrides XML info |
+| keywords | No | String | Keywords object |
 ### Example
 ```javascript
  {

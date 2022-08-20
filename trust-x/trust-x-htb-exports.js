@@ -11,8 +11,3 @@ shellInterface.TrustXHtb = {
     render: SpaceCamp.services.RenderService.renderDfpAd.bind(null, 'TrustXHtb')
 };
 //? }
-
-if (__directInterface.Layers.PartnersLayer.Partners.TrustXHtb) {
-    shellInterface.TrustXHtb = shellInterface.TrustXHtb || {};
-    shellInterface.TrustXHtb.adResponseCallbacks = __directInterface.Layers.PartnersLayer.Partners.TrustXHtb.adResponseCallbacks;
-}

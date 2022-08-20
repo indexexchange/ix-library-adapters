@@ -1,3 +1,6 @@
+# 2.4.0
+- Changed endpoint
+- Changed request format
 # 2.3.1
 - Update CCPA support
 # 2.3.0
